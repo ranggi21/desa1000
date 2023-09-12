@@ -16,7 +16,9 @@ class Review extends BaseController
     
     public function add()
     {
+        
         $request = $this->request->getPost();
+      
         $requestData = [
             'id_comment' => $this->reviewModel->get_new_id_api(),
             'comment' => $request['comment'],
@@ -24,6 +26,7 @@ class Review extends BaseController
             'rating' => $request['rating'],
             'id_user' => user()->id,
         ];
+      
         if (substr($request['object_id'], 0, 1) == 'R') {
             $requestData['id_rumah_gadang'] = $request['object_id'];
             $addReview = $this->reviewModel->add_review_api($requestData);

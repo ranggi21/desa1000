@@ -139,8 +139,14 @@ class EventModel extends Model
 
     public function get_new_id_api() {
         $lastId = $this->db->table($this->table)->select('id_event')->orderBy('id_event', 'ASC')->get()->getLastRow('array');
-        $count = (int)substr($lastId['id_event'], 1);
-        $id = sprintf('E%02d', $count + 1);
+        if($lastId !=null){
+            $count = (int)substr($lastId['id_event'], 1);
+            $id = sprintf('E%02d', $count + 1);
+
+        }else{
+            $count = 0;
+            $id = sprintf('E%02d', $count + 1);
+        }
         return $id;
     }
 

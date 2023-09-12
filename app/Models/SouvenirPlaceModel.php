@@ -88,8 +88,14 @@ class SouvenirPlaceModel extends Model
 
     public function get_new_id_api() {
         $lastId = $this->db->table($this->table)->select('id_souvenir')->orderBy('id_souvenir', 'ASC')->get()->getLastRow('array');
-        $count = (int)substr($lastId['id_souvenir'], 1);
-        $id = sprintf('S%01d', $count + 1);
+        if($lastId !=null){
+            $count = (int)substr($lastId['id_souvenir'], 1);
+            $id = sprintf('S%01d', $count + 1);
+        }else{
+            $count = 0;
+            $id = sprintf('S%01d', $count + 1);
+        }
+       
         return $id;
     }
 

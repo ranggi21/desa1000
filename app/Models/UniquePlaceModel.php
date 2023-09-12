@@ -113,8 +113,14 @@ class UniquePlaceModel extends Model
 
     public function get_new_id_api() {
         $lastId = $this->db->table($this->table)->select('id_unique_place')->orderBy('id_unique_place', 'ASC')->get()->getLastRow('array');
-        $count = (int)substr($lastId['id_unique_place'], 1);
-        $id = sprintf('U%02d', $count + 1);
+        if($lastId !=null){
+            $count = (int)substr($lastId['id_unique_place'], 1);
+            $id = sprintf('U%02d', $count + 1);
+        }else{
+            $count = 0;
+            $id = sprintf('U%02d', $count + 1);
+        }
+        
         return $id;
     }
 

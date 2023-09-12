@@ -79,8 +79,13 @@ class WorshipPlaceModel extends Model
 
     public function get_new_id_api() {
         $lastId = $this->db->table($this->table)->select('id_worship_place')->orderBy('id_worship_place', 'ASC')->get()->getLastRow('array');
-        $count = (int)substr($lastId['id_worship_place'], 1);
-        $id = sprintf('W%01d', $count + 1);
+        if($lastId !=null){
+            $count = (int)substr($lastId['id_worship_place'], 1);
+            $id = sprintf('W%01d', $count + 1);
+        }else{
+            $count = 0;
+            $id = sprintf('W%01d', $count + 1);
+        }
         return $id;
     }
 
