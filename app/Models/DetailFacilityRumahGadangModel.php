@@ -46,8 +46,15 @@ class DetailFacilityRumahGadangModel extends Model
     
     public function get_new_id_api() {
         $lastId = $this->db->table($this->table)->select('id_detail_facility_rumah_gadang')->orderBy('id_detail_facility_rumah_gadang', 'ASC')->get()->getLastRow('array');
-        $count = (int)substr($lastId['id_detail_facility_rumah_gadang'], 0);
-        $id = sprintf('%03d', $count + 1);
+        if($lastId !=null){
+            $count = (int)substr($lastId['id_detail_facility_rumah_gadang'], 0);
+            $id = sprintf('%03d', $count + 1);
+
+        }else{
+            $count = 0;
+            $id = sprintf('%03d', $count + 1);
+        }
+       
         return $id;
     }
 
