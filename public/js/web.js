@@ -1699,6 +1699,9 @@ function deleteObject(id = null, name = null, user = false) {
     } else if (id.substring(0,1) === 'U') {
         content = 'Unique Place';
         apiUri = 'uniquePlace/'
+    } else if (id.substring(0,1) === 'P') {
+        content = 'Tourism Package';
+        apiUri = 'package/'
     } else if (user === true) {
         content = 'User';
         apiUri = 'user/'

@@ -14,7 +14,7 @@ $uri3 = $uri[3] ?? '';
         <div class="sidebar-menu">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-center avatar avatar-xl me-3" id="avatar-sidebar">
-                    <img src="<?= base_url('media/photos/pesona_sumpu.png'); ?>" alt="" srcset="">
+                    <img src="<?= base_url('media/photos/pesona_saribu.png'); ?>" alt="" srcset="">
                 </div>
                 <?php if (logged_in()) : ?>
                     <div class="p-2 text-center">
@@ -34,8 +34,16 @@ $uri3 = $uri[3] ?? '';
                         </a>
                     </li>
 
+                     <!-- DASHBOARD -->
+                     <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'dashboard') ? 'active' : '' ?>">
+                            <a href="<?= base_url('dashboard/'); ?>" class="sidebar-link">
+                                <i class="bi bi-grid-fill"></i><span> Dashboard</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <!-- Manage RG -->
-                    <?php if (in_groups(['users'])) : ?>
+                    <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'rumahGadang') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/rumahGadang'); ?>" class="sidebar-link">
                                 <i class="fa-solid fa-campground"></i><span> Rumah Gadang</span>
@@ -43,29 +51,39 @@ $uri3 = $uri[3] ?? '';
                         </li>
                     <?php endif; ?>
 
-                    <!-- Manage EV -->
-                    <?php if (in_groups(['users'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'event') ? 'active' : '' ?>">
-                            <a href="<?= base_url('dashboard/event'); ?>" class="sidebar-link">
-                                <i class="fa-solid fa-bullhorn"></i><span> Event</span>
+                     <!-- Manage Facility -->
+                     <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'facility') ? 'active' : '' ?>">
+                            <a href="<?= base_url('dashboard/facility'); ?>" class="sidebar-link">
+                                <i class="fa-solid fa-house-circle-check"></i><span> Rumah Gadang Facility</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                    
+
+                    <!-- Manage Tourism Package-->
+                    <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?>">
+                            <a href="<?= base_url('dashboard/package'); ?>" class="sidebar-link">
+                                <i class="fa-solid fa-location-dot"></i><span>Tourism Package</span>
                             </a>
                         </li>
                     <?php endif; ?>
 
                     <!-- Manage UP -->
-                    <?php if (in_groups(['admin'])) : ?>
+                    <!-- <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'uniquePlace') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/uniquePlace'); ?>" class="sidebar-link">
                                 <i class="fa-solid fa-location-dot"></i><span>Unique Place</span>
                             </a>
                         </li>
-                    <?php endif; ?>
+                     <?php endif; ?> -->
 
-                    <!-- Manage Facility -->
-                    <?php if (in_groups(['admin'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'facility') ? 'active' : '' ?>">
-                            <a href="<?= base_url('dashboard/facility'); ?>" class="sidebar-link">
-                                <i class="fa-solid fa-house-circle-check"></i><span> Facility</span>
+                    <!-- Manage EV -->
+                    <?php if (in_groups(['users'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'event') ? 'active' : '' ?>">
+                            <a href="<?= base_url('dashboard/event'); ?>" class="sidebar-link">
+                                <i class="fa-solid fa-bullhorn"></i><span> Event</span>
                             </a>
                         </li>
                     <?php endif; ?>

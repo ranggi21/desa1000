@@ -4,13 +4,13 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ServiceModel extends Model
+class HomestayModels extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'service';
+    protected $table            = 'homestay';
     protected $primaryKey       = 'id';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id', 'name'];
+    protected $allowedFields    = ['id', 'id_user','name','description','url'];
 
     // Dates
     protected $useTimestamps = true;
@@ -25,18 +25,17 @@ class ServiceModel extends Model
     protected $cleanValidationRules = true;
 
 
-
  // API
- public function get_list_s_api() {
+ public function get_list_hm_api() {
     $query = $this->db->table($this->table)
-        ->select('id, name')
+        ->select('id,id_user,name,description,url')
         ->get();
     return $query;
 }
 
-public function get_s_by_id_api($id = null) {
+public function get_hm_by_id_api($id = null) {
     $query = $this->db->table($this->table)
-        ->select('id as id, facility')
+        ->select('id as id, homestay')
         ->where('id', $id)
         ->get();
     return $query;
@@ -55,29 +54,29 @@ public function get_new_id_api() {
     return $id;
 }
 
-public function add_s_api($facility = null) {
-    foreach ($facility as $key => $value) {
+public function add_hm_api($homestay = null) {
+    foreach ($homestay as $key => $value) {
         if(empty($value)) {
-            unset($facility[$key]);
+            unset($homestay[$key]);
         }
     }
-    $facility['created_at'] = Time::now();
-    $facility['updated_at'] = Time::now();
+    $homestay['created_at'] = Time::now();
+    $homestay['updated_at'] = Time::now();
     $insert = $this->db->table($this->table)
-        ->insert($facility);
+        ->insert($homestay);
     return $insert;
 }
 
-public function update_s_api($id = null, $facility = null) {
-    foreach ($facility as $key => $value) {
+public function update_hm_api($id = null, $homestay = null) {
+    foreach ($homestay as $key => $value) {
         if(empty($value)) {
-            unset($facility[$key]);
+            unset($homestay[$key]);
         }
     }
-    $facility['updated_at'] = Time::now();
+    $homestay['updated_at'] = Time::now();
     $query = $this->db->table($this->table)
         ->where('id', $id)
-        ->update($facility);
+        ->update($homestay);
     return $query;
 }
 }

@@ -14,7 +14,7 @@ $uri3 = $uri[3] ?? '';
         <div class="sidebar-menu">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-center avatar avatar-xl me-3" id="avatar-sidebar">
-                    <img src="<?= base_url('media/photos/pesona_sumpu.png'); ?>" alt="" srcset="">
+                    <img src="<?= base_url('media/photos/pesona_saribu.png'); ?>" alt="" srcset="">
                 </div>
                 <?php if (logged_in()): ?>
                     <div class="p-2 text-center">
@@ -220,10 +220,10 @@ $uri3 = $uri[3] ?? '';
                     </li>
 
 
-<!--                    Logged in Sidebar-->
+                    <!--Logged in Sidebar-->
                     <?php if (in_groups(['admin'])): ?>
                     <li class="sidebar-item">
-                        <a href="<?= base_url('dashboard/rumahGadang'); ?>" class="sidebar-link">
+                        <a href="<?= base_url('dashboard/'); ?>" class="sidebar-link">
                             <i class="bi bi-grid-fill"></i><span>Dashboard</span>
                         </a>
                     </li>

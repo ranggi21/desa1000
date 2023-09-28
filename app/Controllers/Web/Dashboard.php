@@ -7,11 +7,13 @@ use App\Models\AccountModel;
 use App\Models\EventModel;
 use App\Models\FacilityRumahGadangModel;
 use App\Models\RumahGadangModel;
+use App\Models\PackageModel;
 use App\Models\UniquePlaceModel;
 
 class Dashboard extends BaseController
 {
     protected $rumahGadangModel;
+    protected $packageModel;
     protected $eventModel;
     protected $facilityModel;
     protected $accountModel;
@@ -21,6 +23,7 @@ class Dashboard extends BaseController
     public function __construct()
     {
         $this->rumahGadangModel = new RumahGadangModel();
+        $this->packageModel = new PackageModel();
         $this->eventModel = new EventModel();
         $this->uniquePlace = new UniquePlaceModel();
         $this->facilityModel = new FacilityRumahGadangModel();
@@ -31,11 +34,20 @@ class Dashboard extends BaseController
         if (in_groups("owner")) {
             return redirect()->to(base_url('/dashboard/rumahGadang'));
         } elseif (in_groups("admin")) {
-            return redirect()->to(base_url('/dashboard/users'));
+            
+            return redirect()->to(base_url('/dashboard/dashboard'));
         }
         return redirect()->to(base_url('/web'));
     }
     
+    public function dashboard()
+    {
+        $data = [
+            'title' => 'Dashboard',
+            'category' => 'Dashboard Menu'
+        ];
+        return view('dashboard/index', $data);
+    }
     public function rumahGadang()
     {
         $contents = [];
@@ -50,6 +62,21 @@ class Dashboard extends BaseController
             'category' => 'Rumah Gadang',
             'data' => $contents,
         ];
+        return view('dashboard/manage', $data);
+    }
+    public function package()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->packageModel->get_list_tp_api()->getResultArray();
+        }
+        
+        $data = [
+            'title' => 'Manage Paket Wisata',
+            'category' => 'Paket Wisata',
+            'data' => $contents,
+        ];
+        
         return view('dashboard/manage', $data);
     }
     
