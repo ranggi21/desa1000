@@ -20,7 +20,7 @@ $edit = in_array('edit', $uri);
 <?= $this->section('content') ?>
 
 <section class="section">
-  
+
     <div class="row">
         <script>
             currentUrl = '<?= current_url(); ?>';
@@ -44,8 +44,8 @@ $edit = in_array('edit', $uri);
                                 <label for="id_homestay" class="mb-2">Homestay</label>
                                 <select class="form-select" id="id_homestay" name="id_homestay">
                                     <?php if ($homestayData) : ?>
-                                        <?php foreach($homestayData as $homestay): ?>
-                                            <option value="<?= $homestay['id'] ?>" <?= (esc($homestay['name']) == $homestay['name']) ? 'selected' : ''; ?>><?=$homestay['name']; ?></option>
+                                        <?php foreach ($homestayData as $homestay) : ?>
+                                            <option value="<?= $homestay['id'] ?>" <?= (esc($homestay['name']) == $homestay['name']) ? 'selected' : ''; ?>><?= $homestay['name']; ?></option>
                                         <?php endforeach; ?>
                                     <?php else : ?>
                                         <option value=" ">Homestay not found</option>
@@ -65,7 +65,7 @@ $edit = in_array('edit', $uri);
                             </div>
                             <div class="form-group mb-4">
                                 <label for="contact_person" class="mb-2">Contact Person</label>
-                                <input type="tel" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['cp'] : old('cp'); ?>">
+                                <input type="tel" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('cp'); ?>">
                             </div>
 
                             <div class="form-group mb-4">
@@ -80,15 +80,16 @@ $edit = in_array('edit', $uri);
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="form-group mb-4">
-                                <label for="url" class="form-label">Url</label>
-                                <input type="text" class="form-control" id="url" name="url"><?= ($edit) ? $data['url'] : old('url'); ?></input>
-                            </div>
+
                             <div class="form-group mb-4">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea class="form-control" id="description" name="description" rows="4"><?= ($edit) ? $data['description'] : old('description'); ?></textarea>
                             </div>
-                           
+                            <div class="form-group mb-4">
+                                <label for="gallery" class="form-label">Brosur url</label>
+                                <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
+                            </div>
+
                             <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
                             <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
                         </div>
@@ -97,12 +98,10 @@ $edit = in_array('edit', $uri);
             </div>
         </div>
 
-        
+
     </div>
 </section>
-
 <?= $this->endSection() ?>
-
 <?= $this->section('javascript') ?>
 <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
@@ -112,9 +111,98 @@ $edit = in_array('edit', $uri);
 <script src="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.js"></script>
 <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
 <script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
+
 <script>
-    getFacility();
+    FilePond.registerPlugin(
+        FilePondPluginFileValidateSize,
+        FilePondPluginFileValidateType,
+        FilePondPluginImageExifOrientation,
+        FilePondPluginImagePreview,
+        FilePondPluginImageResize,
+        FilePondPluginMediaPreview,
+    );
+
+    // Get a reference to the file input element
+    const photo = document.querySelector('input[id="gallery"]');
+    const video = document.querySelector('input[id="video"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(photo, {
+        maxFileSize: '1920MB',
+        maxTotalFileSize: '1920MB',
+        imageResizeTargetHeight: 720,
+        imageResizeUpscale: false,
+        credits: false,
+    });
+    const vidPond = FilePond.create(video, {
+        maxFileSize: '1920MB',
+        maxTotalFileSize: '1920MB',
+        credits: false,
+    })
+
+    <?php if ($edit && count($data['gallery']) > 0) : ?>
+        pond.addFiles(
+            <?php foreach ($data['gallery'] as $gallery) : ?> `<?= base_url('media/photos/' . $gallery); ?>`,
+            <?php endforeach; ?>
+        );
+    <?php endif; ?>
+    pond.setOptions({
+        server: {
+            timeout: 3600000,
+            process: {
+                url: '/upload/photo',
+                onload: (response) => {
+                    console.log("processed:", response);
+                    return response
+                },
+                onerror: (response) => {
+                    console.log("error:", response);
+                    return response
+                },
+            },
+            revert: {
+                url: '/upload/photo',
+                onload: (response) => {
+                    console.log("reverted:", response);
+                    return response
+                },
+                onerror: (response) => {
+                    console.log("error:", response);
+                    return response
+                },
+            },
+        }
+    });
+
+    <?php if ($edit && $data['video_url'] != null) : ?>
+        vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
+    <?php endif; ?>
+    vidPond.setOptions({
+        server: {
+            timeout: 86400000,
+            process: {
+                url: '/upload/video',
+                onload: (response) => {
+                    console.log("processed:", response);
+                    return response
+                },
+                onerror: (response) => {
+                    console.log("error:", response);
+                    return response
+                },
+            },
+            revert: {
+                url: '/upload/video',
+                onload: (response) => {
+                    console.log("reverted:", response);
+                    return response
+                },
+                onerror: (response) => {
+                    console.log("error:", response);
+                    return response
+                },
+            },
+        }
+    });
 </script>
-
-
 <?= $this->endSection() ?>

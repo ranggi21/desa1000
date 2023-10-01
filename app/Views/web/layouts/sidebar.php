@@ -9,22 +9,22 @@ $uri3 = $uri[3] ?? '';
     <div class="sidebar-wrapper active">
         <!-- Sidebar Header -->
         <?= $this->include('web/layouts/sidebar_header'); ?>
-        
+
         <!-- Sidebar -->
         <div class="sidebar-menu">
             <div class="d-flex flex-column">
                 <div class="d-flex justify-content-center avatar avatar-xl me-3" id="avatar-sidebar">
                     <img src="<?= base_url('media/photos/pesona_saribu.png'); ?>" alt="" srcset="">
                 </div>
-                <?php if (logged_in()): ?>
+                <?php if (logged_in()) : ?>
                     <div class="p-2 text-center">
-                        <?php if (!empty(user()->first_name)): ?>
+                        <?php if (!empty(user()->first_name)) : ?>
                             Hello, <span class="fw-bold"><?= user()->first_name; ?><?= (!empty(user()->last_name)) ? ' ' . user()->last_name : ''; ?></span> <br> <span class="text-muted mb-0">@<?= user()->username; ?></span>
-                        <?php else: ?>
+                        <?php else : ?>
                             Hello, <span class="fw-bold">@<?= user()->username; ?></span>
                         <?php endif; ?>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="p-2 d-flex justify-content-center">Hello, Visitor</div>
                 <?php endif; ?>
                 <ul class="menu">
@@ -48,7 +48,7 @@ $uri3 = $uri[3] ?? '';
                             </li>
                             <!-- Rumah Gadang Around You -->
                             <li class="submenu-item" id="rg-around-you">
-                                    <a data-bs-toggle="collapse" href="#searchRadiusRG" role="button" aria-expanded="false" aria-controls="searchRadiusRG"><i class="fa-solid fa-compass me-3"></i>Around You</a>
+                                <a data-bs-toggle="collapse" href="#searchRadiusRG" role="button" aria-expanded="false" aria-controls="searchRadiusRG"><i class="fa-solid fa-compass me-3"></i>Around You</a>
                                 <div class="collapse mb-3" id="searchRadiusRG">
                                     <label for="inputRadiusRG" class="form-label">Radius: </label>
                                     <label id="radiusValueRG" class="form-label">0 m</label>
@@ -94,7 +94,9 @@ $uri3 = $uri[3] ?? '';
                                         <a data-bs-toggle="collapse" href="#searchFacilityRG" role="button" aria-expanded="false" aria-controls="searchFacilityRG"><i class="fa-solid fa-house-circle-check me-3"></i>By Facility</a>
                                         <div class="collapse mb-3" id="searchFacilityRG">
                                             <div class="d-grid">
-                                                <script>getFacility();</script>
+                                                <script>
+                                                    getFacility();
+                                                </script>
                                                 <fieldset class="form-group">
                                                     <select class="form-select" id="facilitySelect">
                                                     </select>
@@ -186,7 +188,9 @@ $uri3 = $uri[3] ?? '';
                                         <a data-bs-toggle="collapse" href="#searchCategoryEV" role="button" aria-expanded="false" aria-controls="searchCategoryEV"><i class="fa-solid fa-check-to-slot me-3"></i>By Category</a>
                                         <div class="collapse mb-3" id="searchCategoryEV">
                                             <div class="d-grid">
-                                                <script>getCategory();</script>
+                                                <script>
+                                                    getCategory();
+                                                </script>
                                                 <fieldset class="form-group">
                                                     <select class="form-select" id="categoryEVSelect">
                                                     </select>
@@ -218,15 +222,29 @@ $uri3 = $uri[3] ?? '';
                             </li>
                         </ul>
                     </li>
+                    <!-- Package -->
+                    <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?> has-sub">
+                        <a href="" class="sidebar-link">
+                            <i class="fa-solid fa-bullhorn"></i><span>Tourism Package</span>
+                        </a>
+
+                        <ul class="submenu <?= ($uri1 == 'event') ? 'active' : '' ?>">
+                            <!-- List Event -->
+                            <li class="submenu-item" id="ev-list">
+                                <a href="<?= base_url('/web/package'); ?>"><i class="fa-solid fa-list me-3"></i>List</a>
+                            </li>
+
+                        </ul>
+                    </li>
 
 
                     <!--Logged in Sidebar-->
-                    <?php if (in_groups(['admin'])): ?>
-                    <li class="sidebar-item">
-                        <a href="<?= base_url('dashboard/'); ?>" class="sidebar-link">
-                            <i class="bi bi-grid-fill"></i><span>Dashboard</span>
-                        </a>
-                    </li>
+                    <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item">
+                            <a href="<?= base_url('dashboard/'); ?>" class="sidebar-link">
+                                <i class="bi bi-grid-fill"></i><span>Dashboard</span>
+                            </a>
+                        </li>
                     <?php endif; ?>
 
                     <li class="sidebar-item">
@@ -240,7 +258,7 @@ $uri3 = $uri[3] ?? '';
                         </div>
                     </li>
                 </ul>
-                
+
             </div>
         </div>
     </div>

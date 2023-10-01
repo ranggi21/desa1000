@@ -42,7 +42,7 @@ $routes->get('/login', 'Web\Profile::login');
 $routes->get('/register', 'Web\Profile::register');
 
 // Upload files
-$routes->group('upload', ['namespace' => 'App\Controllers\Web'], function($routes) {
+$routes->group('upload', ['namespace' => 'App\Controllers\Web'], function ($routes) {
     $routes->post('photo', 'Upload::photo');
     $routes->post('video', 'Upload::video');
     $routes->post('avatar', 'Upload::avatar');
@@ -52,7 +52,7 @@ $routes->group('upload', ['namespace' => 'App\Controllers\Web'], function($route
 });
 
 // App
-$routes->group('web', ['namespace' => 'App\Controllers\Web'], function($routes) {
+$routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes) {
     $routes->get('rumahGadang/maps', 'RumahGadang::maps');
     $routes->get('rumahGadang/detail/(:segment)', 'RumahGadang::detail/$1');
     $routes->presenter('rumahGadang');
@@ -60,13 +60,16 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function($routes) 
     $routes->get('event/maps', 'Event::maps');
     $routes->get('event/detail/(:segment)', 'Event::detail/$1');
     $routes->presenter('event');
+    $routes->get('package/maps', 'Package::maps');
+    $routes->get('package/detail/(:segment)', 'Package::detail/$1');
+    $routes->presenter('package');
     $routes->presenter('uniquePlace');
     $routes->get('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);
     $routes->get('visitHistory/add', 'VisitHistory::addVisitHistory', ['filter' => 'role:user']);
     $routes->post('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);
     $routes->post('review', 'Review::add', [['filter' => 'role:user']]);
-    
-    
+
+
     // Profile
     $routes->group('profile', function ($routes) {
         $routes->get('/', 'Profile::profile', ['filter' => 'login']);
@@ -78,7 +81,7 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function($routes) 
 });
 
 // Dashboard
-$routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => 'role:admin'], function($routes) {
+$routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => 'role:admin'], function ($routes) {
     $routes->get('/', 'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::dashboard',  ['filter' => 'role:admin']);
     $routes->get('rumahGadang', 'Dashboard::rumahGadang',  ['filter' => 'role:admin']);
@@ -89,7 +92,7 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
     $routes->get('facility', 'Dashboard::facility', ['filter' => 'role:admin']);
     $routes->get('recommendation', 'Dashboard::recommendation',  ['filter' => 'role:admin']);
     $routes->get('users', 'Dashboard::users', ['filter' => 'role:admin']);
-    
+
     $routes->presenter('rumahGadang',  ['filter' => 'role:admin']);
     $routes->presenter('dashboard',  ['filter' => 'role:admin']);
     $routes->presenter('package',  ['filter' => 'role:admin']);
@@ -100,7 +103,7 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
 });
 
 // API
-$routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) {
+$routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes) {
     $routes->resource('rumahGadang');
     $routes->get('recommendation', 'RumahGadang::recommendation');
     $routes->post('recommendationOwner', 'RumahGadang::recommendationByOwner');

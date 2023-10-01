@@ -31,7 +31,7 @@ class DetailFacilityRumahGadang extends Migration
                 'null' => true,
             ],
         ];
-    
+
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
         $this->forge->addPrimaryKey('id_detail_facility_rumah_gadang');

@@ -35,7 +35,7 @@ class RumahGadang extends ResourceController
     {
         $rumahGadang = array();
         $contents = $this->rumahGadangModel->get_list_rg_api()->getResult();
-        foreach ($contents as $content){
+        foreach ($contents as $content) {
             $list_gallery = $this->galleryRumahGadangModel->get_gallery_api($content->id)->getResultArray();
             $galleries = array();
             foreach ($list_gallery as $gallery) {
@@ -91,7 +91,6 @@ class RumahGadang extends ResourceController
             ]
         ];
         return $this->respond($response);
-
     }
 
     /**
@@ -128,7 +127,7 @@ class RumahGadang extends ResourceController
             'video_url' => $request['video_url'],
         ];
         foreach ($requestData as $key => $value) {
-            if(empty($value)) {
+            if (empty($value)) {
                 unset($requestData[$key]);
             }
         }
@@ -138,7 +137,7 @@ class RumahGadang extends ResourceController
         $addFacilities = $this->detailFacilityRumahGadangModel->add_facility_api($id, $facilities);
         $gallery = $request['gallery'];
         $addGallery = $this->galleryRumahGadangModel->add_gallery_api($id, $gallery);
-        if($addRG && $addFacilities && $addGallery) {
+        if ($addRG && $addFacilities && $addGallery) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -197,7 +196,7 @@ class RumahGadang extends ResourceController
         $updateFacilities = $this->detailFacilityRumahGadangModel->update_facility_api($id, $facilities);
         $gallery = $request['gallery'];
         $updateGallery = $this->galleryRumahGadangModel->update_gallery_api($id, $gallery);
-        if($updateRG && $updateFacilities && $updateGallery) {
+        if ($updateRG && $updateFacilities && $updateGallery) {
             $response = [
                 'status' => 200,
                 'message' => [
@@ -227,7 +226,7 @@ class RumahGadang extends ResourceController
     public function delete($id = null)
     {
         $deleteRG = $this->rumahGadangModel->delete(['id' => $id]);
-        if($deleteRG) {
+        if ($deleteRG) {
             $response = [
                 'status' => 200,
                 'message' => [
@@ -291,11 +290,11 @@ class RumahGadang extends ResourceController
         ];
         return $this->respond($response);
     }
-    
+
     public function recommendationList()
     {
         $contents = $this->rumahGadangModel->get_recommendation_data_api()->getResultArray();
-        
+
         $response = [
             'data' => $contents,
             'status' => 200,
@@ -306,14 +305,15 @@ class RumahGadang extends ResourceController
         return $this->respond($response);
     }
 
-    public function updateRecommendation() {
+    public function updateRecommendation()
+    {
         $request = $this->request->getPost();
         $requestData = [
             'id_rumah_gadang' => $request['id'],
             'id_recommendation' => $request['recom']
         ];
         $updateRecom = $this->rumahGadangModel->update_recom_api($requestData);
-        if($updateRecom) {
+        if ($updateRecom) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -347,7 +347,7 @@ class RumahGadang extends ResourceController
         ];
         return $this->respond($response);
     }
-    
+
     public function findByRadius()
     {
         $request = $this->request->getPost();
@@ -361,7 +361,7 @@ class RumahGadang extends ResourceController
         ];
         return $this->respond($response);
     }
-    
+
     public function findByFacility()
     {
         $request = $this->request->getPost();
@@ -381,7 +381,7 @@ class RumahGadang extends ResourceController
         ];
         return $this->respond($response);
     }
-    
+
     public function findByRating()
     {
         $request = $this->request->getPost();
@@ -396,7 +396,7 @@ class RumahGadang extends ResourceController
         } else {
             $contents = [];
         }
-        
+
         $response = [
             'data' => $contents,
             'status' => 200,
@@ -406,7 +406,7 @@ class RumahGadang extends ResourceController
         ];
         return $this->respond($response);
     }
-    
+
     public function findByCategory()
     {
         $request = $this->request->getPost();
@@ -422,7 +422,8 @@ class RumahGadang extends ResourceController
         return $this->respond($response);
     }
 
-    public function listByOwner() {
+    public function listByOwner()
+    {
         $request = $this->request->getPost();
         $contents = $this->rumahGadangModel->list_by_owner_api($request['id'])->getResult();
         $response = [
