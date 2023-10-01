@@ -16,11 +16,12 @@ class PackageDay extends Migration
             'id_package' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
+                'unique' => true,
                 'null' => false
             ],
             'description' => [
                 'type' => 'VARCHAR',
-                'constraint'=> 255,
+                'constraint' => 255,
             ],
             'created_at' => [
                 'type' => 'TIMESTAMP',
@@ -31,7 +32,7 @@ class PackageDay extends Migration
                 'null' => true,
             ],
         ];
-        
+
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
         $this->forge->addPrimaryKey('day');
@@ -39,7 +40,7 @@ class PackageDay extends Migration
         $this->forge->createTable('package_day');
         $this->db->enableForeignKeyChecks();
     }
-    
+
     public function down()
     {
         $this->forge->dropTable('package_day');

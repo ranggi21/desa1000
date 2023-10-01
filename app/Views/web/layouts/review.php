@@ -4,7 +4,7 @@
 <div class="card">
     <div class="card-header text-center">
         <h4 class="card-title">Rating and Review</h4>
-        <?php if (in_groups('user')): ?>
+        <?php if (in_groups('user')) : ?>
             <form class="form form-vertical" action="<?= base_url('web/review'); ?>" method="post" onsubmit="checkStar(event);">
                 <div class="form-body">
                     <div class="star-containter mb-3">
@@ -18,8 +18,7 @@
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating">
-                            <textarea class="form-control" placeholder="Leave a comment here"
-                                      id="floatingTextarea" style="height: 150px;" name="comment"></textarea>
+                            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="height: 150px;" name="comment"></textarea>
                             <label for="floatingTextarea">Leave a comment here</label>
                         </div>
                     </div>
@@ -28,8 +27,8 @@
                     </div>
                 </div>
             </form>
-        <?php else: ?>
-            <?php if (!url_is("*detail*")): ?>
+        <?php else : ?>
+            <?php if (!url_is("*detail*")) : ?>
                 <p class="card-text">Please login as User to give rating and review</p>
             <?php endif; ?>
         <?php endif; ?>
@@ -38,25 +37,25 @@
         <div class="table-responsive">
             <table class="table table-hover mb-0" id="reviews">
                 <tbody>
-                <?php foreach ($data['reviews'] as $review):  ?>
-                    <tr>
-                        <td>
-                            <p class="mb-0">
-                                <?php for ($i = 0; $i < (int)esc($review['rating']); $i++) { ?>
-                                    <span class="material-symbols-outlined rating-color">star</span>
+                    <?php foreach ($data['reviews'] as $review) :  ?>
+                        <tr>
+                            <td>
+                                <p class="mb-0">
+                                    <?php for ($i = 0; $i < (int)esc($review['rating']); $i++) { ?>
+                                        <span class="material-symbols-outlined rating-color">star</span>
+                                    <?php } ?>
+                                    <?php for ($i = 0; $i < (5 - (int)esc($review['rating'])); $i++) { ?>
+                                        <span class="material-symbols-outlined">star</span>
+                                    <?php } ?>
+                                </p>
+                                <p class="mb-0"><?= "{$review['first_name']} {$review['last_name']}"; ?></p>
+                                <p class="fw-light"><?= date('Y-m-d', strtotime(esc($review['created_at']))); ?></p>
+                                <?php if (!empty($review['comment'])) { ?>
+                                    <p class="fw-bold"><?= esc($review['comment']); ?></p>
                                 <?php } ?>
-                                <?php for ($i = 0; $i < (5 - (int)esc($review['rating'])); $i++) { ?>
-                                    <span class="material-symbols-outlined">star</span>
-                                <?php } ?>
-                            </p>
-                            <p class="mb-0"><?= "{$review['first_name']} {$review['last_name']}"; ?></p>
-                            <p class="fw-light"><?= date('Y-m-d', strtotime(esc($review['created_at']))); ?></p>
-                            <?php if (!empty($review['comment'])) { ?>
-                                <p class="fw-bold"><?= esc($review['comment']); ?></p>
-                            <?php } ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

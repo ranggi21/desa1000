@@ -47,7 +47,6 @@
                                         <?php $i = 1; ?>
                                         <?php foreach ($data as $item) : ?>
                                             <tr>
-
                                                 <td><?= esc($i); ?></td>
                                                 <td class="fw-bold"><?= esc($item['name']); ?></td>
                                                 <td>

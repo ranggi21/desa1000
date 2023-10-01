@@ -13,12 +13,12 @@ class Review extends BaseController
     {
         $this->reviewModel = new ReviewModel();
     }
-    
+
     public function add()
     {
-        
+
         $request = $this->request->getPost();
-      
+
         $requestData = [
             'id_comment' => $this->reviewModel->get_new_id_api(),
             'comment' => $request['comment'],
@@ -26,7 +26,7 @@ class Review extends BaseController
             'rating' => $request['rating'],
             'id_user' => user()->id,
         ];
-      
+
         if (substr($request['object_id'], 0, 1) == 'R') {
             $requestData['id_rumah_gadang'] = $request['object_id'];
             $addReview = $this->reviewModel->add_review_api($requestData);
@@ -48,6 +48,13 @@ class Review extends BaseController
             $addReview = $this->reviewModel->add_review_api($requestData);
             if ($addReview) {
                 return redirect()->to(base_url('web/uniquePlace') . '/' . $requestData['id_unique_place'] . '#reviews');
+            }
+        }
+        if (substr($request['object_id'], 0, 1) == 'P') {
+            $requestData['id_package'] = $request['object_id'];
+            $addReview = $this->reviewModel->add_review_api($requestData);
+            if ($addReview) {
+                return redirect()->to(base_url('web/package') . '/' . $requestData['id_package'] . '#reviews');
             }
         }
 

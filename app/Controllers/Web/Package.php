@@ -66,13 +66,14 @@ class Package extends ResourcePresenter
             $services[] = $service['name'];
         }
 
-        $list_review = $this->ReviewModel->get_review_object_api('id_rumah_gadang', $id)->getResultArray();
+        $list_review = $this->ReviewModel->get_review_object_api('id_package', $id)->getResultArray();
 
         $package['avg_rating'] = $avg_rating;
         $package['services'] = $services;
         $package['reviews'] = $list_review;
         $package['gallery'] = [$package['url']];
         $package['video_url'] = null;
+
         $data = [
             'title' => $package['name'],
             'data' => $package,
