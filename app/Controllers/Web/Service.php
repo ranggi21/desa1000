@@ -5,12 +5,12 @@ namespace App\Controllers\Web;
 use App\Models\serviceModel;
 use CodeIgniter\RESTful\ResourcePresenter;
 
-class service extends ResourcePresenter
+class Service extends ResourcePresenter
 {
     protected $serviceModel;
-    
+
     protected $helpers = ['auth', 'url', 'filesystem'];
-    
+
     public function __construct()
     {
         $this->serviceModel = new serviceModel();
@@ -62,10 +62,10 @@ class service extends ResourcePresenter
     {
         $request = $this->request->getPost();
         $requestData = [
-            'id_service_rumah_gadang' => $request['id'],
-            'service' => $request['service'],
+            'id' => $request['id'],
+            'name' => $request['service'],
         ];
-        $addFC = $this->serviceModel->add_fc_api($requestData);
+        $addFC = $this->serviceModel->add_s_api($requestData);
         if ($addFC) {
             return redirect()->to(base_url('dashboard/service'));
         } else {
@@ -82,13 +82,14 @@ class service extends ResourcePresenter
      */
     public function edit($id = null)
     {
-        $service = $this->serviceModel->get_fc_by_id_api($id)->getRowArray();
+        $service = $this->serviceModel->get_s_by_id_api($id)->getRowArray();
+
         $data = [
             'title' => 'Edit service',
             'data' => $service
         ];
+
         return view('dashboard/service_form', $data);
-        
     }
 
     /**
@@ -103,9 +104,9 @@ class service extends ResourcePresenter
     {
         $request = $this->request->getPost();
         $requestData = [
-            'service' => $request['service'],
+            'name' => $request['service'],
         ];
-        $updateFC = $this->serviceModel->update_fc_api($id, $requestData);
+        $updateFC = $this->serviceModel->update_s_api($id, $requestData);
         if ($updateFC) {
             return redirect()->to(base_url('dashboard/service'));
         } else {

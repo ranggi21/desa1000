@@ -48,12 +48,13 @@ class ServiceModel extends Model
     public function get_new_id_api()
     {
         $lastId = $this->db->table($this->table)->select('id')->orderBy('id', 'ASC')->get()->getLastRow('array');
+
         if ($lastId != null) {
-            $count = (int)substr($lastId['id'], 0);
-            $id = sprintf('%02d', $count + 1);
+            $count = (int)substr($lastId['id'], 2);
+            $id = sprintf('SP%02d', $count + 1);
         } else {
             $count = 0;
-            $id = sprintf('%02d', $count + 1);
+            $id = sprintf('SP%02d', $count + 1);
         }
         return $id;
     }

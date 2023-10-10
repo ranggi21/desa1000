@@ -8,9 +8,9 @@ use CodeIgniter\RESTful\ResourcePresenter;
 class Facility extends ResourcePresenter
 {
     protected $facilityRumahGadangModel;
-    
+
     protected $helpers = ['auth', 'url', 'filesystem'];
-    
+
     public function __construct()
     {
         $this->facilityRumahGadangModel = new FacilityRumahGadangModel();
@@ -88,7 +88,6 @@ class Facility extends ResourcePresenter
             'data' => $facility
         ];
         return view('dashboard/facility_form', $data);
-        
     }
 
     /**

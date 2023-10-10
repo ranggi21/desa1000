@@ -3,6 +3,8 @@
 namespace App\Controllers\Web;
 
 use App\Models\PackageModel;
+use App\Models\PackageDayModel;
+use App\Models\DetailPackageModel;
 use App\Models\ServiceModel;
 use App\Models\HomestayModel;
 use App\Models\ReviewModel;
@@ -13,6 +15,8 @@ use CodeIgniter\Files\File;
 class Package extends ResourcePresenter
 {
     protected $PackageModel;
+    protected $packageDayModel;
+    protected $detailPackageModel;
     protected $ServiceModel;
     protected $HomestayModel;
     protected $DetailServicePackageModel;
@@ -22,6 +26,8 @@ class Package extends ResourcePresenter
     public function __construct()
     {
         $this->PackageModel = new PackageModel();
+        $this->packageDayModel = new PackageDayModel();
+        $this->detailPackageModel = new DetailPackageModel();
         $this->ServiceModel = new ServiceModel();
         $this->HomestayModel = new HomestayModel();
         $this->DetailServicePackageModel = new DetailServicePackageModel();
@@ -114,6 +120,32 @@ class Package extends ResourcePresenter
     {
         $request = $this->request->getPost();
         $id = $this->PackageModel->get_new_id_api();
+
+        foreach ($request['packageDetailData'] as $packageDay => $value) {
+            // dd($value);
+            $packageDayId = $this->packageDayModel->get_new_id_api();
+            $requestPackageDay = [
+                'day' => $packageDayId,
+                'id_package' => $id,
+                'description' => $value['packageDayDescription']
+            ];
+            // $addPackageDay = $this->packageDayModel->add_pd_api($requestPackageDay);
+
+            foreach ($value['detailPackage'] as $detailPackage => $dValue) {
+                $detailPackageId = $this->detailPackageModel->get_new_id_api();
+                d($dValue);
+
+                // $requestDetailPackage = [
+                //     'activity' => $detailPackageId,
+                //     'id_day' => $packageDayId,
+                //     'id_package' => $id,
+                //     'id_object' => $detailPackage['id_object'],
+                //     'activity_type' => $detailPackage['activity_type'],
+                //     ''
+                // ];
+            }
+        }
+        die;
         $url = null;
         if (isset($request['gallery'])) {
             $folder = $request['gallery'][0];
@@ -138,11 +170,23 @@ class Package extends ResourcePresenter
 
         $addtp = $this->PackageModel->add_tp_api($requestData);
 
+
         $addService = true;
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
             $addService = $this->DetailServicePackageModel->add_service_api($id, $services);
         }
+
+        if (isset($request['packageDay'])) {
+            foreach ($request['packageDay'] as $packageDay => $packageDetail) {
+                $requestData = [
+                    'day' => $this->packageDayModel->get_new_id_api(),
+                    'id_package' => $id
+
+                ];
+            }
+        }
+
         if ($addtp && $addService) {
             return redirect()->to(base_url('dashboard/package'));
         } else {
@@ -162,16 +206,19 @@ class Package extends ResourcePresenter
         $package = $this->PackageModel->get_tp_by_id_api($id)->getRowArray();
         $homestayData = $this->HomestayModel->get_list_hm_api()->getResultArray();
         $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
+        $packageService = $this->DetailServicePackageModel->get_service_by_package_api($id)->getResultArray();
 
         $selectedFac = array();
-        foreach ($serviceData as $service) {
+        foreach ($packageService as $service) {
             $selectedFac[] = $service['name'];
         }
+
         $package['service_package'] =  $selectedFac;
         $package['gallery'] = [$package['url']];
         $package['video_url'] = null;
+
         $data = [
-            'title' => 'New Package',
+            'title' => 'Edit Package',
             'data' => $package,
             'homestayData' => $homestayData,
             'serviceData' => $serviceData

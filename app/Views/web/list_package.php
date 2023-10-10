@@ -2,87 +2,67 @@
 
 <?= $this->section('content') ?>
 
-<section class="section"">
-    <div class=" row">
-    <!--map-->
-    <div class="col-md-8 col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-auto">
-                        <h5 class="card-title">Google Maps with Location</h5>
-                    </div>
-                    <?= $this->include('web/layouts/map-head'); ?>
-                </div>
-            </div>
-            <?= $this->include('web/layouts/map-body'); ?>
-        </div>
-    </div>
+<section class="section">
+    <div class="container-fluid">
+        <div class="card p-2 shadow-sm">
+            <div class="card-header text-center card-title  mb-2">LIST TOURISM PACKAGE</div>
+            <div class="card-body">
+                <div class="row d-flex">
+                    <?php foreach ($data as $item) : ?>
+                        <div class="col-md-12">
+                            <div class="card mb-3 shadow-sm">
+                                <div class="row g-0">
+                                    <div class="col-md-4 p-2">
+                                        <a class="hover-efek" role="button" data-bs-toggle="modal" data-bs-target="#exampleModal<?= $item['id'] ?>">
+                                            <img src="<?= base_url('media/photos/') . '/' . $item['url'] ?>" class="img-fluid rounded-start" alt="...">
+                                        </a>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $item['name']; ?></h5>
+                                            <?php if (isset($item['description'])) : ?>
+                                                <p class="card-text"><?= $item['description']; ?></p>
+                                            <?php endif; ?>
+                                            <?php if (isset($item['price'])) : ?>
+                                                <p class="card-text"><small class="text-muted"><?= $item['price']; ?> IDR</small></p>
+                                            <?php endif; ?>
 
-    <div class="col-md-4 col-12">
-        <div class="row">
-            <!-- List Package -->
-            <div class="col-12" id="list-rg-col">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title text-center">List Tourism Package</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive overflow-auto" id="table-user">
-                            <script>
-                                clearMarker();
-                                clearRadius();
-                                clearRoute();
-                            </script>
-                            <table class="table table-hover mb-0 table-lg">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-data">
-                                    <?php if (isset($data)) : ?>
-                                        <?php $i = 1; ?>
-                                        <?php foreach ($data as $item) : ?>
-                                            <tr>
-                                                <td><?= esc($i); ?></td>
-                                                <td class="fw-bold"><?= esc($item['name']); ?></td>
-                                                <td>
-                                                    <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="More Info" class="btn icon btn-primary mx-1" onclick="focusObject(`<?= esc($item['id']); ?>`);">
-                                                        <span class="material-symbols-outlined">info</span>
-                                                    </a>
-                                                </td>
-                                                <?php $i++ ?>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                        <script>
-                                            boundToObject();
-                                        </script>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                        </div>
+                                        <div class="card-footer text-end" style="border: none;">
+                                            <a role="button" class="btn btn-success" href="<?= base_url('package/detail') . '/' . $item['id']; ?>">Detail</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal<?= $item['id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg ">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel"><?= $item['name']; ?></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img class="img-fluid w-100" src="<?= base_url('media/photos/package/'); ?>/<?= $item['url']; ?>" alt="Card image cap">
+                                        <p class="card-text my-4" style="text-align: justify;">
+                                            <?= $item['description']; ?>
+                                        </p>
+                                    </div>
+                                    <?php if (isset($item['price'])) : ?>
+                                        <div class="modal-footer">
+                                            <span class="text-lg"><?= $item['price']; ?> IDR</span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
-            <!-- Nearby section -->
-            <?= $this->include('web/layouts/nearby'); ?>
         </div>
     </div>
-    </div>
-
-    <!-- Direction section -->
-    <?= $this->include('web/layouts/direction'); ?>
 </section>
 
-<?= $this->endSection() ?>
-
-<?= $this->section('javascript') ?>
-<script>
-    $('#direction-row').hide();
-    $('#check-nearby-col').hide();
-    $('#result-nearby-col').hide();
-</script>
 <?= $this->endSection() ?>

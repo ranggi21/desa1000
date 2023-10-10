@@ -86,6 +86,8 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
     $routes->get('dashboard', 'Dashboard::dashboard',  ['filter' => 'role:admin']);
     $routes->get('rumahGadang', 'Dashboard::rumahGadang',  ['filter' => 'role:admin']);
     $routes->get('package', 'Dashboard::package',  ['filter' => 'role:admin']);
+    $routes->get('service', 'Dashboard::service',  ['filter' => 'role:admin']);
+    $routes->get('packageDay', 'Dashboard::packageDay',  ['filter' => 'role:admin']);
     $routes->get('event', 'Dashboard::event',  ['filter' => 'role:admin']);
     $routes->get('event', 'Dashboard::event',  ['filter' => 'role:admin']);
     $routes->get('uniquePlace', 'Dashboard::uniquePlace',  ['filter' => 'role:admin']);
@@ -96,6 +98,8 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
     $routes->presenter('rumahGadang',  ['filter' => 'role:admin']);
     $routes->presenter('dashboard',  ['filter' => 'role:admin']);
     $routes->presenter('package',  ['filter' => 'role:admin']);
+    $routes->presenter('service',  ['filter' => 'role:admin']);
+    $routes->presenter('packageDay',  ['filter' => 'role:admin']);
     $routes->presenter('event',  ['filter' => 'role:admin']);
     $routes->presenter('uniquePlace',  ['filter' => 'role:admin']);
     $routes->presenter('facility', ['filter' => 'role:admin']);
@@ -149,6 +153,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->get('owner', 'User::owner');
     $routes->resource('facility');
     $routes->resource('package');
+    $routes->resource('packageDay');
+    $routes->resource('service');
+
     $routes->post('village', 'Village::getData');
     $routes->post('login', 'Profile::attemptLogin');
     $routes->post('profile', 'Profile::profile');

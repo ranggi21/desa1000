@@ -34,41 +34,71 @@ $uri3 = $uri[3] ?? '';
                         </a>
                     </li>
 
-                     <!-- DASHBOARD -->
-                     <?php if (in_groups(['admin'])) : ?>
+                    <!-- DASHBOARD -->
+                    <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'dashboard') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/'); ?>" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i><span> Dashboard</span>
                             </a>
                         </li>
                     <?php endif; ?>
-                    <!-- Manage RG -->
-                    <?php if (in_groups(['admin'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'rumahGadang') ? 'active' : '' ?>">
-                            <a href="<?= base_url('dashboard/rumahGadang'); ?>" class="sidebar-link">
-                                <i class="fa-solid fa-campground"></i><span> Rumah Gadang</span>
-                            </a>
-                        </li>
-                    <?php endif; ?>
 
-                     <!-- Manage Facility -->
-                     <?php if (in_groups(['admin'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'facility') ? 'active' : '' ?>">
-                            <a href="<?= base_url('dashboard/facility'); ?>" class="sidebar-link">
-                                <i class="fa-solid fa-house-circle-check"></i><span> Rumah Gadang Facility</span>
+                    <!-- Manage RG-->
+                    <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'rumahGadang') ? 'active' : '' ?> has-sub">
+                            <a href="" class="sidebar-link">
+                                <i class="fa-solid fa-campground"></i><span>RG Menu</span>
                             </a>
+
+                            <ul class="submenu <?= ($uri1 == 'event') ? 'active' : '' ?>">
+                                <!-- List Package -->
+                                <li class="submenu-item" id="rg-list">
+                                    <a href="<?= base_url('dashboard/rumahGadang'); ?>" class="sidebar-link">
+                                        <i class="fa-solid fa-campground"></i><span> Rumah Gadang </span>
+                                    </a>
+                                </li>
+                                <!-- List Package -->
+                                <li class="submenu-item" id="rgf-list">
+                                    <a href="<?= base_url('dashboard/facility'); ?>" class="sidebar-link">
+                                        <i class="fa-solid fa-house-circle-check"></i><span> RG Facility</span>
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
                     <?php endif; ?>
-                    
 
                     <!-- Manage Tourism Package-->
                     <?php if (in_groups(['admin'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?>">
-                            <a href="<?= base_url('dashboard/package'); ?>" class="sidebar-link">
-                                <i class="fa-solid fa-location-dot"></i><span>Tourism Package</span>
+                        <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?> has-sub">
+                            <a href="" class="sidebar-link">
+                                <i class="fa-solid fa-bullhorn"></i><span>TP Menu</span>
                             </a>
+
+                            <ul class="submenu <?= ($uri1 == 'event') ? 'active' : '' ?>">
+                                <!-- List Package -->
+                                <li class="submenu-item" id="tp-list">
+                                    <a href="<?= base_url('dashboard/package'); ?>" class="sidebar-link">
+                                        <i class="fa-solid fa-location-dot"></i><span> Tourism Package</span>
+                                    </a>
+                                </li>
+                                <!-- List Package Day -->
+                                <li class="submenu-item" id="s-list">
+                                    <a href="<?= base_url('dashboard/service'); ?>" class="sidebar-link">
+                                        <i class="fa-solid fa-location-dot"></i><span> TP Service</span>
+                                    </a>
+                                </li>
+                                <!-- List Package Day -->
+                                <li class="submenu-item" id="pd-list">
+                                    <a href="<?= base_url('dashboard/packageDay'); ?>" class="sidebar-link">
+                                        <i class="fa-solid fa-location-dot"></i><span> TP Day</span>
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
                     <?php endif; ?>
+
 
                     <!-- Manage UP -->
                     <!-- <?php if (in_groups(['admin'])) : ?>

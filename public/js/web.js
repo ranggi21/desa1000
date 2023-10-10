@@ -74,6 +74,7 @@ function initMap(lat = -0.5242972, lng = 100.492333, mobile = false) {
     map.set('styles', customStyled);
     directionsRenderer = new google.maps.DirectionsRenderer(rendererOptions);
     digitVillage();
+    // digitRegion();
 }
 
 // Display tourism village digitizing
@@ -100,6 +101,22 @@ function digitVillage() {
         }
     });
 }
+function digitRegion() {
+    const region = new google.maps.Data();
+   
+    const regionData = '';
+    region.addGeoJson(regionData);
+    region.setStyle({
+      fillColor:'#00b300',
+      strokeWeight:0.5,
+      strokeColor:'#005000',
+      fillOpacity: 0.1,
+       clickable: false
+    });
+    region.setMap(map);
+      
+}
+
 
 // Remove user location
 function clearUser() {
@@ -1685,6 +1702,7 @@ function drawGeom() {
 
 // Delete selected object
 function deleteObject(id = null, name = null, user = false) {
+    
     if (id === null) {
         return Swal.fire('ID cannot be null');
     }
@@ -1702,6 +1720,10 @@ function deleteObject(id = null, name = null, user = false) {
     } else if (id.substring(0,1) === 'P') {
         content = 'Tourism Package';
         apiUri = 'package/'
+    } else if (id.substring(0,2) === 'SP') {
+        console.log(id)
+        content = 'Service';
+        apiUri = 'service/'
     } else if (user === true) {
         content = 'User';
         apiUri = 'user/'
@@ -1709,7 +1731,7 @@ function deleteObject(id = null, name = null, user = false) {
         content = 'Facility';
         apiUri = 'facility/'
     }
-
+    
     Swal.fire({
         title: 'Delete ' + content + '?',
         text: 'You are about to remove ' + name,
@@ -1725,6 +1747,7 @@ function deleteObject(id = null, name = null, user = false) {
                 type: 'DELETE',
                 dataType: 'json',
                 success: function (response) {
+                    console.log(response)
                     if (response.status === 200) {
                         Swal.fire('Deleted!', 'Successfully remove ' + name, 'success').then((result) => {
                             if(result.isConfirmed) {

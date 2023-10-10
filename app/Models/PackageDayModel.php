@@ -3,25 +3,21 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use CodeIgniter\I18n\Time;
 
 class PackageDayModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'packagedays';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-    protected $insertID         = 0;
+    protected $table            = 'package_day';
+    protected $primaryKey       = 'day';
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = ['day', 'id_package', 'description'];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
 
     // Validation
     protected $validationRules      = [];
@@ -29,14 +25,73 @@ class PackageDayModel extends Model
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+
+
+    // API
+    public function get_list_pd_api()
+    {
+        $query = $this->db->table($this->table)
+            ->select('day as id, tourism_package.name, id_package, package_day.description')
+            ->join('tourism_package', 'package_day.id_package = tourism_package.id')
+            ->get();
+        return $query;
+    }
+
+    public function get_pd_by_id_api($id = null)
+    {
+        $query = $this->db->table($this->table)
+            ->select('day as id, description')
+            ->where('id', $id)
+            ->get();
+        return $query;
+    }
+    public function get_pd_by_package_id_api($id = null)
+    {
+        $query = $this->db->table($this->table)
+            ->select('day as id, description')
+            ->where('id_package', $id)
+            ->get();
+        return $query;
+    }
+
+    public function get_new_id_api()
+    {
+        $lastId = $this->db->table($this->table)->select('day')->orderBy('day', 'ASC')->get()->getLastRow('array');
+        if ($lastId != null) {
+            $count = (int)substr($lastId['day'], 0);
+            $id = sprintf('%02d', $count + 1);
+        } else {
+            $count = 0;
+            $id = sprintf('%02d', $count + 1);
+        }
+        return $id;
+    }
+
+    public function add_pd_api($packageDay = null)
+    {
+        foreach ($packageDay as $key => $value) {
+            if (empty($value)) {
+                unset($packageDay[$key]);
+            }
+        }
+        $packageDay['created_at'] = Time::now();
+        $packageDay['updated_at'] = Time::now();
+        $insert = $this->db->table($this->table)
+            ->insert($packageDay);
+        return $insert;
+    }
+
+    public function update_pd_api($id = null, $day = null)
+    {
+        foreach ($day as $key => $value) {
+            if (empty($value)) {
+                unset($facility[$key]);
+            }
+        }
+        $day['updated_at'] = Time::now();
+        $query = $this->db->table($this->table)
+            ->where('day', $id)
+            ->update($day);
+        return $query;
+    }
 }

@@ -9,14 +9,14 @@ use CodeIgniter\RESTful\ResourceController;
 class Facility extends ResourceController
 {
     use ResponseTrait;
-    
+
     protected $facilityModel;
-    
+
     public function __construct()
     {
         $this->facilityModel = new FacilityRumahGadangModel();
     }
-    
+
     /**
      * Return an array of resource objects, themselves in array format
      *
@@ -137,7 +137,7 @@ class Facility extends ResourceController
     public function delete($id = null)
     {
         $deleteFC = $this->facilityModel->delete(['id_facility_rumah_gadang' => $id]);
-        if($deleteFC) {
+        if ($deleteFC) {
             $response = [
                 'status' => 200,
                 'message' => [

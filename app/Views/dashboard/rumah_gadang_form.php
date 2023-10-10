@@ -187,6 +187,7 @@ $edit = in_array('edit', $uri);
 <script>
     getFacility();
 </script>
+
 <script>
     const myModal = document.getElementById('videoModal');
     const videoSrc = document.getElementById('video-play').getAttribute('data-src');
@@ -244,7 +245,7 @@ $edit = in_array('edit', $uri);
         server: {
             timeout: 3600000,
             process: {
-                url: '/upload/photo',
+                url: '<?= base_url("upload/photo") ?>',
                 onload: (response) => {
                     console.log("processed:", response);
                     return response
@@ -255,7 +256,7 @@ $edit = in_array('edit', $uri);
                 },
             },
             revert: {
-                url: '/upload/photo',
+                url: '<?= base_url("upload/photo") ?>',
                 onload: (response) => {
                     console.log("reverted:", response);
                     return response
@@ -266,7 +267,7 @@ $edit = in_array('edit', $uri);
                 },
             },
         }
-    });
+    })
 
     <?php if ($edit && $data['video_url'] != null) : ?>
         vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)

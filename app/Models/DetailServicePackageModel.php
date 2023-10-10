@@ -29,7 +29,7 @@ class DetailServicePackageModel extends Model
     public function get_service_by_package_api($package_id = null)
     {
         $query = $this->db->table($this->table)
-            ->select('service.name')
+            ->select('service.id, service.name')
             ->where('id_package', $package_id)
             ->join('service', 'detail_service_package.id_service_package = service.id')
             ->get();
@@ -82,5 +82,10 @@ class DetailServicePackageModel extends Model
         $queryDel = $this->db->table($this->table)->delete(['id_package' => $id]);
         $queryIns = $this->add_service_api($id, $data);
         return $queryDel && $queryIns;
+    }
+    public function delete_service_api($id_package)
+    {
+        $queryDel = $this->db->table($this->table)->delete(['id_package' => $id_package]);
+        return $queryDel;
     }
 }
