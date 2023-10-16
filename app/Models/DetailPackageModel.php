@@ -29,18 +29,26 @@ class DetailPackageModel extends Model
     public function get_detail_package_by_package_api($day = null)
     {
         $query = $this->db->table($this->table)
-            ->select('activity as id, id_day, id_package, id_object, activity_type, description')
+            ->select('activity as id, id_day, id_package, id_object, activity_type, detail_package.description as detailDescription')
             ->where('id_package', $day)
-            ->join('tourism_package', 'detail_package.id_package = tourism_package.id')
             ->get();
         return $query;
     }
 
-    public function get_detail_package_by_dp_api($package_id = null)
+    public function get_detail_package_by_dp_api($id_day = null)
     {
         $query = $this->db->table($this->table)
-            ->select('*')
-            ->where('id_package', $package_id)
+            ->select('activity as id, id_day, id_package, id_object, activity_type, detail_package.description as detailDescription')
+            ->where('id_day', $id_day)
+            ->get();
+        return $query;
+    }
+
+    public function get_objects_by_package_day_id($id_day = null)
+    {
+        $query = $this->db->table($this->table)
+            ->select('id_object')
+            ->where('detail_package.id_day', $id_day)
             ->get();
         return $query;
     }

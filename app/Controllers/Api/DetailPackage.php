@@ -2,19 +2,22 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\PackageModel;
+use App\Models\DetailDetailPackageModel;
+use App\Models\DetailPackageModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\RESTful\ResourceController;
 
-class Package extends ResourceController
+class DetailPackage extends ResourceController
 {
     use ResponseTrait;
 
-    protected $PackageModel;
+
+    protected $DetailPackageModel;
 
     public function __construct()
     {
-        $this->PackageModel = new PackageModel();
+
+        $this->DetailPackageModel = new DetailPackageModel();
     }
 
     /**
@@ -22,18 +25,18 @@ class Package extends ResourceController
      *
      * @return mixed
      */
-    public function index()
-    {
-        $contents = $this->PackageModel->get_list_tp_api()->getResult();
-        $response = [
-            'data' => $contents,
-            'status' => 200,
-            'message' => [
-                "Success get list of Package"
-            ]
-        ];
-        return $this->respond($response);
-    }
+    // public function index()
+    // {
+    //     $contents = $this->DetailPackageModel->()->getResult();
+    //     $response = [
+    //         'data' => $contents,
+    //         'status' => 200,
+    //         'message' => [
+    //             "Success get list of Package"
+    //         ]
+    //     ];
+    //     return $this->respond($response);
+    // }
 
     /**
      * Return the properties of a resource object
@@ -63,13 +66,13 @@ class Package extends ResourceController
     public function create()
     {
         $request = $this->request->getPost();
-        $id = $this->PackageModel->get_new_id_api();
+        $id = $this->DetailPackageModel->get_new_id_api();
         $requestData = [
             'id' => $id,
             'Package' => $request['Package'],
         ];
         dd($requestData);
-        $addFC = $this->PackageModel->add_tp_api($requestData);
+        $addFC = $this->DetailPackageModel->add_tp_api($requestData);
         if ($addFC) {
             $response = [
                 'status' => 201,
@@ -110,7 +113,7 @@ class Package extends ResourceController
         $requestData = [
             'Package' => $request['Package'],
         ];
-        $updateFC = $this->PackageModel->update_fc_api($id, $requestData);
+        $updateFC = $this->DetailPackageModel->update_fc_api($id, $requestData);
         if ($updateFC) {
             $response = [
                 'status' => 200,
@@ -137,7 +140,7 @@ class Package extends ResourceController
      */
     public function delete($id = null)
     {
-        $delete = $this->PackageModel->delete(['id' => $id]);
+        $delete = $this->DetailPackageModel->delete(['id' => $id]);
         if ($delete) {
             $response = [
                 'status' => 200,

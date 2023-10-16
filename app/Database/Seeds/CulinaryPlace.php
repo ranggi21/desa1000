@@ -9,9 +9,9 @@ class CulinaryPlace extends Seeder
 {
     public function run()
     {
-        $rows = array_map('str_getcsv', file(WRITEPATH.'seeds/'. 'culinary_place.csv'));
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'culinary.csv'));
         $header = array_shift($rows);
-    
+
         foreach ($rows as $row) {
             $data = [
                 'id_culinary_place' => $row[0],
@@ -26,7 +26,7 @@ class CulinaryPlace extends Seeder
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
-        
+
             $this->db->table('culinary_place')->insert($data);
             $this->db->table('culinary_place')->set('geom', $row[6], false)->where('id_culinary_place', $row[0])->update();
         }

@@ -4,25 +4,38 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class PackageDay extends Migration
+class DetailPackage extends Migration
 {
     public function up()
     {
         $fields = [
-            'day' => [
+            'activity' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+            ],
+            'id_day' => [
                 'type' => 'VARCHAR',
                 'constraint' => 5,
+                'null' => false
             ],
             'id_package' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
-                'unique' => true,
                 'null' => false
+            ],
+            'id_object' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50
+            ],
+            'activity_type' => [
+                'type' => 'VARCHAR',
+                'constraint' => 1,
             ],
             'description' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
             ],
+
             'created_at' => [
                 'type' => 'TIMESTAMP',
                 'null' => true,
@@ -35,14 +48,15 @@ class PackageDay extends Migration
 
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
-        $this->forge->addPrimaryKey('day');
+        $this->forge->addPrimaryKey('activity');
+        $this->forge->addForeignKey('id_day', 'package_day', 'day', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('id_package', 'tourism_package', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('package_day');
+        $this->forge->createTable('detail_package');
         $this->db->enableForeignKeyChecks();
     }
 
     public function down()
     {
-        $this->forge->dropTable('package_day');
+        $this->forge->dropTable('detail_package');
     }
 }

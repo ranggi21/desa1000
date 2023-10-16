@@ -176,7 +176,6 @@ $edit = in_array('edit', $uri);
 <?= $this->endSection() ?>
 
 <?= $this->section('javascript') ?>
-<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
@@ -209,7 +208,6 @@ $edit = in_array('edit', $uri);
 </script>
 <script>
     FilePond.registerPlugin(
-        FilePondPluginFileValidateSize,
         FilePondPluginFileValidateType,
         FilePondPluginImageExifOrientation,
         FilePondPluginImagePreview,
@@ -219,7 +217,6 @@ $edit = in_array('edit', $uri);
 
     // Get a reference to the file input element
     const photo = document.querySelector('input[id="gallery"]');
-    const video = document.querySelector('input[id="video"]');
 
     // Create a FilePond instance
     const pond = FilePond.create(photo, {
@@ -229,11 +226,6 @@ $edit = in_array('edit', $uri);
         imageResizeUpscale: false,
         credits: false,
     });
-    const vidPond = FilePond.create(video, {
-        maxFileSize: '1920MB',
-        maxTotalFileSize: '1920MB',
-        credits: false,
-    })
 
     <?php if ($edit && count($data['gallery']) > 0) : ?>
         pond.addFiles(
@@ -269,6 +261,13 @@ $edit = in_array('edit', $uri);
         }
     })
 
+
+    const video = document.querySelector('input[id="video"]');
+    const vidPond = FilePond.create(video, {
+        maxFileSize: '1920MB',
+        maxTotalFileSize: '1920MB',
+        credits: false,
+    })
     <?php if ($edit && $data['video_url'] != null) : ?>
         vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
     <?php endif; ?>

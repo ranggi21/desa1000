@@ -2,19 +2,21 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\PackageModel;
+use App\Models\ReservationModel;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\I18n\Time;
 use CodeIgniter\RESTful\ResourceController;
+use DateTime;
 
-class Package extends ResourceController
+class Reservation extends ResourceController
 {
     use ResponseTrait;
 
-    protected $PackageModel;
+    protected $reservationModel;
 
     public function __construct()
     {
-        $this->PackageModel = new PackageModel();
+        $this->reservationModel = new ReservationModel();
     }
 
     /**
@@ -24,12 +26,12 @@ class Package extends ResourceController
      */
     public function index()
     {
-        $contents = $this->PackageModel->get_list_tp_api()->getResult();
+        $contents = $this->reservationModel->get_list_s_api()->getResult();
         $response = [
             'data' => $contents,
             'status' => 200,
             'message' => [
-                "Success get list of Package"
+                "Success get list of Service"
             ]
         ];
         return $this->respond($response);
@@ -62,19 +64,23 @@ class Package extends ResourceController
      */
     public function create()
     {
-        $request = $this->request->getPost();
-        $id = $this->PackageModel->get_new_id_api();
+        $request = $this->request->getRawInput();
+
+        $id = $this->reservationModel->get_new_id_api();
         $requestData = [
             'id' => $id,
-            'Package' => $request['Package'],
+            'id_user' => $request['id_user'],
+            'id_package' => $request['id_package'],
+            'id_reservation_status' => $request['id_reservation_status'],
+            'request_date' => $request['reservation_date']
         ];
-        dd($requestData);
-        $addFC = $this->PackageModel->add_tp_api($requestData);
-        if ($addFC) {
+
+        $addR = $this->reservationModel->add_r_api($requestData);
+        if ($addR) {
             $response = [
-                'status' => 201,
+                'status' => 200,
                 'message' => [
-                    "Success create new Package"
+                    "Success create new reservation"
                 ]
             ];
             return $this->respondCreated($response);
@@ -82,7 +88,7 @@ class Package extends ResourceController
             $response = [
                 'status' => 400,
                 'message' => [
-                    "Fail create new Package",
+                    "Fail create new reservation",
                 ]
             ];
             return $this->respond($response, 400);
@@ -108,14 +114,14 @@ class Package extends ResourceController
     {
         $request = $this->request->getRawInput();
         $requestData = [
-            'Package' => $request['Package'],
+            'Service' => $request['Service'],
         ];
-        $updateFC = $this->PackageModel->update_fc_api($id, $requestData);
+        $updateFC = $this->reservationModel->update_fc_api($id, $requestData);
         if ($updateFC) {
             $response = [
                 'status' => 200,
                 'message' => [
-                    "Success update Package"
+                    "Success update Service"
                 ]
             ];
             return $this->respondCreated($response);
@@ -123,7 +129,7 @@ class Package extends ResourceController
             $response = [
                 'status' => 400,
                 'message' => [
-                    "Fail update Package",
+                    "Fail update Service",
                 ]
             ];
             return $this->respond($response, 400);
@@ -137,12 +143,12 @@ class Package extends ResourceController
      */
     public function delete($id = null)
     {
-        $delete = $this->PackageModel->delete(['id' => $id]);
+        $delete = $this->reservationModel->delete(['id' => $id]);
         if ($delete) {
             $response = [
                 'status' => 200,
                 'message' => [
-                    "Success delete Package"
+                    "Success delete Reservation"
                 ]
             ];
             return $this->respondDeleted($response);
@@ -150,21 +156,10 @@ class Package extends ResourceController
             $response = [
                 'status' => 404,
                 'message' => [
-                    "Package not found"
+                    "Reservation not found"
                 ]
             ];
-            return $this->failNotFound($response);
+            return $this->failNotFound('' + $response);
         }
-    }
-    public function package_day($id = null)
-    {
-        $objects =
-            $response = [
-                'status' => 404,
-                'message' => [
-                    "Package not found"
-                ]
-            ];
-        return $this->failNotFound($response);
     }
 }

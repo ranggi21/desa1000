@@ -42,6 +42,14 @@ $uri3 = $uri[3] ?? '';
                             </a>
                         </li>
                     <?php endif; ?>
+                    <!-- DASHBOARD -->
+                    <?php if (in_groups(['admin'])) : ?>
+                        <li class="sidebar-item <?= ($uri1 == 'reservation') ? 'active' : '' ?>">
+                            <a href="<?= base_url('dashboard/reservation'); ?>" class="sidebar-link">
+                                <i class="bi bi-grid-fill"></i><span> Reservation Menu</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Manage RG-->
                     <?php if (in_groups(['admin'])) : ?>

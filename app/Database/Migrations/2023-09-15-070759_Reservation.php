@@ -25,6 +25,7 @@ class Reservation extends Migration
             'id_reservation_status' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
+                'null' => false,
             ],
             'request_date' => [
                 'type' => 'DATE',
@@ -32,11 +33,13 @@ class Reservation extends Migration
             ],
             'deposit' => [
                 'type' => 'INT',
-                'default' => 0
+                'default' => 0,
+                'null' => true,
             ],
             'total_price' => [
                 'type' => 'INT',
-                'default' => 0
+                'default' => 0,
+                'null' => true,
             ],
             'created_at' => [
                 'type' => 'TIMESTAMP',
@@ -47,7 +50,7 @@ class Reservation extends Migration
                 'null' => true,
             ],
         ];
-        
+
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
         $this->forge->addPrimaryKey('id');
@@ -57,7 +60,7 @@ class Reservation extends Migration
         $this->forge->createTable('reservation');
         $this->db->enableForeignKeyChecks();
     }
-    
+
     public function down()
     {
         $this->forge->dropTable('reservation');

@@ -55,7 +55,7 @@ class WorshipPlace extends ResourceController
         foreach ($list_gallery as $gallery) {
             $galleries[] = $gallery['url'];
         }
-        
+
         $worship_place['gallery'] = $galleries;
 
         $response = [
@@ -66,7 +66,6 @@ class WorshipPlace extends ResourceController
             ]
         ];
         return $this->respond($response);
-
     }
 
     /**
@@ -110,7 +109,7 @@ class WorshipPlace extends ResourceController
         $addGallery = $this->galleryWorshipPlaceModel->add_gallery_api($id, $gallery);
         $video = $request['video'];
         $addVideo = $this->videoWorshipPlaceModel->add_video_api($id, array($video));
-        if($addWP && $addFacilities && $addGallery && $addVideo) {
+        if ($addWP && $addFacilities && $addGallery && $addVideo) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -172,7 +171,7 @@ class WorshipPlace extends ResourceController
         $updateGallery = $this->galleryWorshipPlaceModel->update_gallery_api($id, $gallery);
         $video = $request['video'];
         $updateVideo = $this->videoWorshipPlaceModel->update_video_api($id, array($video));
-        if($updateWP && $updateFacilities && $updateGallery && $updateVideo) {
+        if ($updateWP && $updateFacilities && $updateGallery && $updateVideo) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -203,7 +202,7 @@ class WorshipPlace extends ResourceController
     public function delete($id = null)
     {
         $deleteWP = $this->worshipPlaceModel->delete(['id' => $id]);
-        if($deleteWP) {
+        if ($deleteWP) {
             $response = [
                 'status' => 200,
                 'message' => [
@@ -221,7 +220,7 @@ class WorshipPlace extends ResourceController
             return $this->failNotFound($response);
         }
     }
-    
+
     public function findByRadius()
     {
         $request = $this->request->getPost();

@@ -8,12 +8,16 @@ use App\Models\EventModel;
 use App\Models\FacilityRumahGadangModel;
 use App\Models\PackageDayModel;
 use App\Models\RumahGadangModel;
+use App\Models\ReservationModel;
+use App\Models\ReservationStatusModel;
 use App\Models\PackageModel;
 use App\Models\ServiceModel;
 use App\Models\UniquePlaceModel;
 
 class Dashboard extends BaseController
 {
+    protected $reservationModel;
+    protected $reservationStatusModel;
     protected $rumahGadangModel;
     protected $packageModel;
     protected $serviceModel;
@@ -27,6 +31,8 @@ class Dashboard extends BaseController
     public function __construct()
     {
         $this->rumahGadangModel = new RumahGadangModel();
+        $this->reservationModel = new ReservationModel();
+        $this->reservationStatusModel = new ReservationStatusModel();
         $this->packageModel = new PackageModel();
         $this->serviceModel = new ServiceModel();
         $this->packageDayModel = new PackageDayModel();
@@ -69,6 +75,31 @@ class Dashboard extends BaseController
             'data' => $contents,
         ];
         return view('dashboard/manage', $data);
+    }
+    public function reservation()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->reservationModel->get_list_r_api()->getResultArray();
+        }
+
+        $no = 0;
+        // reservation status dan paket
+        foreach ($contents as $item) {
+            $reservation_status_id = $item['id_reservation_status'];
+            $package_id = $item['id_package'];
+            $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
+            $package = $this->packageModel->get_tp_by_id_api($package_id)->getRowArray();
+            $contents[$no]['status'] = $reservationStatus['status'];
+            $contents[$no]['package_name'] = $package['name'];
+            $no++;
+        }
+        $data = [
+            'title' => 'Manage Reservation',
+            'category' => 'Reservation',
+            'data' => $contents,
+        ];
+        return view('dashboard/reservation', $data);
     }
     public function package()
     {

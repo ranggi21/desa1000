@@ -68,7 +68,7 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes)
     $routes->get('visitHistory/add', 'VisitHistory::addVisitHistory', ['filter' => 'role:user']);
     $routes->post('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);
     $routes->post('review', 'Review::add', [['filter' => 'role:user']]);
-
+    $routes->presenter('reservation');
 
     // Profile
     $routes->group('profile', function ($routes) {
@@ -84,6 +84,7 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes)
 $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => 'role:admin'], function ($routes) {
     $routes->get('/', 'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::dashboard',  ['filter' => 'role:admin']);
+    $routes->get('reservation', 'Dashboard::reservation',  ['filter' => 'role:admin']);
     $routes->get('rumahGadang', 'Dashboard::rumahGadang',  ['filter' => 'role:admin']);
     $routes->get('package', 'Dashboard::package',  ['filter' => 'role:admin']);
     $routes->get('service', 'Dashboard::service',  ['filter' => 'role:admin']);
@@ -97,6 +98,7 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
 
     $routes->presenter('rumahGadang',  ['filter' => 'role:admin']);
     $routes->presenter('dashboard',  ['filter' => 'role:admin']);
+    $routes->presenter('reservation',  ['filter' => 'role:admin']);
     $routes->presenter('package',  ['filter' => 'role:admin']);
     $routes->presenter('service',  ['filter' => 'role:admin']);
     $routes->presenter('packageDay',  ['filter' => 'role:admin']);
@@ -154,8 +156,11 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->resource('facility');
     $routes->resource('package');
     $routes->resource('packageDay');
+    $routes->get('objects/package_day/(:segment)', 'PackageObject::getObjectsByPackageDayId/$1');
     $routes->resource('service');
 
+    $routes->resource('reservation');
+    $routes->post('reservation', 'Reservation:create');
     $routes->post('village', 'Village::getData');
     $routes->post('login', 'Profile::attemptLogin');
     $routes->post('profile', 'Profile::profile');

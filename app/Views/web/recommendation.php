@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        
+
         <div class="col-md-4 col-12">
             <div class="row">
                 <!--popular-->
@@ -30,21 +30,29 @@
                         </div>
                         <div class="card-body">
                             <?php $i = 0; ?>
-                            <script>clearMarker();clearRadius();clearRoute();</script>
+                            <script>
+                                clearMarker();
+                                clearRadius();
+                                clearRoute();
+                            </script>
                             <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
                                 <ol class="carousel-indicators">
                                     <?php foreach ($data as $item) : ?>
                                         <li data-bs-target="#carouselExampleCaptions" data-bs-slide-to="<?= esc($i); ?>" class="<?= ($i == 0) ? 'active' : ''; ?>"></li>
                                         <?php $i++; ?>
-                                    <?php endforeach ; ?>
+                                    <?php endforeach; ?>
                                 </ol>
                                 <div class="carousel-inner">
                                     <?php $i = 0; ?>
                                     <?php foreach ($data as $item) : ?>
                                         <div class="carousel-item<?= ($i == 0) ? ' active' : ''; ?>">
-                                            <script>objectMarker("<?= esc($item['id_rumah_gadang']); ?>", <?= esc($item['lat']); ?>, <?= esc($item['lng']); ?>);</script>
+                                            <script>
+                                                objectMarker("<?= esc($item['id_rumah_gadang']); ?>", <?= esc($item['lat']); ?>, <?= esc($item['lng']); ?>);
+                                            </script>
                                             <a>
-                                                <img src="<?= base_url('media/photos/' . esc($item['gallery'][0])); ?>" class="d-block w-100" alt="<?= esc($item['name']); ?>" onclick="focusObject(`<?= esc($item['id_rumah_gadang']); ?>`);">
+
+                                                <img src="<?= base_url('media/photos/' . esc($item['gallery'] == true ? $item['gallery'][0] : 'r1a.jpg')); ?>" class="d-block w-100" alt="<?= esc($item['name']); ?>" onclick="focusObject(`<?= esc($item['id_rumah_gadang']); ?>`);">
+
                                             </a>
                                             <div class="carousel-caption d-none d-md-block">
                                                 <?php $i++; ?>
@@ -83,4 +91,3 @@
     $('#result-nearby-col').hide();
 </script>
 <?= $this->endSection() ?>
-

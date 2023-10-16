@@ -63,22 +63,32 @@ class Package extends ResourcePresenter
             return redirect()->to(substr(current_url(), 0, -strlen($id)));
         }
 
+        // avg rating
         $avg_rating = $this->ReviewModel->get_rating('id_package', $id)->getRowArray()['avg_rating'];
+        // review
+        $list_review = $this->ReviewModel->get_review_object_api('id_package', $id)->getResultArray();
 
+        // service
         $list_service = $this->DetailServicePackageModel->get_service_by_package_api($id)->getResultArray();
-
         $services = array();
         foreach ($list_service as $service) {
             $services[] = $service['name'];
         }
 
-        $list_review = $this->ReviewModel->get_review_object_api('id_package', $id)->getResultArray();
+        // package day
+        $package_day = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
+
+        for ($i = 0; $i < count($package_day); $i++) {
+            $package_day[$i]['package_day_detail'] = $this->detailPackageModel->get_detail_package_by_dp_api($package_day[$i]['id'])->getResultArray();
+        }
 
         $package['avg_rating'] = $avg_rating;
         $package['services'] = $services;
         $package['reviews'] = $list_review;
+        $package['package_day'] = $package_day;
         $package['gallery'] = [$package['url']];
         $package['video_url'] = null;
+
 
         $data = [
             'title' => $package['name'],
@@ -88,6 +98,7 @@ class Package extends ResourcePresenter
         if (url_is('*dashboard*')) {
             return view('dashboard/detail_package', $data);
         }
+
         return view('web/detail_package', $data);
     }
 
