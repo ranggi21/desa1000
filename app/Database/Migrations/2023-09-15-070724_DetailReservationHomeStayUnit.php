@@ -20,7 +20,7 @@ class DetailReservationHomeStayUnit extends Migration
             ],
             'id_reservation' => [
                 'type' => 'VARCHAR',
-                'constraint'=> 50,
+                'constraint' => 50,
             ],
             'created_at' => [
                 'type' => 'TIMESTAMP',
@@ -31,9 +31,10 @@ class DetailReservationHomeStayUnit extends Migration
                 'null' => true,
             ],
         ];
-    
+
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
+        $this->forge->addPrimaryKey('id');
         $this->forge->addForeignKey('id_homestay_unit', 'homestay_unit', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('id_reservation', 'reservation', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('detail_reservation_homestay_unit');

@@ -292,6 +292,8 @@ function objectMarker(id, lat, lng, anim = true) {
         icon = baseUrl + '/media/icon/marker_sp.png';
     } else if (id.substring(0,1) === "E") {
         icon = baseUrl + '/media/icon/marker_ev.png';
+    } else if (id.substring(0,1) === "A") {
+        icon = baseUrl + '/media/icon/marker_cp.png';
     }
 
     markerOption = {
@@ -515,6 +517,26 @@ function objectInfoWindow(id){
                     '</div>';
 
                 infoWindow.setContent(content);
+            }
+        });
+    } else if (id.substring(0,1) === "A") {
+      
+        $.ajax({
+            url: baseUrl + '/api/atraction/' + id,
+            dataType: 'json',
+            success: function (response) {
+                let data = response.data;
+                let name = data.name;
+             
+                content =
+                    '<div class="text-center">' +
+                    '<p class="fw-bold fs-6">'+ name +'</p>' +
+                    '</div>';
+
+                infoWindow.setContent(content);
+            },
+            error: function (err) {
+                console.log(err.responseText)
             }
         });
     }
@@ -764,16 +786,20 @@ function checkNearby(id) {
     $('#table-cp').empty();
     $('#table-wp').empty();
     $('#table-sp').empty();
+    $('#table-at').empty();
     $('#table-cp').hide();
     $('#table-wp').hide();
     $('#table-sp').hide();
+    $('#table-at').hide();
+
 
     let radiusValue = parseFloat(document.getElementById('inputRadiusNearby').value) * 100;
     const checkCP = document.getElementById('check-cp').checked;
     const checkWP = document.getElementById('check-wp').checked;
     const checkSP = document.getElementById('check-sp').checked;
+    const checkAT = document.getElementById('check-at').checked;
 
-    if (!checkCP && !checkWP && !checkSP) {
+    if (!checkCP && !checkWP && !checkSP && !checkAT) {
         document.getElementById('radiusValueNearby').innerHTML = "0 m";
         document.getElementById('inputRadiusNearby').value = 0;
         return Swal.fire('Please choose one object');
@@ -791,6 +817,10 @@ function checkNearby(id) {
         findNearby('sp', radiusValue);
         $('#table-sp').show();
     }
+    if (checkAT) {
+        findNearby('at', radiusValue);
+        $('#table-at').show();
+    }
     drawRadius(new google.maps.LatLng(currentLat, currentLng), radiusValue);
     $('#result-nearby-col').show();
 }
@@ -799,6 +829,7 @@ function checkNearby(id) {
 function findNearby(category, radius) {
     let pos = new google.maps.LatLng(currentLat, currentLng);
     if (category === 'cp') {
+    
         $.ajax({
             url: baseUrl + '/api/culinaryPlace/findByRadius',
             type: 'POST',
@@ -840,7 +871,22 @@ function findNearby(category, radius) {
                 displayNearbyResult(category, response);
             }
         });
-    }
+    }else if (category === 'at') {
+
+        $.ajax({
+            url: baseUrl + '/api/atraction/findByRadius',
+            type: 'POST',
+            data: {
+                lat: currentLat,
+                long: currentLng,
+                radius: radius
+            },
+            dataType: 'json',
+            success: function (response) {
+                displayNearbyResult(category, response);
+            }
+        });
+    } 
 }
 
 // Add nearby object to corresponding table
@@ -848,11 +894,14 @@ function displayNearbyResult(category, response) {
     let data = response.data;
     let headerName;
     if (category === 'cp') {
+       
         headerName = 'Culinary';
     } else if (category === 'wp') {
         headerName = 'Worship';
     } else if (category === 'sp') {
         headerName = 'Souvenir'
+    } else if (category === 'at') {
+        headerName = 'Atraction'
     }
     let table =
         '<thead><tr>' +
@@ -969,7 +1018,49 @@ function infoModal(id) {
             dataType: 'json',
             success: function (response) {
                 let item = response.data;
-                console.log(item)
+               
+                let open = item.open.substring(0, item.open.length - 3);
+                let close = item.close.substring(0, item.close.length - 3);
+
+                title = '<h3>'+item.name+'</h3>';
+                content =
+                    '<div class="text-start">'+
+                    '<p><span class="fw-bold">Address</span>: '+ item.address +'</p>'+
+                    '<p><span class="fw-bold">Contact Person :</span> '+ item.contact_person+'</p>'+
+                    '<p><span class="fw-bold">Open</span>: '+ open +' - '+ close+' WIB</p>'+
+                    '</div>' +
+                    '<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">' +
+                    '<ol class="carousel-indicators">' +
+                    '<li data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active"></li>' +
+                    '</ol><div class="carousel-inner">' +
+                    '<div class="carousel-item active">' +
+                    '<img src="/media/photos/'+item.gallery[0]+'" alt="'+ item.name +'" class="w-50" alt="'+item.name+'">' +
+                    '</div></div>' +
+                    '<a style="color: #000" class="carousel-control-prev" href="#carouselExampleControls" role="button" data-bs-slide="prev">\n' +
+                    '<i class="fa-solid fa-angle-left" aria-hidden="true"></i>' +
+                    '<span class="visually-hidden">Previous</span>' +
+                    ' </a>' +
+                    '<a style="color: #000" class="carousel-control-next" href="#carouselExampleControls" role="button" data-bs-slide="next">' +
+                    '<i class="fa-solid fa-angle-right" aria-hidden="true"></i>' +
+                    '<span class="visually-hidden">Next</span>' +
+                    '</a>' +
+                    '</div>';
+
+                Swal.fire({
+                    title: title,
+                    html: content,
+                    width: '50%',
+                    position: 'top'
+                });
+            }
+        });
+    }else if (id.substring(0,1) === "A") {
+        $.ajax({
+            url: baseUrl + '/api/atraction/' + id,
+            dataType: 'json',
+            success: function (response) {
+                let item = response.data;
+            
                 let open = item.open.substring(0, item.open.length - 3);
                 let close = item.close.substring(0, item.close.length - 3);
 
@@ -1723,9 +1814,18 @@ function deleteObject(id = null, name = null, user = false) {
     if (id.substring(0,1) === 'R') {
         content = 'Rumah Gadang';
         apiUri = 'rumahGadang/';
+    } else if(id.substring(0,2) === 'AF') {
+        content = 'Atraction Facility';
+        apiUri = 'atractionFacility/'
+    } else if (id.substring(0,1) === 'A') {
+        content = 'Atraction';
+        apiUri = 'atraction/'
     } else if (id.substring(0,1) === 'E') {
         content = 'Event';
         apiUri = 'event/'
+    } else if (id.substring(0,2) === 'UF') {
+        content = 'Unit Facility';
+        apiUri = 'homestayUnitFacility/'
     } else if (id.substring(0,1) === 'U') {
         content = 'Unique Place';
         apiUri = 'uniquePlace/'
@@ -1733,9 +1833,17 @@ function deleteObject(id = null, name = null, user = false) {
         content = 'Tourism Package';
         apiUri = 'package/'
     } else if (id.substring(0,2) === 'SP') {
-        console.log(id)
         content = 'Service';
         apiUri = 'service/'
+    } else if (id.substring(0,2) === 'HF') {
+        content = 'Homestay Facility';
+        apiUri = 'homestayFacility/'
+    } else if (id.substring(0,2) === 'HU') {
+        content = 'Homestay Unit';
+        apiUri = 'homestayUnit/'
+    } else if (id.substring(0,1) === 'H') {
+        content = 'Homestay';
+        apiUri = 'homestay/'
     } else if (user === true) {
         content = 'User';
         apiUri = 'user/'

@@ -114,9 +114,13 @@ class Reservation extends ResourceController
     {
         $request = $this->request->getRawInput();
         $requestData = [
-            'Service' => $request['Service'],
+            'id_reservation_status' => $request['id_reservation_status'],
+            'id_user' => $request['id_user'],
+            'id_package' => $request['id_package'],
+            'request_date' => $request['request_date']
         ];
-        $updateFC = $this->reservationModel->update_fc_api($id, $requestData);
+
+        $updateFC = $this->reservationModel->update_r_api($id, $requestData);
         if ($updateFC) {
             $response = [
                 'status' => 200,

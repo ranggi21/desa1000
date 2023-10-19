@@ -29,7 +29,7 @@
 
                                         </div>
                                         <div class="card-footer text-end" style="border: none;">
-                                            <a role="button" class="btn btn-success" href="<?= base_url('web/package') . '/' . $item['id']; ?>">Detail</a>
+                                            <a role="button" class="btn btn-success" target="_blank" href="<?= base_url('web/package') . '/' . $item['id']; ?>">Detail</a>
                                         </div>
                                     </div>
                                 </div>

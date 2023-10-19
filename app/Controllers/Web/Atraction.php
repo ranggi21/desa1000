@@ -2,16 +2,19 @@
 
 namespace App\Controllers\Web;
 
-use App\Models\CategoryEventModel;
+use App\Models\AtractionFacilityModel;
 use App\Models\GalleryAtractionModel;
 use App\Models\ReviewModel;
 use App\Models\AtractionModel;
+use App\Models\DetailFacilityAtractionModel;
 use CodeIgniter\Files\File;
 use CodeIgniter\RESTful\ResourcePresenter;
 
 class Atraction extends ResourcePresenter
 {
     protected $atractionModel;
+    protected $facilitiesModel;
+    protected $detailFacilityAtractionModel;
     protected $atractionGalleryModel;
     protected $categoryEventModel;
     protected $reviewModel;
@@ -20,6 +23,8 @@ class Atraction extends ResourcePresenter
     public function __construct()
     {
         $this->atractionModel = new AtractionModel();
+        $this->facilitiesModel = new AtractionFacilityModel();
+        $this->detailFacilityAtractionModel = new DetailFacilityAtractionModel();
         $this->atractionGalleryModel = new GalleryAtractionModel();
         $this->reviewModel = new ReviewModel();
     }
@@ -49,13 +54,20 @@ class Atraction extends ResourcePresenter
      */
     public function show($id = null)
     {
-        $atraction = $this->atractionModel->get_up_by_id_api($id)->getRowArray();
+        $atraction = $this->atractionModel->get_a_by_id_api($id)->getRowArray();
         if (empty($atraction)) {
             return redirect()->to(substr(current_url(), 0, -strlen($id)));
         }
 
-        $avg_rating = $this->reviewModel->get_rating('id_atraction', $id)->getRowArray()['avg_rating'];
-        $list_review = $this->reviewModel->get_review_object_api('id_atraction', $id)->getResultArray();
+        // $avg_rating = $this->reviewModel->get_rating('id_rumah_gadang', $id)->getRowArray()['avg_rating'];
+
+        $list_facility = $this->detailFacilityAtractionModel->get_facility_by_a_api($id)->getResultArray();
+        $facilities = array();
+        foreach ($list_facility as $facility) {
+            $facilities[] = $facility['name'];
+        }
+
+        // $list_review = $this->reviewModel->get_review_object_api('id_rumah_gadang', $id)->getResultArray();
 
         $list_gallery = $this->atractionGalleryModel->get_gallery_api($id)->getResultArray();
         $galleries = array();
@@ -64,8 +76,9 @@ class Atraction extends ResourcePresenter
         }
 
 
-        $atraction['avg_rating'] = $avg_rating;
-        $atraction['reviews'] = $list_review;
+        // $atraction['avg_rating'] = $avg_rating;
+        // $atraction['reviews'] = $list_review;
+        $atraction['facilities'] = $facilities;
         $atraction['gallery'] = $galleries;
 
         $data = [
@@ -86,12 +99,13 @@ class Atraction extends ResourcePresenter
      */
     public function new()
     {
-        $categories = $this->categoryEventModel->get_list_cat_api()->getResultArray();
+        $facilities = $this->facilitiesModel->get_list_fc_api()->getResultArray();
         $data = [
-            'title' => 'New atraction ',
-            'categories' => $categories
+            'title' => 'New Atraction',
+            'facilities' => $facilities,
         ];
-        return view('dashboard/atraction__form', $data);
+
+        return view('dashboard/atraction_form', $data);
     }
 
     /**
@@ -105,13 +119,14 @@ class Atraction extends ResourcePresenter
         $request = $this->request->getPost();
         $id = $this->atractionModel->get_new_id_api();
         $requestData = [
-            'id_atraction' => $id,
+            'id' => $id,
             'name' => $request['name'],
             'address' => $request['address'],
-            'description' => $request['description'],
+            'open' => $request['open'],
+            'close' => $request['close'],
+            'price_ticket' => empty($request['ticket_price']) ? "0" : $request['ticket_price'],
             'cp' => $request['contact_person'],
-            'status' => $request['category'],
-            'id_user' => $request['owner'],
+            'description' => $request['description'],
             'lat' => $request['lat'],
             'lng' => $request['lng'],
         ];
@@ -131,7 +146,13 @@ class Atraction extends ResourcePresenter
             rmdir($filepath);
             $requestData['video_url'] = $vidFile->getFilename();
         }
-        $addEV = $this->atractionModel->add_up_api($requestData, $geojson);
+        $addAt = $this->atractionModel->add_a_api($requestData, $geojson);
+
+        $addFacilities = true;
+        if (isset($request['facilities'])) {
+            $facilities = $request['facilities'];
+            $addFacilities = $this->detailFacilityAtractionModel->add_facility_api($id, $facilities);
+        }
 
         if (isset($request['gallery'])) {
             $folders = $request['gallery'];
@@ -148,7 +169,7 @@ class Atraction extends ResourcePresenter
             $this->atractionGalleryModel->add_gallery_api($id, $gallery);
         }
 
-        if ($addEV) {
+        if ($addAt && $addFacilities) {
             return redirect()->to(base_url('dashboard/atraction') . '/' . $id);
         } else {
             return redirect()->back()->withInput();
@@ -164,9 +185,16 @@ class Atraction extends ResourcePresenter
      */
     public function edit($id = null)
     {
-        $atraction = $this->atractionModel->get_up_by_id_api($id)->getRowArray();
+        $facilities = $this->facilitiesModel->get_list_fc_api()->getResultArray();
+        $atraction = $this->atractionModel->get_a_by_id_api($id)->getRowArray();
         if (empty($atraction)) {
             return redirect()->to('dashboard/atraction');
+        }
+
+        $list_facility = $this->detailFacilityAtractionModel->get_facility_by_a_api($id)->getResultArray();
+        $selectedFac = array();
+        foreach ($list_facility as $facility) {
+            $selectedFac[] = $facility['name'];
         }
 
         $list_gallery = $this->atractionGalleryModel->get_gallery_api($id)->getResultArray();
@@ -175,15 +203,14 @@ class Atraction extends ResourcePresenter
             $galleries[] = $gallery['url'];
         }
 
-        $categories = $this->categoryEventModel->get_list_cat_api()->getResultArray();
-
+        $atraction['facilities'] = $selectedFac;
         $atraction['gallery'] = $galleries;
         $data = [
-            'title' => 'Edit atraction ',
+            'title' => 'Edit Atraction',
             'data' => $atraction,
-            'categories' => $categories
+            'facilities' => $facilities,
         ];
-        return view('dashboard/atraction__form', $data);
+        return view('dashboard/atraction_form', $data);
     }
 
     /**
@@ -202,8 +229,9 @@ class Atraction extends ResourcePresenter
             'address' => $request['address'],
             'open' => $request['open'],
             'close' => $request['close'],
-            'description' => $request['description'],
+            'price_ticket' => empty($request['ticket_price']) ? '0' : $request['ticket_price'],
             'cp' => $request['contact_person'],
+            'description' => $request['description'],
             'lat' => $request['lat'],
             'lng' => $request['lng'],
         ];
@@ -225,7 +253,13 @@ class Atraction extends ResourcePresenter
         } else {
             $requestData['video_url'] = null;
         }
-        $updateEV = $this->atractionModel->update_up_api($id, $requestData, $geojson);
+        $updateRG = $this->atractionModel->update_a_api($id, $requestData, $geojson);
+
+        $updateFacilities = true;
+        if (isset($request['facilities'])) {
+            $facilities = $request['facilities'];
+            $updateFacilities = $this->detailFacilityAtractionModel->update_facility_api($id, $facilities);
+        }
 
         if (isset($request['gallery'])) {
             $folders = $request['gallery'];
@@ -244,7 +278,7 @@ class Atraction extends ResourcePresenter
             $this->atractionGalleryModel->delete_gallery_api($id);
         }
 
-        if ($updateEV) {
+        if ($updateRG && $updateFacilities) {
             return redirect()->to(base_url('dashboard/atraction') . '/' . $id);
         } else {
             return redirect()->back()->withInput();

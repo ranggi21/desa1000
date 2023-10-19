@@ -76,14 +76,25 @@
 
                     <div class="row">
                         <div class="col">
-                            <p class="fw-bold">Activities </p>
+                            <p class="fw-bold">Service</p>
+                            <?php $i = 1; ?>
+                            <?php foreach ($data['services'] as $service) : ?>
+                                <p class="px-1"><?= esc($i) . '. ' . esc($service); ?></p>
+                                <?php $i++; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col border p-2">
+                            <p class="fw-bold">Detail Packages </p>
                             <div class="list-group list-group-horizontal-sm mb-4 text-center" role="tablist">
                                 <?php $dayNumber = 1; ?>
                                 <?php foreach ($data['package_day'] as $day) : ?>
-                                    <a onclick="getObjectsByPackageDayId('<?= $day['id'] ?>')" class="list-group-item list-group-item-action <?= $dayNumber == 1 ? "active" : "" ?>" id="list-<?= $dayNumber; ?>-list" data-bs-toggle="list" href="#list-<?= $dayNumber; ?>" role="tab" aria-selected="<?= $dayNumber == 1 ? "true" : "false" ?>"> Day <?= $dayNumber; ?></a>
+                                    <a onclick="getObjectsByPackageDayId('<?= $day['day'] ?>')" class="list-group-item list-group-item-action <?= $dayNumber == 1 ? "active" : "" ?>" id="list-<?= $dayNumber; ?>-list" data-bs-toggle="list" href="#list-<?= $dayNumber; ?>" role="tab" aria-selected="<?= $dayNumber == 1 ? "true" : "false" ?>"> Day <?= $dayNumber; ?></a>
                                     <?php $dayNumber++; ?>
                                 <?php endforeach; ?>
                             </div>
+                            <p class="fw-bold">Activities </p>
                             <div class="tab-content text-justify px-1">
                                 <?php $detailNumber = 1 ?>
                                 <?php foreach ($data['package_day'] as $day) : ?>
@@ -99,16 +110,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <p class="fw-bold">Service</p>
-                            <?php $i = 1; ?>
-                            <?php foreach ($data['services'] as $service) : ?>
-                                <p class="px-1"><?= esc($i) . '. ' . esc($service); ?></p>
-                                <?php $i++; ?>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -153,7 +155,7 @@
     let latBefore = ''
     let lngBefore = ''
 
-    getObjectsByPackageDayId('<?= $data['package_day'][0]['id'] ?>')
+    getObjectsByPackageDayId('<?= $data['package_day'][0]['day'] ?>')
 
     function getObjectsByPackageDayId(id_day) {
         $.ajax({
@@ -292,7 +294,9 @@
             `)
             $('#modalFooter').html(`<a class="btn btn-success" onclick="makeReservation()"> Make reservation </a>`)
         <?php else : ?>
+            $('#modalTitle').html('Login required')
             $('#modalBody').html('Login as user for reservation')
+            $('#modalFooter').html(`<a class="btn btn-primary" href="/login"> Login </a> <a class="btn btn-primary" href="/regiter"> Register </a>`)
         <?php endif; ?>
     }
 
@@ -301,32 +305,34 @@
         if (!reservationDate) {
             Swal.fire('Please select reservation date', '', 'warning');
         } else {
-            let requestData = {
-                id_user: '<?= user()->id; ?>',
-                id_package: '<?= $data['id'] ?>',
-                id_reservation_status: 1, // pending status
-                reservation_date: reservationDate
-            }
-            $.ajax({
-                url: `<?= base_url('api'); ?>/reservation`,
-                type: "POST",
-                data: requestData,
-                async: false,
-                contentType: "application/json",
-                success: function(response) {
-                    Swal.fire(
-                        'Success to make reservation request',
-                        '',
-                        'success'
-                    ).then(() => {
-                        window.location.replace(baseUrl + '/web/reservation/' + <?= user()->id; ?>)
-                    });
-
-                },
-                error: function(err) {
-                    console.log(err.responseText)
+            <?php if (in_groups('user')) : ?>
+                let requestData = {
+                    id_user: '<?= user()->id; ?>',
+                    id_package: '<?= $data['id'] ?>',
+                    id_reservation_status: 1, // pending status
+                    reservation_date: reservationDate
                 }
-            });
+                $.ajax({
+                    url: `<?= base_url('api'); ?>/reservation`,
+                    type: "POST",
+                    data: requestData,
+                    async: false,
+                    contentType: "application/json",
+                    success: function(response) {
+                        Swal.fire(
+                            'Success to make reservation request',
+                            '',
+                            'success'
+                        ).then(() => {
+                            window.location.replace(baseUrl + '/web/reservation/' + <?= user()->id; ?>)
+                        });
+
+                    },
+                    error: function(err) {
+                        console.log(err.responseText)
+                    }
+                });
+            <?php endif; ?>
         }
     }
 </script>

@@ -15,6 +15,18 @@ $users = in_array('users', $uri);
             <hr class="text-primary">
             <div class="row">
                 <div class="col ">
+                    <a href="<?= base_url('dashboard/reservation') ?>" class="btn btn-outline-primary">
+                        <div class="card ">
+                            <div class="card-header mb-4">
+                                <h4>Manage Reservation</h4>
+                            </div>
+                            <div class="card-body ">
+                                <img class="img-fluid " src="<?= base_url("media/photos/r1c.jpeg") ?>?" alt="" with="200">
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col ">
                     <a href="<?= base_url('dashboard/rumahGadang') ?>" class="btn btn-outline-primary">
                         <div class="card ">
                             <div class="card-header mb-4">
@@ -26,6 +38,7 @@ $users = in_array('users', $uri);
                         </div>
                     </a>
                 </div>
+
                 <div class="col">
                     <a href="<?= base_url('dashboard/facility') ?>" class="btn btn-outline-primary">
                         <div class="card">

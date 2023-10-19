@@ -24,11 +24,11 @@ class Atraction extends Migration
             ],
             'open' => [
                 'type' => 'TIME',
-                'null' => true,
+                'null' => false,
             ],
             'close' => [
                 'type' => 'TIME',
-                'null' => true,
+                'null' => false,
             ],
             'geom' => [
                 'type' => 'GEOMETRY',
@@ -38,6 +38,10 @@ class Atraction extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 15,
                 'null' => true,
+            ],
+            'price_ticket' => [
+                'type' => 'INT',
+                'default' => 0
             ],
             'description' => [
                 'type' => 'VARCHAR',

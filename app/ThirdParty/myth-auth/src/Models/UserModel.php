@@ -1,4 +1,6 @@
-<?php namespace Myth\Auth\Models;
+<?php
+
+namespace Myth\Auth\Models;
 
 use CodeIgniter\Model;
 use Myth\Auth\Authorization\GroupModel;
@@ -113,13 +115,29 @@ class UserModel extends Model
      */
     protected function addToGroup($data)
     {
-        if (is_numeric($this->assignGroup))
-        {
+        if (is_numeric($this->assignGroup)) {
             $groupModel = model(GroupModel::class);
             $groupModel->addUserToGroup($data['id'], $this->assignGroup);
         }
 
         return $data;
     }
+    /**
+     * If a default role is assigned in Config\Auth, will
+     * add this user to that group. Will do nothing
+     * if the group cannot be found.
+     *
+     * @param mixed $data
+     *
+     * @return mixed
+     */
+    public function get_u_by_id_api($id = null)
+    {
 
+        $query = $this->db->table($this->table)
+            ->select("*")
+            ->where('id', $id)
+            ->get();
+        return $query;
+    }
 }

@@ -86,22 +86,32 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
     $routes->get('dashboard', 'Dashboard::dashboard',  ['filter' => 'role:admin']);
     $routes->get('reservation', 'Dashboard::reservation',  ['filter' => 'role:admin']);
     $routes->get('rumahGadang', 'Dashboard::rumahGadang',  ['filter' => 'role:admin']);
+    $routes->get('atraction', 'Dashboard::atraction',  ['filter' => 'role:admin']);
+    $routes->get('homestay', 'Dashboard::homestay',  ['filter' => 'role:admin']);
     $routes->get('package', 'Dashboard::package',  ['filter' => 'role:admin']);
     $routes->get('service', 'Dashboard::service',  ['filter' => 'role:admin']);
-    $routes->get('packageDay', 'Dashboard::packageDay',  ['filter' => 'role:admin']);
     $routes->get('event', 'Dashboard::event',  ['filter' => 'role:admin']);
     $routes->get('event', 'Dashboard::event',  ['filter' => 'role:admin']);
     $routes->get('uniquePlace', 'Dashboard::uniquePlace',  ['filter' => 'role:admin']);
     $routes->get('facility', 'Dashboard::facility', ['filter' => 'role:admin']);
+    $routes->get('atractionFacility', 'Dashboard::atractionFacility', ['filter' => 'role:admin']);
+    $routes->get('homestayFacility', 'Dashboard::homestayFacility', ['filter' => 'role:admin']);
+    $routes->get('homestayUnitFacility', 'Dashboard::homestayUnitFacility', ['filter' => 'role:admin']);
+    $routes->get('homestayUnit', 'Dashboard::homestayUnit', ['filter' => 'role:admin']);
     $routes->get('recommendation', 'Dashboard::recommendation',  ['filter' => 'role:admin']);
     $routes->get('users', 'Dashboard::users', ['filter' => 'role:admin']);
 
     $routes->presenter('rumahGadang',  ['filter' => 'role:admin']);
+    $routes->presenter('atraction',  ['filter' => 'role:admin']);
+    $routes->presenter('atractionFacility', ['filter' => 'role:admin']);
+    $routes->presenter('homestayUnitFacility', ['filter' => 'role:admin']);
+    $routes->presenter('homestayUnit', ['filter' => 'role:admin']);
+    $routes->presenter('homestay',  ['filter' => 'role:admin']);
     $routes->presenter('dashboard',  ['filter' => 'role:admin']);
     $routes->presenter('reservation',  ['filter' => 'role:admin']);
     $routes->presenter('package',  ['filter' => 'role:admin']);
     $routes->presenter('service',  ['filter' => 'role:admin']);
-    $routes->presenter('packageDay',  ['filter' => 'role:admin']);
+
     $routes->presenter('event',  ['filter' => 'role:admin']);
     $routes->presenter('uniquePlace',  ['filter' => 'role:admin']);
     $routes->presenter('facility', ['filter' => 'role:admin']);
@@ -123,6 +133,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->post('rumahGadang/findByCategory', 'RumahGadang::findByCategory');
     $routes->get('rumahGadang/maps', 'RumahGadang::maps');
     $routes->get('event/category', 'Event::category');
+    $routes->resource('atraction');
+    $routes->post('atraction/findByRadius', 'Atraction::findByRadius');
+    $routes->resource('homestay');
     $routes->resource('event');
     $routes->post('eventOwner', 'Event::listByOwner');
     $routes->post('event/findByName', 'Event::findByName');
@@ -154,6 +167,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->resource('user');
     $routes->get('owner', 'User::owner');
     $routes->resource('facility');
+    $routes->resource('atractionFacility');
+    $routes->resource('homestayFacility');
+    $routes->resource('homestayUnitFacility');
+    $routes->resource('homestayUnit');
     $routes->resource('package');
     $routes->resource('packageDay');
     $routes->get('objects/package_day/(:segment)', 'PackageObject::getObjectsByPackageDayId/$1');

@@ -4,8 +4,14 @@ namespace App\Controllers\Web;
 
 use App\Controllers\BaseController;
 use App\Models\AccountModel;
+use App\Models\AtractionFacilityModel;
+use App\Models\AtractionModel;
 use App\Models\EventModel;
 use App\Models\FacilityRumahGadangModel;
+use App\Models\HomestayFacilityModel;
+use App\Models\HomestayModel;
+use App\Models\HomestayUnitFacilityModel;
+use App\Models\HomestayUnitModel;
 use App\Models\PackageDayModel;
 use App\Models\RumahGadangModel;
 use App\Models\ReservationModel;
@@ -13,12 +19,20 @@ use App\Models\ReservationStatusModel;
 use App\Models\PackageModel;
 use App\Models\ServiceModel;
 use App\Models\UniquePlaceModel;
+use Myth\Auth\Models\UserModel;
 
 class Dashboard extends BaseController
 {
+    protected $usermodel;
     protected $reservationModel;
+    protected $homestayModel;
+    protected $homestayFacilityModel;
+    protected $homestayUnitModel;
+    protected $homestayUnitFacilityModel;
     protected $reservationStatusModel;
     protected $rumahGadangModel;
+    protected $atractionModel;
+    protected $atractionFacilityModel;
     protected $packageModel;
     protected $serviceModel;
     protected $packageDayModel;
@@ -30,7 +44,14 @@ class Dashboard extends BaseController
 
     public function __construct()
     {
+        $this->usermodel = new UserModel();
         $this->rumahGadangModel = new RumahGadangModel();
+        $this->atractionModel = new AtractionModel();
+        $this->atractionFacilityModel = new AtractionFacilityModel();
+        $this->homestayModel = new HomestayModel();
+        $this->homestayFacilityModel = new HomestayFacilityModel();
+        $this->homestayUnitModel = new HomestayUnitModel();
+        $this->homestayUnitFacilityModel = new HomestayUnitFacilityModel();
         $this->reservationModel = new ReservationModel();
         $this->reservationStatusModel = new ReservationStatusModel();
         $this->packageModel = new PackageModel();
@@ -76,6 +97,83 @@ class Dashboard extends BaseController
         ];
         return view('dashboard/manage', $data);
     }
+    public function atraction()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->atractionModel->get_list_a_api()->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Manage Atraction',
+            'category' => 'Atraction',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
+    public function atractionFacility()
+    {
+        $contents = $this->atractionFacilityModel->get_list_fc_api()->getResultArray();
+        $data = [
+            'title' => 'Manage Atraction Facility',
+            'category' => 'Atraction Facility',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
+    public function homestayFacility()
+    {
+        $contents = $this->homestayFacilityModel->get_list_fc_api()->getResultArray();
+        $data = [
+            'title' => 'Manage Homestay Facility',
+            'category' => 'Homestay Facility',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
+
+    public function homestay()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->homestayModel->get_list_hm_api()->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Manage Homestay',
+            'category' => 'Homestay',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
+    public function homestayUnit()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->homestayUnitModel->get_list_hm_api()->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Manage Homestay Unit',
+            'category' => 'Homestay Unit',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
+    public function homestayUnitFacility()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->homestayUnitFacilityModel->get_list_fc_api()->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Manage Unit Facility',
+            'category' => 'Unit Facility',
+            'data' => $contents,
+        ];
+        return view('dashboard/manage', $data);
+    }
     public function reservation()
     {
         $contents = [];
@@ -88,12 +186,16 @@ class Dashboard extends BaseController
         foreach ($contents as $item) {
             $reservation_status_id = $item['id_reservation_status'];
             $package_id = $item['id_package'];
+            $user_id = $item['id_user'];
+            $user = $this->usermodel->get_u_by_id_api($user_id)->getRowArray();
             $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
             $package = $this->packageModel->get_tp_by_id_api($package_id)->getRowArray();
+            $contents[$no]['username'] = $user['username'];
             $contents[$no]['status'] = $reservationStatus['status'];
             $contents[$no]['package_name'] = $package['name'];
             $no++;
         }
+
         $data = [
             'title' => 'Manage Reservation',
             'category' => 'Reservation',
@@ -127,21 +229,7 @@ class Dashboard extends BaseController
         ];
         return view('dashboard/manage', $data);
     }
-    public function packageDay()
-    {
-        $contents = [];
-        if (in_groups('admin')) {
-            $contents = $this->packageDayModel->get_list_pd_api()->getResultArray();
-        }
 
-        $data = [
-            'title' => 'Manage Package Day',
-            'category' => 'Package Day',
-            'data' => $contents,
-        ];
-
-        return view('dashboard/manage', $data);
-    }
 
     public function event()
     {
@@ -185,6 +273,7 @@ class Dashboard extends BaseController
         ];
         return view('dashboard/manage', $data);
     }
+
 
     public function users()
     {

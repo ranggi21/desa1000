@@ -25,6 +25,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">My Reservation</h3>
+            <a title="find package" class="btn btn-primary" href="<?= base_url('web') ?>/package "> List package <i class="fa fa-search"></i></a>
         </div>
         <div class="card-body">
             <table class="table table-border ">
@@ -45,14 +46,21 @@
                             <td class="text-start"> <?= $item['package_name']; ?> </td>
                             <td class="text-start"> <?= $item['request_date']; ?> </td>
                             <td class="text-start">
-                                <span class="badge bg-<?= $item['status'] == "pending" ? "warning" : "success"; ?>">
+                                <span class="badge bg-<?php if ($item['id_reservation_status'] == 1) {
+                                                            echo "warning";
+                                                        } else if ($item['id_reservation_status'] == 2) {
+                                                            echo "success";
+                                                        } else if ($item['id_reservation_status'] == 3) {
+                                                            echo "danger";
+                                                        }; ?>">
                                     <?= $item['status']; ?>
                                 </span>
                             </td>
                             <td>
                                 <a class="btn btn-success"><i class="fa fa-ticket" title="deposit"></i> </a>
-                                <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="showModalDelete('<?= $item['id'] ?>?')"><i class="fa fa-trash" title="delete reservation"></i> </a>
-
+                                <?php if ($item['id_reservation_status'] != 3) : ?>
+                                    <a title="cancel reservation" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="showModalDelete('<?= $item['id'] ?>','<?= $item['id_user'] ?>','<?= $item['id_package'] ?>','<?= $item['request_date'] ?>')"> <i class="fa fa-x"></i></a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php $no++; ?>
@@ -66,10 +74,10 @@
 <?= $this->endSection() ?>
 <?= $this->section('javascript') ?>
 <script>
-    function showModalDelete(id_reservation) {
-        $('#modalTitle').html("Delete reservation")
-        $('#modalBody').html(`Are you sure delete this reservation?`)
-        $('#modalFooter').html(`<a class="btn btn-danger" onclick="deleteReservation('${id_reservation}')"> Delete </a>`)
+    function showModalDelete(id, id_user, id_package, request_date) {
+        $('#modalTitle').html("Abort reservation")
+        $('#modalBody').html(`Are you sure cancel this reservation?`)
+        $('#modalFooter').html(`<a class="btn btn-danger" onclick="cancelReservation('${id}','${id_user}','${id_package}','${request_date}')"> Cancel </a>`)
     }
 
     function deleteReservation(id_reservation) {
@@ -85,6 +93,35 @@
                     'success'
                 ).then(() => {
                     window.location.replace(baseUrl + '/web/reservation/' + <?= user()->id; ?>)
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        });
+    }
+
+    function cancelReservation(id, id_user, id_package, request_date) {
+        let requestData = {
+            id_user: id_user,
+            id_package: id_package,
+            id_reservation_status: 3, // cancel status
+            request_date: request_date
+        }
+        console.log(requestData)
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Reservation Canceled',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.replace(baseUrl + '/web/reservation/')
                 });
             },
             error: function(err) {

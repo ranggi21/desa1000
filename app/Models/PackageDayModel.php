@@ -40,15 +40,15 @@ class PackageDayModel extends Model
     public function get_pd_by_id_api($id = null)
     {
         $query = $this->db->table($this->table)
-            ->select('day as id, description')
-            ->where('id', $id)
+            ->select('*')
+            ->where('day', $id)
             ->get();
         return $query;
     }
     public function get_pd_by_package_id_api($id = null)
     {
         $query = $this->db->table($this->table)
-            ->select('day as id, description')
+            ->select('*')
             ->where('id_package', $id)
             ->get();
         return $query;
@@ -59,10 +59,10 @@ class PackageDayModel extends Model
         $lastId = $this->db->table($this->table)->select('day')->orderBy('day', 'ASC')->get()->getLastRow('array');
         if ($lastId != null) {
             $count = (int)substr($lastId['day'], 0);
-            $id = sprintf('D%02d', $count + 1);
+            $id = sprintf('%01d', $count + 1);
         } else {
             $count = 0;
-            $id = sprintf('D%02d', $count + 1);
+            $id = sprintf('%01d', $count + 1);
         }
         return $id;
     }
@@ -85,13 +85,23 @@ class PackageDayModel extends Model
     {
         foreach ($day as $key => $value) {
             if (empty($value)) {
-                unset($facility[$key]);
+                unset($day[$key]);
             }
         }
         $day['updated_at'] = Time::now();
         $query = $this->db->table($this->table)
             ->where('day', $id)
             ->update($day);
+        return $query;
+    }
+    public function delete_pd_by_package_id($id_package)
+    {
+        $query = $this->db->table($this->table)->delete(['id_package' => $id_package]);
+        return $query;
+    }
+    public function delete_pd_by_day_id($id_day)
+    {
+        $query = $this->db->table($this->table)->delete(['day' => $id_day]);
         return $query;
     }
 }

@@ -30,7 +30,7 @@ class HomestayModel extends Model
     public function get_list_hm_api()
     {
         $query = $this->db->table($this->table)
-            ->select('id,id_user,name,description,url')
+            ->select('*')
             ->get();
         return $query;
     }
@@ -38,7 +38,7 @@ class HomestayModel extends Model
     public function get_hm_by_id_api($id = null)
     {
         $query = $this->db->table($this->table)
-            ->select('id as id, homestay')
+            ->select('*')
             ->where('id', $id)
             ->get();
         return $query;
@@ -48,7 +48,7 @@ class HomestayModel extends Model
     {
         $lastId = $this->db->table($this->table)->select('id')->orderBy('id', 'ASC')->get()->getLastRow('array');
         if ($lastId != null) {
-            $count = (int)substr($lastId['id'], 0);
+            $count = (int)substr($lastId['id'], 1);
             $id = sprintf('H%02d', $count + 1);
         } else {
             $count = 0;

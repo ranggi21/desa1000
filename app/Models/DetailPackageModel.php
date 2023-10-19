@@ -47,7 +47,7 @@ class DetailPackageModel extends Model
     public function get_objects_by_package_day_id($id_day = null)
     {
         $query = $this->db->table($this->table)
-            ->select('id_object')
+            ->select('*')
             ->where('detail_package.id_day', $id_day)
             ->get();
         return $query;
@@ -56,39 +56,30 @@ class DetailPackageModel extends Model
 
     public function get_new_id_api()
     {
-        $lastId = $this->db->table($this->table)->select('activity ')->orderBy('activity', 'ASC')->get()->getLastRow('array');
+        $lastId = $this->db->table($this->table)->select('activity')->orderBy('activity', 'ASC')->get()->getLastRow('array');
         if ($lastId != null) {
             $count = (int)substr($lastId['activity'], 0);
-            $id = sprintf('DP%02d', $count + 1);
+            $id = sprintf('%02d', $count + 1);
         } else {
             $count = 0;
-            $id = sprintf('DP%02d', $count + 1);
+            $id = sprintf('%02d', $count + 1);
         }
 
         return $id;
     }
 
-    public function add_service_api($id = null, $data = null)
+    public function add_dp_api($datas = null)
     {
-        $query = false;
-        foreach ($data as $service) {
-            $new_id = $this->get_new_id_api();
-            $content = [
-                'id_detail_service_package' => $new_id,
-                'id_package' => $id,
-                'id_service_package' => $service,
-                'created_at' => Time::now(),
-                'updated_at' => Time::now(),
-            ];
-            $query = $this->db->table($this->table)->insert($content);
-        }
+        $query = $this->db->table($this->table)->insert($datas);
         return $query;
     }
 
-    public function update_service_api($id = null, $data = null)
+    public function update_dp_api($id = null, $data = null)
     {
-        $queryDel = $this->db->table($this->table)->delete(['id_package' => $id]);
-        $queryIns = $this->add_service_api($id, $data);
+        $queryDel = $this->db->table($this->table)->delete(['activity' => $id]);
+        $new_id = $this->get_new_id_api();
+        $data['activity'] = $new_id;
+        $queryIns = $this->add_dp_api($data);
         return $queryDel && $queryIns;
     }
 }

@@ -23,6 +23,12 @@
                     <label for="check-cp">Souvenir</label>
                 </div>
             </div>
+            <div class="form-check">
+                <div class="checkbox">
+                    <input type="checkbox" id="check-at" class="form-check-input">
+                    <label for="check-at">Atraction</label>
+                </div>
+            </div>
             <div class="mt-3">
                 <label for="inputRadiusNearby" class="form-label">Radius: </label>
                 <label id="radiusValueNearby" class="form-label">0 m</label>
@@ -45,6 +51,8 @@
                 <table class="table table-hover mb-md-5 mb-3 table-lg" id="table-wp">
                 </table>
                 <table class="table table-hover mb-md-5 mb-3 table-lg" id="table-sp">
+                </table>
+                <table class="table table-hover mb-md-5 mb-3 table-lg" id="table-at">
                 </table>
             </div>
         </div>

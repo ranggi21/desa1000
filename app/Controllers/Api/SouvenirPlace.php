@@ -21,7 +21,6 @@ class SouvenirPlace extends ResourceController
         $this->souvenirPlaceModel = new SouvenirPlaceModel();
         $this->gallerySouvenirPlaceModel = new GallerySouvenirPlaceModel();
         $this->reviewModel = new ReviewModel();
-
     }
 
     /**
@@ -111,7 +110,7 @@ class SouvenirPlace extends ResourceController
         $addVideo = $this->videoSouvenirPlaceModel->add_video_api($id, array($video));
         $products = $request['products'];
         $addProduct = $this->detailProductModel->add_product_api($id, $products);
-        if($addSP && $addFacilities && $addGallery && $addVideo && $addProduct) {
+        if ($addSP && $addFacilities && $addGallery && $addVideo && $addProduct) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -175,7 +174,7 @@ class SouvenirPlace extends ResourceController
         $updateVideo = $this->videoSouvenirPlaceModel->update_video_api($id, array($video));
         $products = $request['products'];
         $updateProduct = $this->detailProductModel->update_product_api($id, $products);
-        if($updateSP && $updateFacilities && $updateGallery && $updateVideo && $updateProduct) {
+        if ($updateSP && $updateFacilities && $updateGallery && $updateVideo && $updateProduct) {
             $response = [
                 'status' => 201,
                 'message' => [
@@ -207,7 +206,7 @@ class SouvenirPlace extends ResourceController
     public function delete($id = null)
     {
         $deleteSP = $this->souvenirPlaceModel->delete(['id' => $id]);
-        if($deleteSP) {
+        if ($deleteSP) {
             $response = [
                 'status' => 200,
                 'message' => [
@@ -225,7 +224,7 @@ class SouvenirPlace extends ResourceController
             return $this->failNotFound($response);
         }
     }
-    
+
     public function findByRadius()
     {
         $request = $this->request->getPost();
@@ -234,12 +233,12 @@ class SouvenirPlace extends ResourceController
             'data' => $contents,
             'status' => 200,
             'message' => [
-                "Success find Rumah Gadang by radius"
+                "Success find Souvenir by radius"
             ]
         ];
         return $this->respond($response);
     }
-    
+
     public function listByOwner()
     {
         $request = $this->request->getPost();

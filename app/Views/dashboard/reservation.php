@@ -1,4 +1,4 @@
-<?= $this->extend('profile/index'); ?>
+<?= $this->extend('dashboard/layouts/main'); ?>
 
 <?= $this->section('content') ?>
 <!-- Modal  -->
@@ -24,7 +24,7 @@
 <section class="section">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">My Reservation</h3>
+            <h3 class="card-title">List Reservation Request </h3>
         </div>
         <div class="card-body">
             <table class="table table-border ">
@@ -32,31 +32,46 @@
                     <tr>
                         <th class="text-start"> #</th>
                         <th class="text-start"> Tourism package name </th>
+                        <th class="text-start"> Username </th>
                         <th class="text-start"> Reservation date </th>
                         <th class="text-start"> Status </th>
                         <th class="text-start"> Action </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $no = 1; ?>
-                    <?php foreach ($data as $item) : ?>
-                        <tr>
-                            <td class="text-start"> <?= $no; ?> </td>
-                            <td class="text-start"> <?= $item['package_name']; ?> </td>
-                            <td class="text-start"> <?= $item['request_date']; ?> </td>
-                            <td class="text-start">
-                                <span class="badge bg-<?= $item['status'] == "pending" ? "warning" : "success"; ?>">
-                                    <?= $item['status']; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <a class="btn btn-success"><i class="fa fa-ticket" title="deposit"></i> </a>
-                                <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="showModalDelete('<?= $item['id'] ?>?')"><i class="fa fa-trash" title="delete reservation"></i> </a>
+                    <?php if ($data) : ?>
+                        <?php $no = 1; ?>
+                        <?php foreach ($data as $item) : ?>
+                            <tr>
+                                <td class="text-start"> <?= $no; ?> </td>
+                                <td class="text-start"> <?= $item['package_name']; ?> </td>
+                                <td class="text-start"> <?= $item['username']; ?> </td>
+                                <td class="text-start"> <?= $item['request_date']; ?> </td>
+                                <td class="text-start">
+                                    <span class="badge bg-<?php if ($item['id_reservation_status'] == 1) {
+                                                                echo "warning";
+                                                            } else if ($item['id_reservation_status'] == 2) {
+                                                                echo "success";
+                                                            } else if ($item['id_reservation_status'] == 3) {
+                                                                echo "danger";
+                                                            }; ?>">
+                                        <?= $item['status']; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a title="confirm reservation" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="showModalConfirm('<?= $item['id'] ?>','<?= $item['id_user'] ?>','<?= $item['id_package'] ?>','<?= $item['request_date'] ?>')"> <i class="fa fa-check"></i> </a>
+                                    <a title="cancel reservation" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="showModalDelete('<?= $item['id'] ?>','<?= $item['id_user'] ?>','<?= $item['id_package'] ?>','<?= $item['request_date'] ?>')"> <i class="fa fa-x"></i></a>
 
-                            </td>
+                                </td>
+                            </tr>
+                            <?php $no++; ?>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td class="text-center" colspan="6"> No data found</td>
+
                         </tr>
-                        <?php $no++; ?>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
 
@@ -66,25 +81,70 @@
 <?= $this->endSection() ?>
 <?= $this->section('javascript') ?>
 <script>
-    function showModalDelete(id_reservation) {
-        $('#modalTitle').html("Delete reservation")
-        $('#modalBody').html(`Are you sure delete this reservation?`)
-        $('#modalFooter').html(`<a class="btn btn-danger" onclick="deleteReservation('${id_reservation}')"> Delete </a>`)
+    function showModalConfirm(id, id_user, id_package, request_date) {
+
+        $('#modalTitle').html("Confirm reservation")
+        $('#modalBody').html(`Are you sure confirm this reservation?`)
+        $('#modalFooter').html(`<a class="btn btn-success" onclick="confirmReservation('${id}','${id_user}','${id_package}','${request_date}')"> Confirmation </a>`)
     }
 
-    function deleteReservation(id_reservation) {
+    function showModalDelete(id, id_user, id_package, request_date) {
+        $('#modalTitle').html("Abort reservation")
+        $('#modalBody').html(`Are you sure cancel this reservation?`)
+        $('#modalFooter').html(`<a class="btn btn-danger" onclick="cancelReservation('${id}','${id_user}','${id_package}','${request_date}')"> Cancel </a>`)
+    }
+
+    function confirmReservation(id, id_user, id_package, request_date) {
+
+        let requestData = {
+            id_user: id_user,
+            id_package: id_package,
+            id_reservation_status: 2, // confirm status
+            request_date: request_date
+        }
+        console.log(requestData)
         $.ajax({
-            url: `<?= base_url('api'); ?>/reservation/${id_reservation}`,
-            type: "DELETE",
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
             async: false,
             contentType: "application/json",
             success: function(response) {
                 Swal.fire(
-                    'Reservation deleted',
+                    'Reservation Confirmed',
                     '',
                     'success'
                 ).then(() => {
-                    window.location.replace(baseUrl + '/web/reservation/' + <?= user()->id; ?>)
+                    window.location.replace(baseUrl + '/dashboard/reservation/')
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        });
+    }
+
+    function cancelReservation(id, id_user, id_package, request_date) {
+        let requestData = {
+            id_user: id_user,
+            id_package: id_package,
+            id_reservation_status: 3, // cancel status
+            request_date: request_date
+        }
+        console.log(requestData)
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Reservation Canceled',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.replace(baseUrl + '/dashboard/reservation/')
                 });
             },
             error: function(err) {

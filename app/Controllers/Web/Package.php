@@ -2,7 +2,12 @@
 
 namespace App\Controllers\Web;
 
+use App\Controllers\Api\WorshipPlace;
 use App\Models\PackageModel;
+use App\Models\AtractionModel;
+use App\Models\CulinaryPlaceModel;
+use App\Models\SouvenirPlaceModel;
+use App\Models\WorshipPlaceModel;
 use App\Models\PackageDayModel;
 use App\Models\DetailPackageModel;
 use App\Models\ServiceModel;
@@ -15,6 +20,10 @@ use CodeIgniter\Files\File;
 class Package extends ResourcePresenter
 {
     protected $PackageModel;
+    protected $atractionModel;
+    protected $culinaryModel;
+    protected $souvenirModel;
+    protected $worshipModel;
     protected $packageDayModel;
     protected $detailPackageModel;
     protected $ServiceModel;
@@ -26,6 +35,10 @@ class Package extends ResourcePresenter
     public function __construct()
     {
         $this->PackageModel = new PackageModel();
+        $this->atractionModel = new AtractionModel();
+        $this->culinaryModel = new CulinaryPlaceModel();
+        $this->souvenirModel = new SouvenirPlaceModel();
+        $this->worshipModel = new WorshipPlaceModel();
         $this->packageDayModel = new PackageDayModel();
         $this->detailPackageModel = new DetailPackageModel();
         $this->ServiceModel = new ServiceModel();
@@ -78,8 +91,9 @@ class Package extends ResourcePresenter
         // package day
         $package_day = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
 
+
         for ($i = 0; $i < count($package_day); $i++) {
-            $package_day[$i]['package_day_detail'] = $this->detailPackageModel->get_detail_package_by_dp_api($package_day[$i]['id'])->getResultArray();
+            $package_day[$i]['package_day_detail'] = $this->detailPackageModel->get_detail_package_by_dp_api($package_day[$i]['day'])->getResultArray();
         }
 
         $package['avg_rating'] = $avg_rating;
@@ -112,10 +126,32 @@ class Package extends ResourcePresenter
 
         $homestayData = $this->HomestayModel->get_list_hm_api()->getResultArray();
         $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
+        $objectData = [];
+
+
+        $atractionData = $this->atractionModel->get_list_a_api()->getResultArray();
+        foreach ($atractionData as $atraction) {
+            $objectData[] = $atraction;
+        }
+        $culinaryData = $this->culinaryModel->get_list_cp_api()->getResultArray();
+        foreach ($culinaryData as $culinary) {
+            $objectData[] = $culinary;
+        }
+        $souvenirData = $this->souvenirModel->get_list_sp_api()->getResultArray();
+        foreach ($souvenirData as $souvenir) {
+            $objectData[] = $souvenir;
+        }
+        $worshipData = $this->worshipModel->get_list_wp_api()->getResultArray();
+        foreach ($worshipData as $worship) {
+            $objectData[] = $worship;
+        }
+
 
         $data = [
             'title' => 'New Package',
             'homestayData' => $homestayData,
+            'packageDayData' => null,
+            'objectData' => $objectData,
             'serviceData' => $serviceData
         ];
         return view('dashboard/package_form', $data);
@@ -130,33 +166,8 @@ class Package extends ResourcePresenter
     public function create()
     {
         $request = $this->request->getPost();
-        $id = $this->PackageModel->get_new_id_api();
+        $id_package = $this->PackageModel->get_new_id_api();
 
-        foreach ($request['packageDetailData'] as $packageDay => $value) {
-            // dd($value);
-            $packageDayId = $this->packageDayModel->get_new_id_api();
-            $requestPackageDay = [
-                'day' => $packageDayId,
-                'id_package' => $id,
-                'description' => $value['packageDayDescription']
-            ];
-            // $addPackageDay = $this->packageDayModel->add_pd_api($requestPackageDay);
-
-            foreach ($value['detailPackage'] as $detailPackage => $dValue) {
-                $detailPackageId = $this->detailPackageModel->get_new_id_api();
-                d($dValue);
-
-                // $requestDetailPackage = [
-                //     'activity' => $detailPackageId,
-                //     'id_day' => $packageDayId,
-                //     'id_package' => $id,
-                //     'id_object' => $detailPackage['id_object'],
-                //     'activity_type' => $detailPackage['activity_type'],
-                //     ''
-                // ];
-            }
-        }
-        die;
         $url = null;
         if (isset($request['gallery'])) {
             $folder = $request['gallery'][0];
@@ -169,7 +180,7 @@ class Package extends ResourcePresenter
             $url = $fileImg->getFilename();
         }
         $requestData = [
-            'id' => $id,
+            'id' => $id_package,
             'name' => $request['name'],
             'id_homestay' => $request['id_homestay'],
             'price' => empty($request['price']) ? "0" : $request['price'],
@@ -180,23 +191,38 @@ class Package extends ResourcePresenter
         ];
 
         $addtp = $this->PackageModel->add_tp_api($requestData);
+        foreach ($request['packageDetailData'] as $packageDay) {
+            $packageDayId = $this->packageDayModel->get_new_id_api();
+            $requestPackageDay = [
+                'day' => $packageDayId,
+                'id_package' => $id_package,
+                'description' => $packageDay['packageDayDescription']
+            ];
+            $addPackageDay = $this->packageDayModel->add_pd_api($requestPackageDay);
+
+            if ($addPackageDay) {
+                foreach ($packageDay['detailPackage'] as $detailPackage) {
+                    $detailPackageId = $this->detailPackageModel->get_new_id_api();
+                    $requestDetailPackage = [
+                        'activity' => $detailPackageId,
+                        'id_day' => $packageDayId,
+                        'id_package' => $id_package,
+                        'id_object' => $detailPackage['id_object'],
+                        'activity_type' => $detailPackage['activity_type'],
+                        'description' => $detailPackage['description']
+                    ];
+                    $addDetailPackage =  $this->detailPackageModel->add_dp_api($requestDetailPackage);
+                }
+            }
+        }
 
 
         $addService = true;
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
-            $addService = $this->DetailServicePackageModel->add_service_api($id, $services);
+            $addService = $this->DetailServicePackageModel->add_service_api($id_package, $services);
         }
 
-        if (isset($request['packageDay'])) {
-            foreach ($request['packageDay'] as $packageDay => $packageDetail) {
-                $requestData = [
-                    'day' => $this->packageDayModel->get_new_id_api(),
-                    'id_package' => $id
-
-                ];
-            }
-        }
 
         if ($addtp && $addService) {
             return redirect()->to(base_url('dashboard/package'));
@@ -217,14 +243,43 @@ class Package extends ResourcePresenter
         $package = $this->PackageModel->get_tp_by_id_api($id)->getRowArray();
         $homestayData = $this->HomestayModel->get_list_hm_api()->getResultArray();
         $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
+
         $packageService = $this->DetailServicePackageModel->get_service_by_package_api($id)->getResultArray();
 
-        $selectedFac = array();
+        $selectedService = array();
         foreach ($packageService as $service) {
-            $selectedFac[] = $service['name'];
+            $selectedService[] = $service['name'];
         }
 
-        $package['service_package'] =  $selectedFac;
+        $packageDay = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
+        $no = 0;
+        foreach ($packageDay as $day) {
+            $packageDay[$no]['detailPackage'] = $this->detailPackageModel->get_objects_by_package_day_id($day['day'])->getResultArray();
+            $no++;
+        }
+
+        $objectData = [];
+
+
+        $atractionData = $this->atractionModel->get_list_a_api()->getResultArray();
+        foreach ($atractionData as $atraction) {
+            $objectData[] = $atraction;
+        }
+        $culinaryData = $this->culinaryModel->get_list_cp_api()->getResultArray();
+        foreach ($culinaryData as $culinary) {
+            $objectData[] = $culinary;
+        }
+        $souvenirData = $this->souvenirModel->get_list_sp_api()->getResultArray();
+        foreach ($souvenirData as $souvenir) {
+            $objectData[] = $souvenir;
+        }
+        $worshipData = $this->worshipModel->get_list_wp_api()->getResultArray();
+        foreach ($worshipData as $worship) {
+            $objectData[] = $worship;
+        }
+
+
+        $package['service_package'] =  $selectedService;
         $package['gallery'] = [$package['url']];
         $package['video_url'] = null;
 
@@ -232,6 +287,8 @@ class Package extends ResourcePresenter
             'title' => 'Edit Package',
             'data' => $package,
             'homestayData' => $homestayData,
+            'packageDayData' => $packageDay,
+            'objectData' => $objectData,
             'serviceData' => $serviceData
         ];
         return view('dashboard/package_form', $data);
@@ -245,7 +302,7 @@ class Package extends ResourcePresenter
      *
      * @return mixed
      */
-    public function update($id = null)
+    public function update($id_package = null)
     {
         $request = $this->request->getPost();
         $url = null;
@@ -268,13 +325,45 @@ class Package extends ResourcePresenter
             'url' => $url,
             'description' => $request['description'],
         ];
-        $updateTp = $this->PackageModel->update_tp_api($id, $requestData);
+
+        $updateTp = $this->PackageModel->update_tp_api($id_package, $requestData);
+        $deletePackageDay = $this->packageDayModel->delete_pd_by_package_id($id_package);
+
+        foreach ($request['packageDetailData'] as $packageDay) {
+            $packageDayId = $this->packageDayModel->get_new_id_api();
+            $requestPackageDay = [
+                'day' => $packageDayId,
+                'id_package' => $id_package,
+                'description' => $packageDay['packageDayDescription']
+            ];
+            $addPackageDay = $this->packageDayModel->add_pd_api($requestPackageDay);
+
+            if ($addPackageDay) {
+                if (isset($packageDay['detailPackage'])) {
+                    foreach ($packageDay['detailPackage'] as $detailPackage) {
+                        $detailPackageId = $this->detailPackageModel->get_new_id_api();
+                        $requestDetailPackage = [
+                            'activity' => $detailPackageId,
+                            'id_day' => $packageDayId,
+                            'id_package' => $id_package,
+                            'id_object' => $detailPackage['id_object'],
+                            'activity_type' => $detailPackage['activity_type'],
+                            'description' => $detailPackage['description']
+                        ];
+                        $addDetailPackage =  $this->detailPackageModel->add_dp_api($requestDetailPackage);
+                    }
+                } else {
+                    $rollbackPackageDay = $this->packageDayModel->delete_pd_by_day_id($packageDayId);
+                }
+            }
+        }
+
 
         $addService = true;
 
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
-            $addService = $this->DetailServicePackageModel->update_service_api($id, $services);
+            $addService = $this->DetailServicePackageModel->update_service_api($id_package, $services);
         }
 
         if ($updateTp && $addService) {

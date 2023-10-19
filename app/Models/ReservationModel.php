@@ -41,6 +41,7 @@ class ReservationModel extends Model
         $query = $this->db->table($this->table)
             ->select('*')
             ->where('id_user', $id_user)
+            ->orderBy('id', 'DESC')
             ->get();
         return $query;
     }
@@ -73,17 +74,17 @@ class ReservationModel extends Model
         return $insert;
     }
 
-    public function update_r_api($id = null, $facility = null)
+    public function update_r_api($id = null, $data = null)
     {
-        foreach ($facility as $key => $value) {
+        foreach ($data as $key => $value) {
             if (empty($value)) {
-                unset($facility[$key]);
+                unset($data[$key]);
             }
         }
-        $facility['updated_at'] = Time::now();
+        $data['updated_at'] = Time::now();
         $query = $this->db->table($this->table)
             ->where('id', $id)
-            ->update($facility);
+            ->update($data);
         return $query;
     }
 }

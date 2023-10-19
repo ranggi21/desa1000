@@ -9,10 +9,10 @@ class RumahGadang extends Seeder
 {
     public function run()
     {
-    
-        $rows = array_map('str_getcsv', file(WRITEPATH.'seeds/'. 'rumah_gadang.csv'));
+
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'rumah_gadang.csv'));
         $header = array_shift($rows);
-    
+
         foreach ($rows as $row) {
             $data = [
                 'id_rumah_gadang' => $row[0],
@@ -32,9 +32,9 @@ class RumahGadang extends Seeder
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
-        
+
             $this->db->table('rumah_gadang')->insert($data);
-            $this->db->table('rumah_gadang')->set('geom', $row[8], false)->where('id_rumah_gadang', $row[0])->update();
+            $this->db->table('rumah_gadang')->set('geom', "ST_GeomFromGeoJSON('{$row[8]}')", false)->where('id_rumah_gadang', $row[0])->update();
         }
     }
 }
