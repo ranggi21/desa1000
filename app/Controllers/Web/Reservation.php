@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Web;
 
+use App\Models\HomestayModel;
 use App\Models\ReservationModel;
 use App\Models\ReservationStatusModel;
 use App\Models\PackageModel;
@@ -12,6 +13,7 @@ class Reservation extends ResourcePresenter
     protected $reservationModel;
     protected $reservationStatusModel;
     protected $packageModel;
+    protected $homestayModel;
 
     protected $helpers = ['auth', 'url', 'filesystem'];
 
@@ -20,6 +22,7 @@ class Reservation extends ResourcePresenter
         $this->reservationModel = new ReservationModel();
         $this->reservationStatusModel = new ReservationStatusModel();
         $this->packageModel = new PackageModel();
+        $this->homestayModel = new HomestayModel();
     }
     /**
      * Present a view of resource objects
@@ -45,34 +48,40 @@ class Reservation extends ResourcePresenter
         } else {
             $users_reservation = $this->reservationModel->get_r_by_id_user_api($id)->getResultArray();
         }
-        if (empty($users_reservation)) {
-            return redirect()->to(substr(current_url(), 0, -strlen($id)));
-        }
+
 
         $no = 0;
 
         // reservation status dan paket
         foreach ($users_reservation as $item) {
             $reservation_status_id = $item['id_reservation_status'];
-            $package_id = $item['id_package'];
             $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
-            $package = $this->packageModel->get_tp_by_id_api($package_id)->getRowArray();
             $users_reservation[$no]['status'] = $reservationStatus['status'];
-            $users_reservation[$no]['package_name'] = $package['name'];
+            if ($item['id_package'] != null) {
+                $dataId = $item['id_package'];
+                $data = $this->packageModel->get_tp_by_id_api($dataId)->getRowArray();
+                $users_reservation[$no]['package_name'] = $data['name'];
+                $users_reservation[$no]['package_price'] = $data['price'];
+            } else if ($item['id_homestay'] != null) {
+                $dataId = $item['id_homestay'];
+                $data = $this->homestayModel->get_hm_by_id_api($dataId)->getRowArray();
+                $users_reservation[$no]['package_name'] = $data['name'];
+                $users_reservation[$no]['package_price'] = $data['ticket_price'];
+            }
             $no++;
         }
 
 
         $data = [
             'title' => 'User Reservation',
-            'data' => $users_reservation,
+            'data' => $users_reservation
         ];
 
         if (url_is('*dashboard*')) {
             return view('dashboard/reservation', $data);
         }
 
-        return view('web/reservation', $data);
+        return view('profile/reservation', $data);
     }
 
     /**
@@ -98,17 +107,24 @@ class Reservation extends ResourcePresenter
      */
     public function create()
     {
-        $request = $this->request->getPost();
+        $request = $this->request->getRawInput();
+
+        $id = $this->reservationModel->get_new_id_api();
         $requestData = [
-            'id_facility_rumah_gadang' => $request['id'],
-            'facility' => $request['facility'],
+            'id' => $id,
+            'id_user' => $request['id_user'],
+            'id_package' => isset($request['id_package']) ? $request['id_package'] : null,
+            'id_homestay' => isset($request['id_homestay']) ? $request['id_homestay'] : null,
+            'id_reservation_status' => $request['id_reservation_status'],
+            'request_date' => $request['reservation_date'],
+            'request_date_end' => isset($request['reservation_date_end']) ? $request['reservation_date_end'] : null,
+            'number_people' => $request['number_people'],
+            'total_price' => $request['total_price'],
+            'comment' => $request['comment']
         ];
-        $addFC = $this->reservationModel->add_fc_api($requestData);
-        if ($addFC) {
-            return redirect()->to(base_url('dashboard/facility'));
-        } else {
-            return redirect()->back()->withInput();
-        }
+
+        $addR = $this->reservationModel->add_r_api($requestData);
+        return json_encode($addR);
     }
 
     /**
@@ -139,13 +155,8 @@ class Reservation extends ResourcePresenter
     public function update($id = null)
     {
         $request = $this->request->getPost();
-        $requestData = [
-            'facility' => $request['facility'],
-        ];
-        $updateFC = $this->reservationModel->update_fc_api($id, $requestData);
+        $updateFC = $this->reservationModel->update_r_api($id, $request);
         if ($updateFC) {
-            return redirect()->to(base_url('dashboard/facility'));
-        } else {
             return redirect()->back()->withInput();
         }
     }
@@ -172,5 +183,17 @@ class Reservation extends ResourcePresenter
     public function delete($id = null)
     {
         //
+    }
+
+
+    public function check($user_id, $date)
+    {
+        $isDuplicate = $this->reservationModel->checkIsDateDuplicate($user_id, $date);
+        return json_encode($isDuplicate);
+    }
+    public function checkHomestay($user_id, $date_start, $date_end = null)
+    {
+        $isDuplicate = $this->reservationModel->checkIsDateHomestayDuplicate($user_id, $date_start, $date_end);
+        return json_encode($isDuplicate);
     }
 }

@@ -24,7 +24,6 @@ $edit = in_array('edit', $uri);
         <script>
             currentUrl = '<?= current_url(); ?>';
         </script>
-
         <!-- Object Detail Information -->
         <div class="col-md-6 col-12">
             <div class="card">
@@ -33,12 +32,41 @@ $edit = in_array('edit', $uri);
                 </div>
                 <div class="card-body">
                     <form class="form form-vertical" action="<?= ($edit) ? base_url('dashboard/homestay/update') . '/' . $data['id'] : base_url('dashboard/homestay'); ?>" method="post" enctype="multipart/form-data">
-                        <div class="form-body">
 
+                        <div class="form-body">
                             <div class="form-group mb-4">
                                 <label for="name" class="mb-2">Homestay Name <span class="text-danger">*</span> </label>
                                 <input type="text" id="name" class="form-control" name="name" placeholder="Homestay Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
                             </div>
+                            <div class="form-group mb-4">
+                                <label for="address" class="mb-2">Address</label>
+                                <input type="text" id="address" class="form-control" name="address" placeholder="Address" value="<?= ($edit) ? $data['address'] : old('address'); ?>">
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="checkin" class="mb-2">Checkin Time</label>
+                                <input type="time" id="checkin" class="form-control" name="checkin" placeholder="checkin" value="<?= ($edit) ? $data['checkin'] : old('checkin'); ?>">
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="checkout" class="mb-2">Checkout Time</label>
+                                <input type="time" id="checkin" class="form-control" name="checkout" placeholder="checkout" value="<?= ($edit) ? $data['checkout'] : old('checkout'); ?>">
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="contact_person" class="mb-2">Contact Person</label>
+                                <input type="tel" id="contact_person" class="form-control" name="contact_person" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('contact_person'); ?>">
+                            </div>
+                            <fieldset class="form-group mb-4">
+                                <label for="status" class="mb-2">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <?php if ($edit) : ?>
+                                        <option value="1" <?= (esc($data['status']) == '1') ? 'selected' : ''; ?>>Available</option>
+                                        <option value="2" <?= (esc($data['status']) == '2') ? 'selected' : ''; ?>>Not Available</option>
+                                    <?php else : ?>
+                                        <option value="1" selected>Available</option>
+                                        <option value="2">Not Available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </fieldset>
 
                             <div class="form-group mb-4">
                                 <label for="description" class="form-label">Description</label>
@@ -58,12 +86,13 @@ $edit = in_array('edit', $uri);
                             </div>
                             <div class="form-group mb-4">
                                 <label for="gallery" class="form-label">Gallery</label>
-                                <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
+                                <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery" multiple>
                             </div>
                             <div class="form-group mb-4">
                                 <label for="video" class="form-label">Video</label>
                                 <input class="form-control" accept="video/*, .mkv" type="file" name="video" id="video">
                             </div>
+
 
                             <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
                             <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
@@ -101,6 +130,13 @@ $edit = in_array('edit', $uri);
     myModal.addEventListener('hide.bs.modal', () => {
         document.getElementById('video').setAttribute('src', '');
     });
+
+    function checkRequired(event) {
+        if (!$('#geo-json').val()) {
+            event.preventDefault();
+            Swal.fire('Please select location for the New Rumah Gadang');
+        }
+    }
 </script>
 <script>
     FilePond.registerPlugin(
@@ -125,7 +161,7 @@ $edit = in_array('edit', $uri);
 
     <?php if ($edit && count($data['gallery']) > 0) : ?>
         pond.addFiles(
-            <?php foreach ($data['gallery'] as $gallery) : ?> `<?= base_url('media/photos/' . $gallery); ?>`,
+            <?php foreach ($data['gallery'] as $gallery) : ?> `<?= base_url('media/photos/homestay/' . $gallery); ?>`,
             <?php endforeach; ?>
         );
     <?php endif; ?>
@@ -164,8 +200,8 @@ $edit = in_array('edit', $uri);
         maxTotalFileSize: '1920MB',
         credits: false,
     })
-    <?php if ($edit && $data['url'] != null) : ?>
-        vidPond.addFile(`<?= base_url('media/videos/' . $data['url']); ?>`)
+    <?php if ($edit && $data['video_url'] != null) : ?>
+        vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
     <?php endif; ?>
     vidPond.setOptions({
         server: {

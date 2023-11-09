@@ -411,7 +411,11 @@ class RumahGadang extends ResourceController
     {
         $request = $this->request->getPost();
         $status = $request['category'];
-        $contents = $this->rumahGadangModel->get_rg_by_status_api($status)->getResult();
+        if ($status == "Homestay") {
+            $contents = $this->rumahGadangModel->get_rg_by_status_api()->getResult();
+        } else {
+            $contents = $this->rumahGadangModel->get_rg_by_status_api2()->getResult();
+        }
         $response = [
             'data' => $contents,
             'status' => 200,

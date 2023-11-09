@@ -62,13 +62,21 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes)
     $routes->presenter('event');
     $routes->get('package/maps', 'Package::maps');
     $routes->get('package/detail/(:segment)', 'Package::detail/$1');
+    $routes->get('package/costum/new', 'Package::newCostum/$1');
+    $routes->post('package/costum/saveCostum', 'Package::saveCostum');
     $routes->presenter('package');
     $routes->presenter('uniquePlace');
     $routes->get('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);
     $routes->get('visitHistory/add', 'VisitHistory::addVisitHistory', ['filter' => 'role:user']);
     $routes->post('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);
     $routes->post('review', 'Review::add', [['filter' => 'role:user']]);
+    $routes->post('reviewPackage', 'Review::ratingCommentPackage', [['filter' => 'role:user']]);
+    // $routes->post('reviewPackage', 'Review::addPackage', [['filter' => 'role:user']]);
+    $routes->get('reservation/check/(:segment)/(:segment)', 'Reservation::check/$1/$2', ['filter' => 'role:user,admin']);
+    $routes->get('reservation/checkHomestay/(:segment)/(:segment)/(:segment)', 'Reservation::checkHomestay/$1/$2/$3', ['filter' => 'role:user,admin']);
+    $routes->get('reservation/checkHomestay/(:segment)/(:segment)', 'Reservation::checkHomestay/$1/$2', ['filter' => 'role:user,admin']);
     $routes->presenter('reservation');
+    $routes->post('reservation/create', 'Reservation:create', ['filter' => 'role:user,admin']);
 
     // Profile
     $routes->group('profile', function ($routes) {
@@ -78,7 +86,16 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes)
         $routes->get('update', 'Profile::updateProfile', ['filter' => 'login']);
         $routes->post('update', 'Profile::update', ['filter' => 'login']);
     });
+
+    // invoice
+    $routes->group('pdf', function ($routes) {
+        $routes->post('invoice-data', 'PdfGenerator::getInvoiceData', ['filter' => 'role:user,admin']);
+        $routes->get('invoice/(:segment)', 'PdfGenerator::invoice/$1', ['filter' => 'role:user,admin']);
+        $routes->post('ticket-data', 'PdfGenerator::getTicketData', ['filter' => 'role:user,admin']);
+        $routes->get('ticket/(:segment)', 'PdfGenerator::ticket/$1', ['filter' => 'role:user,admin']);
+    });
 });
+
 
 // Dashboard
 $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => 'role:admin'], function ($routes) {
@@ -98,15 +115,19 @@ $routes->group('dashboard', ['namespace' => 'App\Controllers\Web', 'filter' => '
     $routes->get('homestayFacility', 'Dashboard::homestayFacility', ['filter' => 'role:admin']);
     $routes->get('homestayUnitFacility', 'Dashboard::homestayUnitFacility', ['filter' => 'role:admin']);
     $routes->get('homestayUnit', 'Dashboard::homestayUnit', ['filter' => 'role:admin']);
+    $routes->get('packageType', 'Dashboard::packageType', ['filter' => 'role:admin']);
+
     $routes->get('recommendation', 'Dashboard::recommendation',  ['filter' => 'role:admin']);
     $routes->get('users', 'Dashboard::users', ['filter' => 'role:admin']);
 
     $routes->presenter('rumahGadang',  ['filter' => 'role:admin']);
     $routes->presenter('atraction',  ['filter' => 'role:admin']);
     $routes->presenter('atractionFacility', ['filter' => 'role:admin']);
+    $routes->presenter('packageType', ['filter' => 'role:admin']);
     $routes->presenter('homestayUnitFacility', ['filter' => 'role:admin']);
     $routes->presenter('homestayUnit', ['filter' => 'role:admin']);
     $routes->presenter('homestay',  ['filter' => 'role:admin']);
+    $routes->presenter('homestayFacility',  ['filter' => 'role:admin']);
     $routes->presenter('dashboard',  ['filter' => 'role:admin']);
     $routes->presenter('reservation',  ['filter' => 'role:admin']);
     $routes->presenter('package',  ['filter' => 'role:admin']);
@@ -172,6 +193,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->resource('homestayUnitFacility');
     $routes->resource('homestayUnit');
     $routes->resource('package');
+    $routes->resource('packageType');
     $routes->resource('packageDay');
     $routes->get('objects/package_day/(:segment)', 'PackageObject::getObjectsByPackageDayId/$1');
     $routes->resource('service');

@@ -17,13 +17,14 @@ use App\Models\RumahGadangModel;
 use App\Models\ReservationModel;
 use App\Models\ReservationStatusModel;
 use App\Models\PackageModel;
+use App\Models\PackageTypeModel;
 use App\Models\ServiceModel;
 use App\Models\UniquePlaceModel;
-use Myth\Auth\Models\UserModel;
+use Myth\Auth\Models\userModel;
 
 class Dashboard extends BaseController
 {
-    protected $usermodel;
+    protected $userModel;
     protected $reservationModel;
     protected $homestayModel;
     protected $homestayFacilityModel;
@@ -34,6 +35,7 @@ class Dashboard extends BaseController
     protected $atractionModel;
     protected $atractionFacilityModel;
     protected $packageModel;
+    protected $packageTypeModel;
     protected $serviceModel;
     protected $packageDayModel;
     protected $eventModel;
@@ -44,7 +46,7 @@ class Dashboard extends BaseController
 
     public function __construct()
     {
-        $this->usermodel = new UserModel();
+        $this->userModel = new UserModel();
         $this->rumahGadangModel = new RumahGadangModel();
         $this->atractionModel = new AtractionModel();
         $this->atractionFacilityModel = new AtractionFacilityModel();
@@ -55,6 +57,7 @@ class Dashboard extends BaseController
         $this->reservationModel = new ReservationModel();
         $this->reservationStatusModel = new ReservationStatusModel();
         $this->packageModel = new PackageModel();
+        $this->packageTypeModel = new PackageTypeModel();
         $this->serviceModel = new ServiceModel();
         $this->packageDayModel = new PackageDayModel();
         $this->eventModel = new EventModel();
@@ -179,6 +182,50 @@ class Dashboard extends BaseController
         $contents = [];
         if (in_groups('admin')) {
             $contents = $this->reservationModel->get_list_r_api()->getResultArray();
+            $userData = $this->userModel->get_users()->getResultObject();
+            $packageData = $this->packageModel->get_list_tp_api()->getResult();
+            $statusData = $this->reservationStatusModel->get_list_s_api()->getResultObject();
+        }
+
+        $no = 0;
+        // reservation status dan paket
+        foreach ($contents as $item) {
+            $reservation_status_id = $item['id_reservation_status'];
+            $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
+            $contents[$no]['status'] = $reservationStatus['status'];
+            $user_id = $item['id_user'];
+            $user = $this->userModel->get_u_by_id_api($user_id)->getRowArray();
+            $contents[$no]['username'] = $user['username'];
+
+            if ($item['id_package'] != null) {
+                $item_id = $item['id_package'];
+                $item = $this->packageModel->get_tp_by_id_api($item_id)->getRowArray();
+                $contents[$no]['package_name'] = $item['name'];
+            } else if ($item['id_homestay'] != null) {
+                $item_id = $item['id_homestay'];
+                $item = $this->homestayModel->get_hm_by_id_api($item_id)->getRowArray();
+                $contents[$no]['package_name'] = $item['name'];
+            }
+            $no++;
+        }
+
+
+        $data = [
+            'title' => 'Manage Reservation',
+            'category' => 'Reservation',
+            'data' => $contents,
+            'userData' => $userData,
+            'packageData' => $packageData,
+            'statusData' => $statusData
+        ];
+
+        return view('dashboard/reservation', $data);
+    }
+    public function reservationH()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->reservationModel->get_list_r_api()->getResultArray();
         }
 
         $no = 0;
@@ -187,7 +234,7 @@ class Dashboard extends BaseController
             $reservation_status_id = $item['id_reservation_status'];
             $package_id = $item['id_package'];
             $user_id = $item['id_user'];
-            $user = $this->usermodel->get_u_by_id_api($user_id)->getRowArray();
+            $user = $this->userModel->get_u_by_id_api($user_id)->getRowArray();
             $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
             $package = $this->packageModel->get_tp_by_id_api($package_id)->getRowArray();
             $contents[$no]['username'] = $user['username'];
@@ -208,6 +255,21 @@ class Dashboard extends BaseController
         $contents = [];
         if (in_groups('admin')) {
             $contents = $this->packageModel->get_list_tp_api()->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Manage Paket Wisata',
+            'category' => 'Paket Wisata',
+            'data' => $contents,
+        ];
+
+        return view('dashboard/manage', $data);
+    }
+    public function packageType()
+    {
+        $contents = [];
+        if (in_groups('admin')) {
+            $contents = $this->packageTypeModel->get_list_t_api()->getResultArray();
         }
 
         $data = [

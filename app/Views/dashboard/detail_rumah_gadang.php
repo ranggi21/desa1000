@@ -4,8 +4,10 @@
 
 <section class="section">
     <div class="row">
-        <script>currentUrl = '<?= current_url(); ?>';</script>
-        
+        <script>
+            currentUrl = '<?= current_url(); ?>';
+        </script>
+
         <!-- Object Detail Information -->
         <div class="col-md-6 col-12">
             <div class="card">
@@ -37,6 +39,14 @@
                                         <td><?= esc($data['name']); ?></td>
                                     </tr>
                                     <tr>
+                                        <td class="fw-bold">Homestay</td>
+                                        <?php if ($data['id_homestay'] != null) : ?>
+                                            <td><?= esc($data['homestayData']['name']); ?></td>
+                                        <?php else : ?>
+                                            <td> Tidak Homestay </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <tr>
                                         <td class="fw-bold">Address</td>
                                         <td><?= esc($data['address']); ?></td>
                                     </tr>
@@ -50,7 +60,7 @@
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Ticket Price</td>
-                                        <td><?= 'Rp ' . number_format(esc($data['ticket_price']), 0, ',','.'); ?></td>
+                                        <td><?= 'Rp ' . number_format(esc($data['ticket_price']), 0, ',', '.'); ?></td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Contact Person</td>
@@ -79,19 +89,23 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 col-12">
             <!-- Object Location on Map -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title">Google Maps</h5>
                 </div>
-                
+
                 <?= $this->include('web/layouts/map-body'); ?>
-                <script>initMap(<?= esc($data['lat']); ?>, <?= esc($data['lng']); ?>)</script>
-                <script>objectMarker("<?= esc($data['id']); ?>", <?= esc($data['lat']); ?>, <?= esc($data['lng']); ?>);</script>
+                <script>
+                    initMap(<?= esc($data['lat']); ?>, <?= esc($data['lng']); ?>)
+                </script>
+                <script>
+                    objectMarker("<?= esc($data['id']); ?>", <?= esc($data['lat']); ?>, <?= esc($data['lng']); ?>);
+                </script>
             </div>
-            
+
             <!-- Object Media -->
             <?= $this->include('web/layouts/gallery_video'); ?>
         </div>
@@ -104,7 +118,7 @@
 <script>
     const myModal = document.getElementById('videoModal');
     const videoSrc = document.getElementById('video-play').getAttribute('data-src');
-    
+
     myModal.addEventListener('shown.bs.modal', () => {
         console.log(videoSrc);
         document.getElementById('video').setAttribute('src', videoSrc);
@@ -114,4 +128,3 @@
     });
 </script>
 <?= $this->endSection() ?>
-

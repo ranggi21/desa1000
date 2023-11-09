@@ -13,7 +13,7 @@ class RumahGadangModel extends Model
     protected $table            = 'rumah_gadang';
     protected $primaryKey       = 'id_rumah_gadang';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id_rumah_gadang', 'name', 'address', 'open', 'close', 'price_ticket', 'geom', 'cp', 'status', 'id_recommendation', 'id_user', 'description', 'video_url', 'lat', 'lng'];
+    protected $allowedFields    = ['id_rumah_gadang', 'name', 'address', 'open', 'close', 'price_ticket', 'geom', 'cp', 'id_homestay', 'id_recommendation', 'id_user', 'description', 'video_url', 'lat', 'lng'];
 
     // Dates
     protected $useTimestamps = true;
@@ -79,7 +79,7 @@ class RumahGadangModel extends Model
     public function get_list_rg_api()
     {
         //$coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng")
@@ -92,7 +92,7 @@ class RumahGadangModel extends Model
     public function list_by_owner_api($id = null)
     {
         //$coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $geoJson = "ST_AsGeoJSON({$this->table}.geom) AS geoJson";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
@@ -107,7 +107,7 @@ class RumahGadangModel extends Model
     public function get_rg_by_id_api($id = null)
     {
         //$coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $geoJson = "ST_AsGeoJSON({$this->table}.geom) AS geoJson";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
@@ -122,7 +122,7 @@ class RumahGadangModel extends Model
     public function get_rg_by_name_api($name = null)
     {
         //$coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng")
@@ -133,15 +133,28 @@ class RumahGadangModel extends Model
         return $query;
     }
 
-    public function get_rg_by_status_api($status = null)
+    public function get_rg_by_status_api()
     {
         // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng")
             ->from('regional')
-            ->where("{$this->table}.status", $status)
+            ->where("{$this->table}.id_homestay !=", null)
+            ->where($vilGeom)
+            ->get();
+        return $query;
+    }
+    public function get_rg_by_status_api2()
+    {
+        // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
+        $query = $this->db->table($this->table)
+            ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng")
+            ->from('regional')
+            ->where("{$this->table}.id_homestay", null)
             ->where($vilGeom)
             ->get();
         return $query;
@@ -154,7 +167,7 @@ class RumahGadangModel extends Model
         $long = $data['long'];
         $jarak = "(6371 * acos(cos(radians({$lat})) * cos(radians({$this->table}.lat)) * cos(radians({$this->table}.lng) - radians({$long})) + sin(radians({$lat}))* sin(radians({$this->table}.lat))))";
         // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng, {$jarak} as jarak")
@@ -171,7 +184,7 @@ class RumahGadangModel extends Model
         if (empty($id)) {
             $id = [""];
         }
-        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
+        $columns = "{$this->table}.id_rumah_gadang as id,{$this->table}.name,{$this->table}.address,{$this->table}.open,{$this->table}.close,{$this->table}.price_ticket as ticket_price,{$this->table}.cp as contact_person,{$this->table}.id_homestay,{$this->table}.id_recommendation,{$this->table}.id_user,{$this->table}.description,{$this->table}.video_url";
         $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}, rumah_gadang.lat, rumah_gadang.lng")
@@ -185,11 +198,10 @@ class RumahGadangModel extends Model
     public function get_new_id_api()
     {
         $lastId = $this->db->table($this->table)->select('id_rumah_gadang')->orderBy('id_rumah_gadang', 'ASC')->get()->getLastRow('array');
-        if($lastId != null){
+        if ($lastId != null) {
             $count = (int)substr($lastId['id_rumah_gadang'], 1);
             $id = sprintf('R%02d', $count + 1);
-
-        }else{
+        } else {
             $count = 0;
             $id = sprintf('R%02d', $count + 1);
         }

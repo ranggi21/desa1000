@@ -3,15 +3,18 @@
 namespace App\Controllers\Web;
 
 use App\Controllers\BaseController;
+use App\Models\ReservationModel;
 use App\Models\ReviewModel;
 use CodeIgniter\I18n\Time;
 
 class Review extends BaseController
 {
     protected $reviewModel;
+    protected $reservationModel;
     public function __construct()
     {
         $this->reviewModel = new ReviewModel();
+        $this->reservationModel = new ReservationModel();
     }
 
     public function add()
@@ -59,5 +62,23 @@ class Review extends BaseController
         }
 
         return redirect()->to(base_url('web'));
+    }
+
+    public function ratingCommentPackage()
+    {
+        $data = $this->request->getPOST();
+        $reservation_id = $data['id_reservation'];
+        $user_id = $data['id_user'];
+        $review = $data['review'];
+        $rating = $data['rating'];
+        // dd($data);
+        $requestData = [
+            'rating' =>  $rating,
+            'review' => $review
+        ];
+
+        $this->reservationModel->update_r_api($reservation_id, $requestData);
+
+        return redirect()->to(base_url('web/reservation') . '/' . $user_id);
     }
 }

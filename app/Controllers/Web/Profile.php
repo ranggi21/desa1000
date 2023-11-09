@@ -16,38 +16,39 @@ class Profile extends BaseController
     protected $accountModel;
     protected $visitHistoryModel;
     protected $auth;
-    
+
     /**
      * @var AuthConfig
      */
     protected $config;
-    
+
     /**
      * @var Session
      */
     protected $session;
-    
+
     public function __construct()
     {
         $this->accountModel = new AccountModel();
         $this->visitHistoryModel = new VisitHistoryModel();
-    
+
         // Most services in this controller require
         // the session to be started - so fire it up!
         $this->session = service('session');
-    
+
         $this->config = config('Auth');
         $this->auth = service('authentication');
     }
-    
-    public function login() {
+
+    public function login()
+    {
         $data = [
             'title' => 'Login',
             'config' => $this->config,
         ];
         return view('auth/login', $data);
     }
-    
+
     public function register()
     {
         $data = [
@@ -56,7 +57,7 @@ class Profile extends BaseController
         ];
         return view('auth/register', $data);
     }
-    
+
     public function profile()
     {
         $data = [
@@ -73,7 +74,16 @@ class Profile extends BaseController
         ];
         return view('profile/update_profile', $data);
     }
-    
+
+    public function reservation($id = null)
+    {
+        $data = [
+            'title' => 'My Reservation',
+            'errors' => [],
+        ];
+        return view('profile/reservation', $data);
+    }
+
     public function changePassword()
     {
         $data = [
@@ -81,19 +91,18 @@ class Profile extends BaseController
             'errors' => [],
             'success' => false
         ];
-    
+
         if ($this->request->getMethod() == 'post') {
             $rules = [
                 'password'     => 'required|strong_password',
                 'pass_confirm' => 'required|matches[password]',
             ];
-    
-            if (! $this->validate($rules))
-            {
+
+            if (!$this->validate($rules)) {
                 $data['errors'] = $this->validator->getErrors();
                 return view('profile/change_password', $data);
             }
-    
+
             $requestData = [
                 'password_hash' => Password::hash($this->request->getPost()['password']),
                 'reset_hash' => null,
@@ -108,12 +117,12 @@ class Profile extends BaseController
             }
             $data['errors'] = ['Failed change password'];
             return view('profile/change_password', $data);
-            
         }
         return view('profile/change_password', $data);
     }
-    
-    public function update() {
+
+    public function update()
+    {
         $request = $this->request->getPost();
         $requestData = [
             'username' => $request['username'],
@@ -124,11 +133,11 @@ class Profile extends BaseController
             'phone' => $request['phone'],
         ];
         foreach ($requestData as $key => $value) {
-            if(empty($value)) {
+            if (empty($value)) {
                 unset($requestData[$key]);
             }
         }
-        
+
         if (($request['avatar']) != 'default.jpg') {
             $folder = $request['avatar'];
             $filepath = WRITEPATH . 'uploads/' . $folder;
@@ -141,7 +150,7 @@ class Profile extends BaseController
         } else {
             $requestData['photo'] = 'default.jpg';
         }
-        
+
         $query = $this->accountModel->update_account_users(user()->id, $requestData);
         if ($query) {
             return redirect()->to('web/profile');

@@ -42,7 +42,7 @@ $uri3 = $uri[3] ?? '';
                             </a>
                         </li>
                     <?php endif; ?>
-                    <!-- DASHBOARD -->
+                    <!-- MANAGE RESERVATION Package -->
                     <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'reservation') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/reservation'); ?>" class="sidebar-link">
@@ -120,17 +120,17 @@ $uri3 = $uri[3] ?? '';
                                     </a>
                                 </li>
                                 <!-- List homestay unit-->
-                                <li class="submenu-item <?= ($uri1 == 'homestayUnit') ? 'active' : '' ?>" id="hf-list">
+                                <!-- <li class="submenu-item <?= ($uri1 == 'homestayUnit') ? 'active' : '' ?>" id="hf-list">
                                     <a href="<?= base_url('dashboard/homestayUnit'); ?>" class="sidebar-link">
                                         <i class="fa-solid fa-monument"></i><span> Homestay Unit</span>
                                     </a>
-                                </li>
+                                </li> -->
                                 <!-- List homestay unit facility -->
-                                <li class="submenu-item <?= ($uri1 == 'homestayUnitFacility') ? 'active' : '' ?>" id="huf-list">
+                                <!-- <li class="submenu-item <?= ($uri1 == 'homestayUnitFacility') ? 'active' : '' ?>" id="huf-list">
                                     <a href="<?= base_url('dashboard/homestayUnitFacility'); ?>" class="sidebar-link">
                                         <i class="fa-regular fa-monument"></i><span> Homestay Unit Facility</span>
                                     </a>
-                                </li>
+                                </li> -->
 
                             </ul>
                         </li>
@@ -138,16 +138,22 @@ $uri3 = $uri[3] ?? '';
 
                     <!-- Manage Tourism Package-->
                     <?php if (in_groups(['admin'])) : ?>
-                        <li class="sidebar-item <?= ($uri1 == 'package' || $uri1 == 'service') ? 'active' : '' ?> has-sub">
+                        <li class="sidebar-item <?= ($uri1 == 'package' || $uri1 == 'packageType' || $uri1 == 'service') ? 'active' : '' ?> has-sub">
                             <a href="" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i><span>TP Menu</span>
                             </a>
 
-                            <ul class="submenu <?= ($uri1 == 'package' || $uri1 == 'service') ? 'active' : '' ?>">
+                            <ul class="submenu <?= ($uri1 == 'package' || $uri1 == 'packageType' || $uri1 == 'service') ? 'active' : '' ?>">
                                 <!-- List Package -->
                                 <li class="submenu-item <?= ($uri1 == 'package') ? 'active' : '' ?>" id="tp-list">
                                     <a href="<?= base_url('dashboard/package'); ?>" class="sidebar-link">
                                         <i class="fa-sharp fa-solid fa-map-location-dot"></i><span> Tourism Package</span>
+                                    </a>
+                                </li>
+                                <!-- List Package Day -->
+                                <li class="submenu-item <?= ($uri1 == 'packageType') ? 'active' : '' ?>" id="s-list">
+                                    <a href="<?= base_url('dashboard/packageType'); ?>" class="sidebar-link">
+                                        <i class="fa-sharp fa-solid fa-map"></i><span> TP Type</span>
                                     </a>
                                 </li>
                                 <!-- List Package Day -->
@@ -171,7 +177,7 @@ $uri3 = $uri[3] ?? '';
                      <?php endif; ?> -->
 
                     <!-- Manage EV -->
-                    <?php if (in_groups(['users'])) : ?>
+                    <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'event') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/event'); ?>" class="sidebar-link">
                                 <i class="fa-solid fa-bullhorn"></i><span> Event</span>
@@ -180,7 +186,7 @@ $uri3 = $uri[3] ?? '';
                     <?php endif; ?>
 
                     <!-- Manage Recommendation -->
-                    <?php if (in_groups(['users'])) : ?>
+                    <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'recommendation') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/recommendation'); ?>" class="sidebar-link">
                                 <i class="fa-solid fa-star"></i><span> Recommendation</span>
@@ -189,7 +195,7 @@ $uri3 = $uri[3] ?? '';
                     <?php endif; ?>
 
                     <!-- Manage Users -->
-                    <?php if (in_groups(['users'])) : ?>
+                    <?php if (in_groups(['admin'])) : ?>
                         <li class="sidebar-item <?= ($uri1 == 'users') ? 'active' : '' ?>">
                             <a href="<?= base_url('dashboard/users'); ?>" class="sidebar-link">
                                 <i class="fa-solid fa-users"></i><span> Users</span>

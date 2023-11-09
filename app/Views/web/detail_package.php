@@ -5,8 +5,8 @@
 <div class="modal fade text-left" id="reservationModal" tabindex="-1" aria-labelledby="myModalLabel1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle"></h5>
+            <div class="modal-header bg-primary ">
+                <h5 class="modal-title text-white" id="modalTitle"></h5>
                 <button type="button" class="close rounded-pill" data-bs-dismiss="modal" aria-label="Close">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -51,6 +51,12 @@
                                         <td class="fw-bold">Name</td>
                                         <td><?= esc($data['name']); ?></td>
                                     </tr>
+                                    <?php if ($data['id_package_type'] != null) : ?>
+                                        <tr>
+                                            <td class="fw-bold">Package Type </td>
+                                            <td><?= esc($data['type_name']); ?></td>
+                                        </tr>
+                                    <?php endif; ?>
                                     <tr>
                                         <td class="fw-bold">Price</td>
                                         <td><?= 'Rp ' . number_format(esc($data['price']), 0, ',', '.'); ?></td>
@@ -61,7 +67,7 @@
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Contact Person</td>
-                                        <td><?= esc($data['contact_person']); ?></td>
+                                        <td><?= esc($data['cp']); ?></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -84,30 +90,36 @@
                             <?php endforeach; ?>
                         </div>
                     </div>
+
+
                     <div class="row">
                         <div class="col border p-2">
                             <p class="fw-bold">Detail Packages </p>
-                            <div class="list-group list-group-horizontal-sm mb-4 text-center" role="tablist">
-                                <?php $dayNumber = 1; ?>
-                                <?php foreach ($data['package_day'] as $day) : ?>
-                                    <a onclick="getObjectsByPackageDayId('<?= $day['day'] ?>')" class="list-group-item list-group-item-action <?= $dayNumber == 1 ? "active" : "" ?>" id="list-<?= $dayNumber; ?>-list" data-bs-toggle="list" href="#list-<?= $dayNumber; ?>" role="tab" aria-selected="<?= $dayNumber == 1 ? "true" : "false" ?>"> Day <?= $dayNumber; ?></a>
-                                    <?php $dayNumber++; ?>
-                                <?php endforeach; ?>
-                            </div>
-                            <p class="fw-bold">Activities </p>
-                            <div class="tab-content text-justify px-1">
-                                <?php $detailNumber = 1 ?>
-                                <?php foreach ($data['package_day'] as $day) : ?>
-                                    <?php $i = 1; ?>
-                                    <div class="tab-pane fade <?= $detailNumber == 1 ? "active show" : "" ?> " id="list-<?= $detailNumber ?>" role="tabpanel" aria-labelledby="list-<?= $detailNumber ?>-list">
-                                        <?php foreach ($day['package_day_detail'] as $activities) : ?>
-                                            <p><?= esc($i) . '. ' . esc($activities['detailDescription']); ?></p>
-                                            <?php $i++; ?>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <?php $detailNumber++; ?>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php if ($data['package_day'] != null) : ?>
+                                <div class="list-group list-group-horizontal-sm mb-4 text-center" role="tablist">
+                                    <?php $dayNumber = 1; ?>
+                                    <?php foreach ($data['package_day'] as $day) : ?>
+                                        <a onclick="getObjectsByPackageDayId('<?= $day['day'] ?>')" class="list-group-item list-group-item-action <?= $dayNumber == 1 ? "active" : "" ?>" id="list-<?= $dayNumber; ?>-list" data-bs-toggle="list" href="#list-<?= $dayNumber; ?>" role="tab" aria-selected="<?= $dayNumber == 1 ? "true" : "false" ?>"> Day <?= $dayNumber; ?></a>
+                                        <?php $dayNumber++; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                                <p class="fw-bold">Activities </p>
+                                <div class="tab-content text-justify px-1">
+                                    <?php $detailNumber = 1 ?>
+                                    <?php foreach ($data['package_day'] as $day) : ?>
+                                        <?php $i = 1; ?>
+                                        <div class="tab-pane fade <?= $detailNumber == 1 ? "active show" : "" ?> " id="list-<?= $detailNumber ?>" role="tabpanel" aria-labelledby="list-<?= $detailNumber ?>-list">
+                                            <?php foreach ($day['package_day_detail'] as $activities) : ?>
+                                                <p><?= esc($i) . '. ' . esc($activities['detailDescription']); ?></p>
+                                                <?php $i++; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php $detailNumber++; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else : ?>
+                                <p>Activities not found</p>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -115,7 +127,7 @@
             </div>
 
             <!--Rating and Review Section-->
-            <?= $this->include('web/layouts/review'); ?>
+            <?= $this->include('web/layouts/reviewPackage'); ?>
         </div>
 
         <div class="col-md-6 col-12">
@@ -155,7 +167,9 @@
     let latBefore = ''
     let lngBefore = ''
 
-    getObjectsByPackageDayId('<?= $data['package_day'][0]['day'] ?>')
+    <?php if ($data['package_day'] != null) : ?>
+        getObjectsByPackageDayId('<?= $data['package_day'][0]['day'] ?>')
+    <?php endif; ?>
 
     function getObjectsByPackageDayId(id_day) {
         $.ajax({
@@ -194,9 +208,11 @@
                 URI = URI + '/worshipPlace/' + `${id_object}`
             } else if (id_object.charAt(0) == 'S') {
                 URI = URI + '/souvenirPlace/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'A') {
+                URI = URI + '/atraction/' + `${id_object}`
             }
 
-            console.log(URI)
+
             currentUrl = '';
             $.ajax({
                 url: URI,
@@ -285,14 +301,69 @@
         boundToRoute(start, end);
     }
 
+
     function showReservationModal() {
         <?php if (in_groups('user')) : ?>
-            $('#modalTitle').html("Reservation")
+            $('#modalTitle').html("Reservation form")
             $('#modalBody').html(`
-            <label for="reservation_date" class="mb-2">Reservation date </label>
-            <input type="date" id="reservation_date" class="form-control" required >
+            <div class=" p-2">
+                <div class="mb-2 shadow-sm p-4 rounded">
+                    <p class="text-center fw-bold text-dark"> Package Information </p>
+                    <table class="table table-borderless text-dark ">
+                                        <tbody>
+                                        <?php if ($data['url'] != null) : ?>
+                                            <tr>
+                                                <td colspan="2"><img class="img-fluid img-thumbnail rounded" src="<?= base_url('media/photos') . '/' . $data['url'] ?>" width="100%"></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                            <tr>
+                                                <td class="fw-bold">Name</td>
+                                                <td><?= esc($data['name']); ?></td>
+                                            </tr>
+                                            <?php if (isset($data['id_homestay'])) : ?>
+                                                <?php if ($data['id_homestay'] != null) : ?>
+                                                    <tr>
+                                                        <td class="fw-bold">Homestay </td>
+                                                        <td><?= esc($data['homestay_name']); ?></td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                            <tr>
+                                                <td class="fw-bold">Price</td>
+                                                <td><?= 'Rp ' . number_format(esc($data['price']), 0, ',', '.'); ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Maks Capacity</td>
+                                                <td><?= esc($data['capacity']) ?> people</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Contact Person</td>
+                                                <td><?= esc($data['cp']); ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Day total</td>
+                                                <td><?= esc(count($data['package_day'])); ?></td>
+                                            </tr>
+                                        </tbody>
+                    </table>
+                </div>
+                <div class="shadow p-4 rounded">
+                    <div class="form-group mb-2">
+                        <label for="reservation_date" class="mb-2"> Select reservation date </label>
+                        <input type="date" id="reservation_date" class="form-control" required >
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="number_people" class="mb-2"> Number of people </label>
+                        <input type="number" id="number_people" placeholder="masimum capacity is <?= esc($data['capacity']) ?>" class="form-control" required >
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="comment" class="mb-2"> Additional information </label>
+                        <input type="text" id="comment" class="form-control" >
+                    </div>
+                </div>
+            </div>
             `)
-            $('#modalFooter').html(`<a class="btn btn-success" onclick="makeReservation()"> Make reservation </a>`)
+            $('#modalFooter').html(`<a class="btn btn-success" onclick="makeReservation(${<?= user()->id ?>})"> Make reservation </a>`)
         <?php else : ?>
             $('#modalTitle').html('Login required')
             $('#modalBody').html('Login as user for reservation')
@@ -300,20 +371,41 @@
         <?php endif; ?>
     }
 
-    function makeReservation() {
+    function makeReservation(user_id) {
         let reservationDate = $("#reservation_date").val()
+        let numberPeople = $("#number_people").val()
+        let comment = $("#comment").val()
+        let numberCheckResult = checkNumberPeople(numberPeople)
+        let dateCheckResult = checkIsDateExpired(reservationDate)
+        let sameDateCheckResult = "true"
+        if (reservationDate) {
+            sameDateCheckResult = checkIsDateDuplicate(user_id, reservationDate)
+        }
+
         if (!reservationDate) {
             Swal.fire('Please select reservation date', '', 'warning');
+        } else if (numberPeople <= 0) {
+            Swal.fire('Need 1 people at least', '', 'warning');
+        } else if (numberCheckResult == false) {
+            Swal.fire('Out of capacity, maksimal ' + '<?= $data['capacity'] ?>' + 'people', '', 'warning');
+        } else if (dateCheckResult == false) {
+            Swal.fire('Cannot Reserve, out of date, maksimal H-1 reservation', '', 'warning');
+        } else if (sameDateCheckResult == "true") {
+            Swal.fire('Already chose the same date! please select another date', '', 'warning');
         } else {
+
             <?php if (in_groups('user')) : ?>
                 let requestData = {
-                    id_user: '<?= user()->id; ?>',
+                    reservation_date: reservationDate,
+                    id_user: user_id,
                     id_package: '<?= $data['id'] ?>',
                     id_reservation_status: 1, // pending status
-                    reservation_date: reservationDate
+                    number_people: numberPeople,
+                    total_price: '<?= $data['price'] ?>',
+                    comment: comment
                 }
                 $.ajax({
-                    url: `<?= base_url('api'); ?>/reservation`,
+                    url: `<?= base_url('web/reservation/create'); ?>`,
                     type: "POST",
                     data: requestData,
                     async: false,
@@ -324,7 +416,7 @@
                             '',
                             'success'
                         ).then(() => {
-                            window.location.replace(baseUrl + '/web/reservation/' + <?= user()->id; ?>)
+                            window.location.replace(baseUrl + '/web/reservation/' + user_id)
                         });
 
                     },
@@ -334,6 +426,129 @@
                 });
             <?php endif; ?>
         }
+    }
+
+    function checkNumberPeople(numberPeople) {
+        let packageCapacity = parseInt('<?= $data['capacity'] ?>')
+        let peopleNumberRequest = parseInt(numberPeople)
+
+        if (peopleNumberRequest > packageCapacity) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    function checkIsDateExpired(reservation_date) {
+        let result
+
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        let yyyy = today.getFullYear();
+
+        today = yyyy + '-' + mm + '-' + dd;
+
+        if (reservation_date > today) {
+            result = true
+        } else {
+            result = false
+        }
+        return result
+    }
+
+    function checkIsDateDuplicate(user_id, reservation_date) {
+        let result
+        $.ajax({
+            url: `<?= base_url('web/reservation') ?>/check/${user_id}/${reservation_date}`,
+            type: "GET",
+            async: false,
+            success: function(response) {
+                result = response
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+        return result
+    }
+
+    // Set star by user input
+    function setStar(star) {
+        switch (star) {
+            case '1':
+                $("#star-1").addClass('star-checked')
+                $("#star-2,#star-3,#star-4,#star-5").removeClass('star-checked')
+                break
+            case '2':
+                $("#star-1,#star-2").addClass('star-checked')
+                $("#star-3,#star-4,#star-5").removeClass('star-checked')
+                break
+            case '3':
+                $("#star-1,#star-2,#star-3").addClass('star-checked')
+                $("#star-4,#star-5").removeClass('star-checked')
+                break
+            case '4':
+                $("#star-1,#star-2,#star-3,#star-4").addClass('star-checked')
+                $("#star-5").removeClass('star-checked')
+                break
+            case '5':
+                $("#star-1,#star-2,#star-3,#star-4,#star-5").addClass('star-checked')
+                break
+        }
+    }
+
+    function openMultipleCheckOut() {
+        $("#multipleButton").html(`
+        <a title="closeAll" class="btn btn-danger" onclick="closeMultipleCheckOut()"><i class="fa fa-x"></i> Cancel Group </a>
+        <a title="Print All" class="btn btn-primary" onclick="openInvoice()"><i class="fa fa-print"></i> Print selected</a>
+        `)
+        $(".checkAll").removeClass("d-none")
+        $(".checkSingle").addClass("d-none")
+    }
+
+    function closeMultipleCheckOut() {
+        $("#multipleButton").html(`
+        <a title="Print multiple reservation" class="btn btn-primary" onclick="openMultipleCheckOut()"><i class="fa-solid fa-print"></i> Print in Group </a>
+        `)
+        $(".checkAll").addClass("d-none")
+        $(".checkSingle").removeClass("d-none")
+    }
+
+    function openInvoice(single = null) {
+        let invoiceRequest
+
+        single != null ?
+            invoiceRequest = [single] :
+            invoiceRequest = $('input[name="idPackage[]"]:checked').map(function() {
+                return this.value; // $(this).val()
+            }).get();
+
+
+        if (invoiceRequest.length > 0) {
+            $.ajax({
+                url: '<?= base_url("pdf/invoice-data") ?>',
+                type: "POST",
+                dataType: "json",
+                data: {
+                    id_reservation: invoiceRequest
+                },
+                success: function(response) {
+
+                    window.open('<?= base_url('pdf/index'); ?>' + '/' + JSON.stringify(response));
+                },
+                error: function(err) {
+                    console.log(err.responseText)
+                }
+            })
+        } else {
+            Swal.fire(
+                'Please select 1 reservation at least!',
+                '',
+                'error'
+            )
+        }
+
     }
 </script>
 <?= $this->endSection() ?>

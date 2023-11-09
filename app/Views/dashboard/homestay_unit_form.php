@@ -51,8 +51,8 @@ $edit = in_array('edit', $uri);
                                 </select>
                             </fieldset>
                             <fieldset class="form-group mb-4">
-                                <label for="id_homestay" class="mb-2">Homestay</label>
-                                <select class="form-select" id="id_homestay" name="id_homestay">
+                                <label for="id_homestay" class="mb-2">Homestay <span class="text-danger">*</span></label>
+                                <select class="form-select" id="id_homestay" name="id_homestay" required>
                                     <?php if ($homestayData) : ?>
                                         <?php foreach ($homestayData as $homestay) : ?>
                                             <?php if ($edit && $homestay['id'] && $data['id_homestay']) : ?>
@@ -62,7 +62,7 @@ $edit = in_array('edit', $uri);
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     <?php else : ?>
-                                        <option value=" ">Homestay not found</option>
+                                        <option value="">Homestay not found</option>
                                     <?php endif; ?>
                                 </select>
                             </fieldset>

@@ -72,14 +72,16 @@ $edit = in_array('edit', $uri);
                                 <input type="tel" id="contact_person" class="form-control" name="contact_person" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('contact_person'); ?>">
                             </div>
                             <fieldset class="form-group mb-4">
-                                <label for="status" class="mb-2">Status</label>
-                                <select class="form-select" id="status" name="status">
-                                    <?php if ($edit) : ?>
-                                        <option value="Homestay" <?= (esc($data['status']) == 'Homestay') ? 'selected' : ''; ?>>Homestay</option>
-                                        <option value="Tidak Homestay" <?= (esc($data['status']) != 'Homestay') ? 'selected' : ''; ?>>Tidak Homestay</option>
+                                <label for="id_homestay" class="mb-2">Homestay</label>
+                                <select class="form-select" id="id_homestay" name="id_homestay">
+                                    <?php if ($edit && $data['id_homestay'] != null) : ?>
+                                        <option value="<?= $data['id_homestay'] ?>" selected><?= $data['id_homestay']; ?></option>
+                                        <option value="null">Tidak Homestay</option>
                                     <?php else : ?>
-                                        <option value="Homestay">Homestay</option>
-                                        <option value="Tidak Homestay" selected>Tidak Homestay</option>
+                                        <option value="null" selected>Tidak Homestay</option>
+                                        <?php foreach ($homestayData as $homestay) : ?>
+                                            <option value="<?= $homestay['id'] ?>"><?= $homestay['name']; ?></option>
+                                        <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
                             </fieldset>

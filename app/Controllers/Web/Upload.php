@@ -71,6 +71,16 @@ class Upload extends ResourceController
                 }
             }
             return $this->response->setHeader('Content-Type', 'text/plain')->setStatusCode(200)->setBody('');
+        } else {
+            $file = $this->request->getFile('gallery');
+            $fileName = $file->getRandomName();
+            $createdFolder = mkdir(WRITEPATH . 'uploads/' . $folder);
+            if ($createdFolder) {
+                $filepath = WRITEPATH . 'uploads/' . $file->store($folder, $fileName);
+                return $this->response->setHeader('Content-Type', 'text/plain')->setStatusCode(200)->setBody($folder);
+            }
+            $error = "failed create temp folder. Folder: " . $folder . "; Filename:" . $file;
+            return $this->response->setHeader('Content-Type', 'text/plain')->setStatusCode(400)->setBody($error);
         }
         return $this->response->setHeader('Content-Type', 'text/plain')->setStatusCode(400)->setBody("file is null, upload failed");
     }

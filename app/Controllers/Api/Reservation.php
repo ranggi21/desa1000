@@ -2,21 +2,34 @@
 
 namespace App\Controllers\Api;
 
+use App\Models\HomestayModel;
+use App\Models\PackageModel;
 use App\Models\ReservationModel;
+use App\Models\ReservationStatusModel;
 use CodeIgniter\API\ResponseTrait;
-use CodeIgniter\I18n\Time;
 use CodeIgniter\RESTful\ResourceController;
-use DateTime;
+use Myth\Auth\Models\UserModel;
+use CodeIgniter\Files\File;
+use CodeIgniter\I18n\Time;
 
 class Reservation extends ResourceController
 {
     use ResponseTrait;
 
     protected $reservationModel;
+    protected $reservationStatusModel;
+    protected $packageModel;
+    protected $homestayModel;
+    protected $userModel;
+    protected $helpers = ['auth', 'url', 'filesystem'];
 
     public function __construct()
     {
         $this->reservationModel = new ReservationModel();
+        $this->reservationStatusModel = new ReservationStatusModel();
+        $this->packageModel = new PackageModel();
+        $this->homestayModel = new HomestayModel();
+        $this->userModel = new UserModel();
     }
 
     /**
@@ -44,7 +57,24 @@ class Reservation extends ResourceController
      */
     public function show($id = null)
     {
-        //
+        $reservationData = $this->reservationModel->get_r_by_id_api($id)->getRowArray();
+        // reservation status dan paket
+        $reservationData['status'] = $this->reservationStatusModel->get_s_by_id_api($reservationData['id_reservation_status'])->getRowArray()['status'];
+        $reservationData['username'] = $this->userModel->get_u_by_id_api($reservationData['id_user'])->getRowArray()['username'];
+
+        if ($reservationData['id_package'] != null) {
+            $data = $this->packageModel->get_tp_by_id_api($reservationData['id_package'])->getRowArray();
+            $reservationData['item_name']  = $data['name'];
+            $reservationData['item_costum'] = $data['costum'];
+            $reservationData['item_price'] = $data['price'];
+        } else if ($reservationData['id_homestay'] != null) {
+            $data = $this->homestayModel->get_hm_by_id_api($reservationData['id_homestay'])->getRowArray();
+            $reservationData['item_name']  = $data['name'];
+            $reservationData['item_costum'] = $data['status'];
+            $reservationData['item_price'] = $data['ticket_price'];
+        }
+
+        return json_encode($reservationData);
     }
 
     /**
@@ -113,19 +143,30 @@ class Reservation extends ResourceController
     public function update($id = null)
     {
         $request = $this->request->getRawInput();
-        $requestData = [
-            'id_reservation_status' => $request['id_reservation_status'],
-            'id_user' => $request['id_user'],
-            'id_package' => $request['id_package'],
-            'request_date' => $request['request_date']
-        ];
 
-        $updateFC = $this->reservationModel->update_r_api($id, $requestData);
+        // execute when payment accepted
+        if (isset($request['payment_date']) && $request['payment_date'] != null) {
+            $request['payment_date'] = Time::now();
+        }
+
+        // execute when upload proof of payment
+        if (isset($request['proof_of_deposit'])) {
+            $folder = $request['proof_of_deposit'];
+            $filepath = WRITEPATH . 'uploads/' . $folder;
+            $filename = get_filenames($filepath)[0];
+            $fileImg = new File($filepath . '/' . $filename);
+            $fileImg->move(FCPATH . 'media/photos/reservation/');
+            delete_files($filepath);
+            rmdir($filepath);
+            $request['proof_of_deposit'] = $fileImg->getFilename();
+            $request['deposit_date'] = Time::now();
+        }
+        $updateFC = $this->reservationModel->update_r_api($id, $request);
         if ($updateFC) {
             $response = [
                 'status' => 200,
                 'message' => [
-                    "Success update Service"
+                    "Success update reservation"
                 ]
             ];
             return $this->respondCreated($response);
@@ -133,7 +174,7 @@ class Reservation extends ResourceController
             $response = [
                 'status' => 400,
                 'message' => [
-                    "Fail update Service",
+                    "Fail update reservation",
                 ]
             ];
             return $this->respond($response, 400);

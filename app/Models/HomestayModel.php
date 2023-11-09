@@ -11,7 +11,7 @@ class HomestayModel extends Model
     protected $table            = 'homestay';
     protected $primaryKey       = 'id';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id', 'id_user', 'name', 'description', 'url'];
+    protected $allowedFields    = ['id', 'name', 'address', 'checkin', 'checkout', 'cp', 'price', 'status', 'description', 'url'];
 
     // Dates
     protected $useTimestamps = true;
@@ -29,16 +29,28 @@ class HomestayModel extends Model
     // API
     public function get_list_hm_api()
     {
+
         $query = $this->db->table($this->table)
             ->select('*')
+            ->get();
+        return $query;
+    }
+    public function get_list_hm_api_new()
+    {
+        $columns = "{$this->table}.id,{$this->table}.name,{$this->table}.address,{$this->table}.checkin,{$this->table}.checkout,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.price as ticket_price,{$this->table}.description,{$this->table}.url as video_url";
+        $query = $this->db->table($this->table)
+            ->select("{$columns}")
+            ->where('rumah_gadang.id_homestay =', null)
+            ->join('rumah_gadang', 'rumah_gadang.id_homestay = homestay.id', 'left outer')
             ->get();
         return $query;
     }
 
     public function get_hm_by_id_api($id = null)
     {
+        $columns = "{$this->table}.id,{$this->table}.name,{$this->table}.address,{$this->table}.checkin,{$this->table}.checkout,{$this->table}.cp as contact_person,{$this->table}.status,{$this->table}.price as ticket_price,{$this->table}.description,{$this->table}.url as video_url";
         $query = $this->db->table($this->table)
-            ->select('*')
+            ->select("{$columns}")
             ->where('id', $id)
             ->get();
         return $query;
@@ -78,6 +90,7 @@ class HomestayModel extends Model
                 unset($homestay[$key]);
             }
         }
+
         $homestay['updated_at'] = Time::now();
         $query = $this->db->table($this->table)
             ->where('id', $id)

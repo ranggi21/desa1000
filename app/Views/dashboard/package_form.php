@@ -60,18 +60,18 @@ $edit = in_array('edit', $uri);
                                 <input type="text" id="name" class="form-control" name="name" placeholder="Tourism Package Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
                             </div>
                             <fieldset class="form-group mb-4">
-                                <label for="id_homestay" class="mb-2">Homestay</label>
-                                <select class="form-select" id="id_homestay" name="id_homestay">
-                                    <?php if ($homestayData) : ?>
-                                        <?php foreach ($homestayData as $homestay) : ?>
-                                            <?php if ($edit && $homestay['id'] && $data['id_homestay']) : ?>
-                                                <option value="<?= $homestay['id'] ?>" <?= (esc($homestay['id']) == $data['id_homestay']) ? 'selected' : ''; ?>><?= $homestay['name']; ?></option>
+                                <label for="id_package_type" class="mb-2">Package Type</label>
+                                <select class="form-select" id="id_package_type" name="id_package_type">
+                                    <option value="" selected> </option>
+                                    <?php if ($packageTypeData) : ?>
+                                        <?php foreach ($packageTypeData as $type) : ?>
+                                            <?php if ($edit && $type['id'] && $data['id_package_type']) : ?>
+                                                <option value="<?= $type['id'] ?>" <?= (esc($type['id']) == $data['id_package_type']) ? 'selected' : ''; ?>><?= $type['name']; ?></option>
                                             <?php else : ?>
-                                                <option value="<?= esc($homestay['id']); ?>"><?= esc($homestay['name']); ?></option>
+                                                <option value="<?= esc($type['id']); ?>"><?= esc($type['name']); ?></option>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <option value=" ">Homestay not found</option>
+
                                     <?php endif; ?>
                                 </select>
                             </fieldset>
@@ -84,11 +84,11 @@ $edit = in_array('edit', $uri);
                             </div>
                             <div class="form-group mb-4">
                                 <label for="capacity" class="mb-2">Capacity</label>
-                                <input type="tel" id="capacity" class="form-control" name="capacity" placeholder="capacity" value="<?= ($edit) ? $data['capacity'] : old('capacity'); ?>">
+                                <input type="number" id="capacity" class="form-control" name="capacity" placeholder="capacity" value="<?= ($edit) ? $data['capacity'] : old('capacity'); ?>">
                             </div>
                             <div class="form-group mb-4">
                                 <label for="contact_person" class="mb-2">Contact Person</label>
-                                <input type="tel" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('cp'); ?>">
+                                <input type="text" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['cp'] : old('cp'); ?>">
                             </div>
 
                             <div class="form-group mb-4">
@@ -110,9 +110,9 @@ $edit = in_array('edit', $uri);
                             </div>
                             <div class="form-group mb-4">
                                 <label for="gallery" class="form-label">Brosur url</label>
-                                <input class="form-control" accept="image/*" type="file" name="gallery" id="gallery">
+                                <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
                             </div>
-
+                            <input type="hidden" value="2" name="costum">
                             <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
                             <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
                         </div>
@@ -122,6 +122,7 @@ $edit = in_array('edit', $uri);
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title text-center">Detail package</h4>
+                            <input type="hidden" value="<?= ($edit) ? 'oke' : '' ?>" required id="checkDetailPackage">
                         </div>
                         <div class="card-body">
                             <button type="button" onclick="openPackageDayModal(`${noDay}`)" class="btn btn-outline-primary block" data-bs-toggle="modal" data-bs-target="#modalPackage"> New package day
@@ -191,6 +192,15 @@ $edit = in_array('edit', $uri);
 <script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
 
 <script>
+    function checkRequired(event) {
+        let checkDetailPackage = $('#checkDetailPackage').val()
+
+        if (checkDetailPackage != "oke") {
+            event.preventDefault();
+            Swal.fire('You dont have any activities, please add 1 at least', '', 'warning');
+        }
+    }
+
     function removeObject(noDay, noDetail) {
         console.log("masuk sini")
         $(`#${noDay}-${noDetail}`).remove()
@@ -315,6 +325,7 @@ $edit = in_array('edit', $uri);
         </tr>     
         `)
         $(`#lastNoDetail${noDay}`).val(noDetail + 1)
+        $('#checkDetailPackage').val('oke')
     }
 </script>
 

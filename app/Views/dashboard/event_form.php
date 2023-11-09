@@ -6,26 +6,25 @@ $edit = in_array('edit', $uri);
 <?= $this->extend('dashboard/layouts/main'); ?>
 
 <?= $this->section('styles') ?>
-    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-    <link
-        href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
-        rel="stylesheet"
-    />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css">
-    <link rel="stylesheet" href="<?= base_url('assets/css/pages/form-element-select.css'); ?>">
-    <style>
-        .filepond--root {
-            width: 100%;
-        }
-    </style>
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css">
+<link rel="stylesheet" href="<?= base_url('assets/css/pages/form-element-select.css'); ?>">
+<style>
+    .filepond--root {
+        width: 100%;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 
 <section class="section">
     <div class="row">
-        <script>currentUrl = '<?= current_url(); ?>';</script>
-        
+        <script>
+            currentUrl = '<?= current_url(); ?>';
+        </script>
+
         <!-- Object Detail Information -->
         <div class="col-md-6 col-12">
             <div class="card">
@@ -37,19 +36,16 @@ $edit = in_array('edit', $uri);
                         <div class="form-body">
                             <div class="form-group mb-4">
                                 <label for="geo-json" class="mb-2">GeoJSON</label>
-                                <input type="text" id="geo-json" class="form-control"
-                                       name="geo-json" placeholder="GeoJSON" readonly="readonly" required value='<?= ($edit) ? $data['geoJson'] : ''; ?>'>
+                                <input type="text" id="geo-json" class="form-control" name="geo-json" placeholder="GeoJSON" readonly="readonly" required value='<?= ($edit) ? $data['geoJson'] : ''; ?>'>
                             </div>
                             <div class="form-group mb-4">
-                                <label for="name" class="mb-2">Event Name</label>
-                                <input type="text" id="name" class="form-control"
-                                       name="name" placeholder="Event Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
+                                <label for="name" class="mb-2">Event Name <span class="text-danger">*</span></label>
+                                <input type="text" id="name" class="form-control" name="name" placeholder="Event Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
                             </div>
                             <div class="form-group mb-4">
                                 <label for="date_start" class="mb-2">Date Start</label>
                                 <div class="input-group date" id="datepicker_start">
-                                    <input type="text" id="date_start" class="form-control"
-                                           name="date_start" placeholder="Date Start" aria-label="Date Start" aria-describedby="date_start" value="<?= ($edit) ? $data['date_start'] : old('date_start'); ?>" required>
+                                    <input type="text" id="date_start" class="form-control" name="date_start" placeholder="Date Start" aria-label="Date Start" aria-describedby="date_start" value="<?= ($edit) ? $data['date_start'] : old('date_start'); ?>" required>
                                     <div class="input-group-addon ms-2">
                                         <i class="fa-solid fa-calendar-days" style="font-size: 1.5rem; vertical-align: bottom"></i>
                                     </div>
@@ -58,8 +54,7 @@ $edit = in_array('edit', $uri);
                             <div class="form-group mb-4">
                                 <label for="date_end" class="mb-2">Date End</label>
                                 <div class="input-group date" id="datepicker_end">
-                                    <input type="text" id="date_end" class="form-control"
-                                           name="date_end" placeholder="Date End" aria-label="Date End" aria-describedby="date_end" value="<?= ($edit) ? $data['date_end'] : old('date_end'); ?>">
+                                    <input type="text" id="date_end" class="form-control" name="date_end" placeholder="Date End" aria-label="Date End" aria-describedby="date_end" value="<?= ($edit) ? $data['date_end'] : old('date_end'); ?>">
                                     <div class="input-group-addon ms-2">
                                         <i class="fa-solid fa-calendar-days" style="font-size: 1.5rem; vertical-align: bottom"></i>
                                     </div>
@@ -69,24 +64,25 @@ $edit = in_array('edit', $uri);
                                 <label for="ticket_price" class="mb-2">Ticket Price</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp </span>
-                                    <input type="number" id="ticket_price" class="form-control"
-                                           name="ticket_price" placeholder="Ticket Price" aria-label="Ticket Price" aria-describedby="ticket-price" value="<?= ($edit) ? $data['ticket_price'] : old('ticket_price'); ?>">
+                                    <input type="number" id="ticket_price" class="form-control" name="ticket_price" placeholder="Ticket Price" aria-label="Ticket Price" aria-describedby="ticket-price" value="<?= ($edit) ? $data['ticket_price'] : old('ticket_price'); ?>">
                                 </div>
                             </div>
                             <div class="form-group mb-4">
                                 <label for="contact_person" class="mb-2">Contact Person</label>
-                                <input type="tel" id="contact_person" class="form-control"
-                                       name="contact_person" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('contact_person'); ?>">
+                                <input type="tel" id="contact_person" class="form-control" name="contact_person" placeholder="Contact Person" value="<?= ($edit) ? $data['contact_person'] : old('contact_person'); ?>">
                             </div>
-                            <?php if (in_groups('owner')): ?>
+                            <?php if (in_groups('owner')) : ?>
                                 <input type="hidden" name="owner" value="<?= user()->id; ?>" required>
-                            <?php else: ?>
-                            <fieldset class="form-group mb-4">
-                                <script>getListUsers('<?= ($edit) ? esc($data['id_user']) : ''; ?>');</script>
-                                <label for="ownerSelect" class="mb-2">Owner</label>
-                                <select class="form-select" id="ownerSelect" name="owner" required>
-                                </select>
-                            </fieldset>
+                            <?php else : ?>
+                                <fieldset class="form-group mb-4">
+                                    <script>
+                                        getListUsers('<?= ($edit) ? esc($data['id_user']) : ''; ?>');
+                                    </script>
+                                    <label for="ownerSelect" class="mb-2">Owner <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="ownerSelect" name="owner" required>
+
+                                    </select>
+                                </fieldset>
                             <?php endif; ?>
                             <div class="form-group mb-4">
                                 <label for="description" class="form-label">Description</label>
@@ -95,12 +91,12 @@ $edit = in_array('edit', $uri);
                             <fieldset class="form-group mb-4">
                                 <label for="category" class="mb-2">Category</label>
                                 <select class="form-select" id="category" name="category">
-                                    <?php foreach ($categories as $category): ?>
-                                    <?php if ($edit): ?>
+                                    <?php foreach ($categories as $category) : ?>
+                                        <?php if ($edit) : ?>
                                             <option value="<?= esc($category['id']); ?>" <?= (esc($data['category_id']) == esc($category['id'])) ? 'selected' : ''; ?>><?= esc($category['category']); ?></option>
-                                    <?php else: ?>
+                                        <?php else : ?>
                                             <option value="<?= esc($category['id']); ?>"><?= esc($category['category']); ?></option>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
                             </fieldset>
@@ -116,14 +112,13 @@ $edit = in_array('edit', $uri);
                             <input type="hidden" name="lat" id="lat" value="<?= ($edit) ? $data['lat'] : old('lat'); ?>">
                             <input type="hidden" name="lng" id="lng" value="<?= ($edit) ? $data['lng'] : old('lng'); ?>">
                             <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
-                            <button type="reset"
-                                    class="btn btn-light-secondary me-1 mb-1">Reset</button>
+                            <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6 col-12">
             <!-- Object Location on Map -->
             <div class="card">
@@ -134,13 +129,13 @@ $edit = in_array('edit', $uri);
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="latitude">Latitude</label>
+                                <label for="latitude">Latitude <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="latitude" name="latitude" placeholder="eg. -0.52435750" value="<?= ($edit) ? $data['lat'] : ''; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="latitude">Longitude</label>
+                                <label for="latitude">Longitude <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="longitude" name="longitude" placeholder="eg. 100.49234850" value="<?= ($edit) ? $data['lng'] : ''; ?>">
                             </div>
                         </div>
@@ -155,10 +150,12 @@ $edit = in_array('edit', $uri);
                             </a>
                         </div>
                     </div>
-                
+
                 </div>
                 <?= $this->include('web/layouts/map-body'); ?>
-                <script>initDrawingManager(<?= $edit ?>);</script>
+                <script>
+                    initDrawingManager(<?= $edit ?>);
+                </script>
             </div>
             <!-- Object Media -->
         </div>
@@ -176,7 +173,9 @@ $edit = in_array('edit', $uri);
 <script src="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.js"></script>
 <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
 <script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
-<script>getFacility();</script>
+<script>
+    getFacility();
+</script>
 <script>
     $('#datepicker_start').datepicker({
         format: 'yyyy-mm-dd',
@@ -205,7 +204,6 @@ $edit = in_array('edit', $uri);
             Swal.fire('Please select location for the New Event');
         }
     }
-
 </script>
 <script>
     FilePond.registerPlugin(
@@ -234,13 +232,12 @@ $edit = in_array('edit', $uri);
         maxTotalFileSize: '1920MB',
         credits: false,
     })
-    
-    <?php if ($edit && count($data['gallery']) > 0): ?>
-    pond.addFiles(
-        <?php foreach ($data['gallery'] as $gallery) : ?>
-        `<?= base_url('media/photos/' . $gallery); ?>`,
-        <?php endforeach; ?>
-    );
+
+    <?php if ($edit && count($data['gallery']) > 0) : ?>
+        pond.addFiles(
+            <?php foreach ($data['gallery'] as $gallery) : ?> `<?= base_url('media/photos/' . $gallery); ?>`,
+            <?php endforeach; ?>
+        );
     <?php endif; ?>
     pond.setOptions({
         server: {
@@ -269,9 +266,9 @@ $edit = in_array('edit', $uri);
             },
         }
     });
-    
-    <?php if ($edit && $data['video_url'] != null): ?>
-    vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
+
+    <?php if ($edit && $data['video_url'] != null) : ?>
+        vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
     <?php endif; ?>
     vidPond.setOptions({
         server: {
@@ -302,4 +299,3 @@ $edit = in_array('edit', $uri);
     });
 </script>
 <?= $this->endSection() ?>
-

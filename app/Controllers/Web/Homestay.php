@@ -78,8 +78,14 @@ class Homestay extends ResourcePresenter
         $requestData = [
             'id' => $id,
             'name' => $request['name'],
+            'address' => $request['address'],
+            'checkin' => $request['checkin'],
+            'checkout' => $request['checkout'],
+            'cp' => $request['contact_person'],
             'description' => $request['description'],
+            'status' => $request['status']
         ];
+
 
         foreach ($requestData as $key => $value) {
             if (empty($value)) {
@@ -94,7 +100,7 @@ class Homestay extends ResourcePresenter
             $vidFile->move(FCPATH . 'media/videos');
             delete_files($filepath);
             rmdir($filepath);
-            $requestData['video_url'] = $vidFile->getFilename();
+            $requestData['url'] = $vidFile->getFilename();
         }
 
         $addAt = $this->HomestayModel->add_hm_api($requestData);
@@ -112,7 +118,7 @@ class Homestay extends ResourcePresenter
                 $filepath = WRITEPATH . 'uploads/' . $folder;
                 $filenames = get_filenames($filepath);
                 $fileImg = new File($filepath . '/' . $filenames[0]);
-                $fileImg->move(FCPATH . 'media/photos');
+                $fileImg->move(FCPATH . 'media/photos/homestay');
                 delete_files($filepath);
                 rmdir($filepath);
                 $gallery[] = $fileImg->getFilename();
@@ -175,16 +181,23 @@ class Homestay extends ResourcePresenter
     public function update($id = null)
     {
         $request = $this->request->getPost();
+        // dd($request['status']);
         $requestData = [
+            'id' => $id,
             'name' => $request['name'],
-            'description' => $request['description']
+            'address' => $request['address'],
+            'checkin' => $request['checkin'],
+            'checkout' => $request['checkout'],
+            'cp' => $request['contact_person'],
+            'description' => $request['description'],
+            'status' => $request['status'],
         ];
+
         foreach ($requestData as $key => $value) {
             if (empty($value)) {
                 unset($requestData[$key]);
             }
         }
-
         if (isset($request['video'])) {
             $folder = $request['video'];
             $filepath = WRITEPATH . 'uploads/' . $folder;
@@ -212,7 +225,7 @@ class Homestay extends ResourcePresenter
                 $filepath = WRITEPATH . 'uploads/' . $folder;
                 $filenames = get_filenames($filepath);
                 $fileImg = new File($filepath . '/' . $filenames[0]);
-                $fileImg->move(FCPATH . 'media/photos');
+                $fileImg->move(FCPATH . 'media/photos/homestay');
                 delete_files($filepath);
                 rmdir($filepath);
                 $gallery[] = $fileImg->getFilename();

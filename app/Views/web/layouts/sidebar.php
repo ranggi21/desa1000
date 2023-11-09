@@ -109,7 +109,7 @@ $uri3 = $uri[3] ?? '';
                                     </li>
                                     <!-- Rumah Gadang by Type -->
                                     <li class="submenu-item submenu-marker" id="rg-by-category">
-                                        <a data-bs-toggle="collapse" href="#searchCategoryRG" role="button" aria-expanded="false" aria-controls="searchCategoryRG"><i class="fa-solid fa-bed me-3"></i>By Category</a>
+                                        <a data-bs-toggle="collapse" href="#searchCategoryRG" role="button" aria-expanded="false" aria-controls="searchCategoryRG"><i class="fa-solid fa-bed me-3"></i>By Homestay Status</a>
                                         <div class="collapse mb-3" id="searchCategoryRG">
                                             <div class="d-grid">
                                                 <fieldset class="form-group">

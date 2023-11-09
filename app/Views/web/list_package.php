@@ -7,6 +7,7 @@
         <div class="card p-2 shadow-sm">
             <div class="card-header text-center card-title  mb-2">LIST TOURISM PACKAGE</div>
             <div class="card-body">
+                <a class="btn btn-primary" onclick="checkLogin()"><i class="fa fa-plus"></i> Create costume package</a>
                 <div class="row d-flex">
                     <?php foreach ($data as $item) : ?>
                         <div class="col-md-12">
@@ -45,7 +46,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body text-center">
-                                        <img class="img-fluid w-100" src="<?= base_url('media/photos/package/'); ?>/<?= $item['url']; ?>" alt="Card image cap">
+                                        <img class="img-fluid w-100" src="<?= base_url('media/photos'); ?>/<?= $item['url']; ?>" alt="Card image cap">
                                         <p class="card-text my-4" style="text-align: justify;">
                                             <?= $item['description']; ?>
                                         </p>
@@ -65,4 +66,16 @@
     </div>
 </section>
 
+<?= $this->endSection() ?>
+<?= $this->section('javascript') ?>
+<script>
+    function checkLogin() {
+        <?php if (in_groups('user')) : ?>
+            window.location.href = '<?= base_url('web/package/costum/new') ?>'
+
+        <?php else : ?>
+            Swal.fire('Please login as user to create costume package', '', 'warning');
+        <?php endif; ?>
+    }
+</script>
 <?= $this->endSection() ?>

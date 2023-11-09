@@ -29,11 +29,6 @@ class Comment extends Migration
                 'constraint' => 10,
                 'null' => true,
             ],
-            'id_package' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => true,
-            ],
             'id_user' => [
                 'type' => 'int',
                 'constraint' => 11,
@@ -65,7 +60,7 @@ class Comment extends Migration
                 'null' => true,
             ],
         ];
-        
+
         $this->db->disableForeignKeyChecks();
         $this->forge->addField($fields);
         $this->forge->addPrimaryKey('id_comment');
@@ -73,11 +68,10 @@ class Comment extends Migration
         $this->forge->addForeignKey('id_event', 'event', 'id_event', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('id_unique_place', 'unique_place', 'id_unique_place', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('id_user', 'users', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('id_package', 'tourism_package', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('comment');
         $this->db->enableForeignKeyChecks();
     }
-    
+
     public function down()
     {
         $this->forge->dropTable('comment');

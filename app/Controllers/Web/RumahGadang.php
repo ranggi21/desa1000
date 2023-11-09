@@ -4,7 +4,10 @@ namespace App\Controllers\Web;
 
 use App\Models\DetailFacilityRumahGadangModel;
 use App\Models\FacilityRumahGadangModel;
+use App\Models\GalleryHomestayModel;
 use App\Models\GalleryRumahGadangModel;
+use App\Models\HomestayModel;
+use App\Models\ReservationModel;
 use App\Models\ReviewModel;
 use App\Models\RumahGadangModel;
 use CodeIgniter\Files\File;
@@ -13,6 +16,9 @@ use CodeIgniter\RESTful\ResourcePresenter;
 class RumahGadang extends ResourcePresenter
 {
     protected $rumahGadangModel;
+    protected $homestayModel;
+    protected $reservationModel;
+    protected $galleryHomestayModel;
     protected $galleryRumahGadangModel;
     protected $detailFacilityRumahGadangModel;
     protected $reviewModel;
@@ -23,6 +29,9 @@ class RumahGadang extends ResourcePresenter
     public function __construct()
     {
         $this->rumahGadangModel = new RumahGadangModel();
+        $this->homestayModel  = new HomestayModel();
+        $this->reservationModel = new ReservationModel();
+        $this->galleryHomestayModel = new GalleryHomestayModel();
         $this->galleryRumahGadangModel = new GalleryRumahGadangModel();
         $this->detailFacilityRumahGadangModel = new DetailFacilityRumahGadangModel();
         $this->reviewModel = new ReviewModel();
@@ -58,6 +67,18 @@ class RumahGadang extends ResourcePresenter
         if (empty($rumahGadang)) {
             return redirect()->to(substr(current_url(), 0, -strlen($id)));
         }
+        // homestay 
+
+        $homestayId = $rumahGadang['id_homestay'];
+        $galleryHomestay = $this->galleryHomestayModel->get_gallery_api($homestayId)->getResultArray();
+        if ($homestayId != null) {
+            $homestayData =  $this->homestayModel->get_hm_by_id_api($homestayId)->getRowArray();
+            $homestayRating = $this->reservationModel->getAvgHRating($homestayId)->getRowArray();
+            $rumahGadang['homestayData'] = $homestayData;
+            $rumahGadang['homestayData']['avg_homestay_rating'] = $homestayRating;
+            $rumahGadang['homestayGalleries'] = $galleryHomestay;
+        }
+
 
         $avg_rating = $this->reviewModel->get_rating('id_rumah_gadang', $id)->getRowArray()['avg_rating'];
 
@@ -100,10 +121,13 @@ class RumahGadang extends ResourcePresenter
     public function new()
     {
         $facilities = $this->facilityRumahGadangModel->get_list_fc_api()->getResultArray();
+        $homestayData = $this->homestayModel->get_list_hm_api_new()->getResultArray();
         $data = [
             'title' => 'New Rumah Gadang',
             'facilities' => $facilities,
+            'homestayData' => $homestayData
         ];
+        // dd($data); 
         return view('dashboard/rumah_gadang_form', $data);
     }
 
@@ -125,7 +149,7 @@ class RumahGadang extends ResourcePresenter
             'close' => $request['close'],
             'price_ticket' => empty($request['ticket_price']) ? "0" : $request['ticket_price'],
             'cp' => $request['contact_person'],
-            'status' => $request['status'],
+            'id_homestay' => $request['id_homestay'],
             // 'id_user' => $request['owner'],
             'description' => $request['description'],
             'lat' => $request['lat'],
@@ -187,6 +211,7 @@ class RumahGadang extends ResourcePresenter
     public function edit($id = null)
     {
         $facilities = $this->facilityRumahGadangModel->get_list_fc_api()->getResultArray();
+        $homestayData = $this->homestayModel->get_list_hm_api_new()->getResultArray();
         $rumahGadang = $this->rumahGadangModel->get_rg_by_id_api($id)->getRowArray();
         if (empty($rumahGadang)) {
             return redirect()->to('dashboard/rumahGadang');
@@ -210,6 +235,7 @@ class RumahGadang extends ResourcePresenter
             'title' => 'Edit Rumah Gadang',
             'data' => $rumahGadang,
             'facilities' => $facilities,
+            'homestayData' => $homestayData
         ];
         return view('dashboard/rumah_gadang_form', $data);
     }
@@ -232,17 +258,18 @@ class RumahGadang extends ResourcePresenter
             'close' => $request['close'],
             'price_ticket' => empty($request['ticket_price']) ? '0' : $request['ticket_price'],
             'cp' => $request['contact_person'],
-            'status' => $request['status'],
+            'id_homestay' => $request['id_homestay'] == 'null' ? null : $request['id_homestay'],
             // 'id_user' => $request['owner'],
             'description' => $request['description'],
             'lat' => $request['lat'],
             'lng' => $request['lng'],
         ];
-        foreach ($requestData as $key => $value) {
-            if (empty($value)) {
-                unset($requestData[$key]);
-            }
-        }
+        // foreach ($requestData as $key => $value) {
+        //     if (empty($value)) {
+        //         unset($requestData[$key]);
+        //     }
+        // }
+        // dd($requestData);
         $geojson = $request['geo-json'];
         if (isset($request['video'])) {
             $folder = $request['video'];

@@ -122,6 +122,16 @@ class UserModel extends Model
 
         return $data;
     }
+    public function get_users()
+    {
+        $query = $this->db->table($this->table)
+            ->select("*")
+            ->where('auth_groups_users.group_id = 2')
+            ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+            ->join('auth_groups', 'auth_groups.id = auth_groups_users.group_id')
+            ->get();
+        return $query;
+    }
     /**
      * If a default role is assigned in Config\Auth, will
      * add this user to that group. Will do nothing

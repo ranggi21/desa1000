@@ -29,7 +29,7 @@ class PackageModel extends Model
     public function get_list_tp_api()
     {
         // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id as id,{$this->table}.id_homestay,{$this->table}.name,{$this->table}.price,{$this->table}.capacity,{$this->table}.cp as contact_person,{$this->table}.description,{$this->table}.url";
+        $columns = "{$this->table}.id as id,{$this->table}.id_package_type,{$this->table}.name,{$this->table}.price,{$this->table}.capacity,{$this->table}.cp as contact_person,{$this->table}.description,{$this->table}.url";
         // $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
         $query = $this->db->table($this->table)
             ->select("{$columns}")
@@ -55,15 +55,10 @@ class PackageModel extends Model
 
     public function get_tp_by_id_api($id = null)
     {
-        // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
-        $columns = "{$this->table}.id as id,{$this->table}.id_homestay,{$this->table}.name,{$this->table}.price,{$this->table}.capacity,{$this->table}.cp as contact_person,{$this->table}.description,{$this->table}.url";
-        // $geoJson = "ST_AsGeoJSON({$this->table}.geom) AS geoJson";
-        // $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
+        $columns = "*";
         $query = $this->db->table($this->table)
             ->select("{$columns}")
-            // ->from('regional')
             ->where('tourism_package.id', $id)
-            // ->where($vilGeom)
             ->get();
         return $query;
     }
