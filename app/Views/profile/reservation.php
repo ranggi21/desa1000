@@ -219,7 +219,7 @@
             }
         });
 
-
+        console.log(result)
         let idReservationStatus = result.id_reservation_status
 
         // booking request history
@@ -236,6 +236,18 @@
             let canceledByName = cancelData.data.username
             if (canceledAt != null) {
                 historyData += `<tr><td>Canceled at</td><td>${canceledAt}</td><td>by</td><td>${canceledByName}</td></tr>`
+            }
+
+            // refund history
+            let refundAt = result.refund_date
+            let refundBy = result.refund_by
+
+            console.log(refundAt)
+            console.log(refundBy)
+            if (refundAt != null && refundBy != null) {
+                let acceptorRefundData = getUser(refundBy)
+                let acceptorRefundName = acceptorRefundData.data.username
+                historyData += `<tr><td>Refund at</td><td>${refundAt}</td><td>by</td><td>${acceptorRefundName} (Admin)</td></tr>`
             }
 
         } else {
@@ -265,6 +277,8 @@
                 let acceptorPaymentName = acceptorPaymentData.data.username
                 historyData += `<tr><td>Accepted at</td><td>${accPaymentAt}</td><td>by</td><td>${acceptorPaymentName} (Admin)</td></tr>`
             }
+
+
 
             // finish
             if (idReservationStatus == 5) {
@@ -322,6 +336,11 @@
                     <table class="table table-borderless text-dark ">
                         <tbody>
                             <tr>
+                                <td id="buttonRefund">
+
+                                </td>
+                            </tr>
+                            <tr>
                                 <td class="fw-bold">${buttonDelete}</td>
                                 <td></td>
                             </tr>
@@ -368,6 +387,10 @@
                 <div id="userRating">
                 </div>
 
+                <div id="adminRefund">
+
+                </div>
+
                 <div id="userTicket">
                 </div>
                 
@@ -377,6 +400,11 @@
                     <p class="text-center fw-bold text-dark"> Reservation Information </p>
                     <table class="table table-borderless text-dark ">
                         <tbody>
+                            <tr>
+                                <td id="buttonRefund">
+
+                                </td>
+                            </tr>
                             <tr>
                                 <td class="fw-bold">${buttonDelete}</td>
                                 <td></td>
@@ -580,7 +608,7 @@
         }).format(number);
     }
 
-    function openModalCancelAndRefund(id_user, id_package, request_date) {
+    function openModalCancelAndRefund(id) {
         Swal.fire({
             title: "Are you sure to canceled and refund it?",
             text: "Your refund only 50% of your payment",
@@ -591,13 +619,13 @@
             confirmButtonText: "Yes, cancel and refund 50%"
         }).then((result) => {
             if (result.isConfirmed) {
-                cancelAndRefundReservation(id_user, id_package, request_date)
+                cancelAndRefundReservation(id)
 
             }
         });
     }
 
-    function cancelAndRefundReservation(id_user, id_package, request_date) {
+    function cancelAndRefundReservation(id) {
         let requestData = {
             id_reservation_status: 3,
             canceled_at: "true",
@@ -605,7 +633,7 @@
         }
 
         $.ajax({
-            url: `<?= base_url('reservation/update'); ?>/${id_user}/${id_package}/${request_date}`,
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
             type: "PUT",
             data: requestData,
             async: false,

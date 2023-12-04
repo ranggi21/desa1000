@@ -157,6 +157,11 @@ class Reservation extends ResourceController
             $request['payment_accepted_date'] = Time::now("Asia/Jakarta");
         }
 
+        // execute when refund uploaded
+        if (isset($request['refund_date'])) {
+            $request['refund_date'] = Time::now("Asia/Jakarta");
+        }
+
         // execute when upload proof of refund
         if (isset($request['proof_of_refund'])) {
             $folder = $request['proof_of_refund'];

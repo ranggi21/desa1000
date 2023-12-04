@@ -1,25 +1,12 @@
 <?= $this->extend('dashboard/layouts/main'); ?>
-<?= $this->section('head') ?>
+<?= $this->section('styles') ?>
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css">
+<link rel="stylesheet" href="<?= base_url('assets/css/pages/form-element-select.css'); ?>">
 <style>
-    .gold {
-        font-size: 5vw;
-        text-transform: uppercase;
-        line-height: 1;
-        text-align: center;
-        background: linear-gradient(90deg, rgba(186, 148, 62, 1) 0%, rgba(236, 172, 32, 1) 20%, rgba(186, 148, 62, 1) 39%, rgba(249, 244, 180, 1) 50%, rgba(186, 148, 62, 1) 60%, rgba(236, 172, 32, 1) 80%, rgba(186, 148, 62, 1) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shine 3s infinite;
-        background-size: 200%;
-        background-position: left;
-
-    }
-
-    @keyframes shine {
-        to {
-            background-position: right
-        }
-
+    .filepond--root {
+        width: 100%;
     }
 </style>
 <?= $this->endSection() ?>
@@ -517,7 +504,7 @@
         $(`#userRefund`).html(`<a class="btn btn-outline-primary" onclick="addRefundBody('${id}','${deposit}','${proofRefund}')">Add refund</a>`)
     }
 
-    function saveRefund(id_user, id_package, request_date) {
+    function saveRefund(id) {
         let proofRefund = galleryValue
         if (proofRefund == null) {
             Swal.fire(
@@ -528,6 +515,7 @@
         } else {
             let requestData = {
                 refund_by: '<?= user()->id ?>',
+                refund_date: "true",
                 proof_of_refund: proofRefund
             }
             $.ajax({
@@ -538,7 +526,7 @@
                 contentType: "application/json",
                 success: function(response) {
                     Swal.fire(
-                        'Booking updated',
+                        'Reservation updated',
                         '',
                         'success'
                     ).then(() => {
