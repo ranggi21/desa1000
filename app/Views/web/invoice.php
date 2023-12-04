@@ -341,6 +341,7 @@
                     <th colspan="4"> Activities</th>
                 <?php endif; ?>
                 <th> Services </th>
+                <th> Services (exclude)</th>
                 <?php if (isset($itemData[0]['capacity'])) : ?>
                     <th> Capacity</th>
                 <?php endif; ?>
@@ -359,7 +360,6 @@
         </thead>
         <tbody>
             <?php $noPackage = 1 ?>
-            <?php $totalPrice = 0 ?>
             <?php foreach ($itemData as $item) : ?>
                 <tr>
                     <td><?= $noPackage; ?></td>
@@ -386,13 +386,18 @@
                             <?php $noService++ ?>
                         <?php endforeach; ?>
                     </td>
+                    <td>
+                        <?php $noServiceExclude = 1; ?>
+                        <?php foreach ($item['services_exclude'] as $serviceExclude) : ?>
+                            <?= $noServiceExclude ?>. <?= $serviceExclude; ?> <br>
+                            <?php $noServiceExclude++ ?>
+                        <?php endforeach; ?>
+                    </td>
                     <?php if (isset($item['capacity'])) : ?>
                         <td><?= $item['capacity']; ?></td>
                     <?php endif; ?>
-                    <?php if (isset($item['price'])) : ?>
-                        <td colspan="3"><?= "Rp " . number_format($item['reservation']['total_price'], 0, ",", ".") ?> <?php $totalPrice += $item['price']  ?></td>
-                    <?php else : ?>
-                        <td colspan="3"><?= "Rp " . number_format($item['reservation']['total_price'], 0, ",", ".") ?> <?php $totalPrice += $item['ticket_price']  ?></td>
+                    <?php if (isset($item['reservation']['total_price'])) : ?>
+                        <td colspan="3"><?= "Rp " . number_format($item['reservation']['total_price'], 0, ",", ".") ?></td>
                     <?php endif; ?>
                     <td>
                         <h3> <?= $item['reservation']['request_date']; ?> </h3>
@@ -409,7 +414,7 @@
 
     </table>
     <div>
-        <h1 style="color: green;">Amount Due : <?= "Rp " . number_format($totalPrice, 0, ",", ".") ?></h1>
+        <h1 style="color: green;">Amount Due : <?= "Rp " . number_format($item['reservation']['total_price']) ?></h1>
     </div>
     <p>
         Payment Instruction <br>

@@ -11,7 +11,7 @@ class DetailServicePackageModel extends Model
     protected $table            = 'detail_service_package';
     protected $primaryKey       = 'id_detail_service_package';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id_detail_service_package', 'id_service_package', 'id_package'];
+    protected $allowedFields    = ['id_detail_service_package', 'id_service_package', 'id_package', 'status'];
 
     // Dates
     protected $useTimestamps = true;
@@ -30,7 +30,19 @@ class DetailServicePackageModel extends Model
     {
         $query = $this->db->table($this->table)
             ->select('service.id, service.name')
+            ->where('status', 'include')
             ->where('id_package', $package_id)
+            ->join('service', 'detail_service_package.id_service_package = service.id')
+            ->get();
+        return $query;
+    }
+
+    public function get_service_by_package_api_exclude($package_id = null)
+    {
+        $query = $this->db->table($this->table)
+            ->select('service.id, service.name')
+            ->where('id_package', $package_id)
+            ->where('status', 'exclude')
             ->join('service', 'detail_service_package.id_service_package = service.id')
             ->get();
         return $query;
@@ -44,7 +56,6 @@ class DetailServicePackageModel extends Model
             ->get();
         return $query;
     }
-
 
     public function get_new_id_api()
     {
@@ -60,7 +71,7 @@ class DetailServicePackageModel extends Model
         return $id;
     }
 
-    public function add_service_api($id = null, $data = null)
+    public function add_service_api($id = null, $data = null, $status = null)
     {
         $query = false;
         foreach ($data as $service) {
@@ -69,6 +80,7 @@ class DetailServicePackageModel extends Model
                 'id_detail_service_package' => $new_id,
                 'id_package' => $id,
                 'id_service_package' => $service,
+                'status' => $status,
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
@@ -77,10 +89,12 @@ class DetailServicePackageModel extends Model
         return $query;
     }
 
-    public function update_service_api($id = null, $data = null)
+    public function update_service_api($id = null, $data = null, $status = null)
     {
-        $queryDel = $this->db->table($this->table)->delete(['id_package' => $id]);
-        $queryIns = $this->add_service_api($id, $data);
+        foreach ($data as $service) {
+            $queryDel = $this->db->table($this->table)->where('id_service_package', $service)->delete(['id_package' => $id]);
+        }
+        $queryIns = $this->add_service_api($id, $data, $status);
         return $queryDel && $queryIns;
     }
     public function delete_service_api($id_package)

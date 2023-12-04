@@ -26,16 +26,21 @@ class PackageModel extends Model
     protected $cleanValidationRules = true;
 
     // API
-    public function get_list_tp_api()
+    public function get_list_tp_api($withCostume = null)
     {
-        // $coords = "ST_Y(ST_Centroid({$this->table}.geom)) AS lat, ST_X(ST_Centroid({$this->table}.geom)) AS lng";
+
         $columns = "{$this->table}.id as id,{$this->table}.id_package_type,{$this->table}.name,{$this->table}.price,{$this->table}.capacity,{$this->table}.cp as contact_person,{$this->table}.description,{$this->table}.url";
-        // $vilGeom = "regional.id_regional = '1' AND ST_Contains(regional.geom, {$this->table}.geom)";
-        $query = $this->db->table($this->table)
-            ->select("{$columns}")
-            // ->from('regional')
-            // ->where($vilGeom)
-            ->get();
+
+        if ($withCostume == null) {
+            $query = $this->db->table($this->table)
+                ->select("{$columns}")
+                ->where('tourism_package.costum !=', '1')
+                ->get();
+        } else {
+            $query = $this->db->table($this->table)
+                ->select("{$columns}")
+                ->get();
+        }
         return $query;
     }
 

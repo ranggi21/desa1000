@@ -72,14 +72,12 @@
                     <thead>
                         <tr>
                             <th class="text-start"> #</th>
-                            <th class="text-start"> Item name / ID </th>
-                            <th class="text-start"> Reservation date </th>
-                            <th class="text-start"> Number of people </th>
-                            <th class="text-start"> Status </th>
-                            <th class="text-start"> Progress </th>
+                            <th class="text-start"> Tourism package name / ID </th>
+                            <th class="text-start"> Booking date </th>
+                            <th class="text-start"> Booking status </th>
+                            <th class="text-start"> Progress detail</th>
                             <th class="text-center  checkSingle"> Action </th>
                             <th class="text-center  d-none checkAll"> Action</th>
-                            <th class="text-center"> Rate / review </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,8 +87,8 @@
                             <?php foreach ($data as $item) : ?>
                                 <?php
                                 $reservationId = $item['id'];
-                                $packageName = $item['package_name'];
                                 $requestDate = $item['request_date'];
+                                $packageName = $item['package_name'];
                                 $numberPeople = $item['number_people'];
                                 $reservationIdStatus = $item['id_reservation_status'];
                                 $statusReservation = $item['status'];
@@ -98,6 +96,8 @@
                                 $review = $item['review'];
                                 $dateNow = date("Y-m-d");
                                 $depositDate = $item['deposit_date'];
+                                $paymentDate = $item['payment_accepted_date'];
+                                $refundDate = $item['refund_date'];
 
                                 $proggres = "";
                                 if ($reservationIdStatus == 1) {
@@ -106,30 +106,54 @@
                                     $proggres = "Please upload your payment document";
                                 } else if ($reservationIdStatus == 2 && $depositDate != null) {
                                     $proggres = "Document Uploaded! Please Wait admin to check your payment";
-                                } else if ($reservationIdStatus == 3) {
+                                } else if ($reservationIdStatus == 3 && $paymentDate == null) {
                                     $proggres = "Sorry, your reservation is not accepted";
+                                } else if ($reservationIdStatus == 3 && $paymentDate != null && $refundDate == null) {
+                                    $proggres = "Your Booking has been canceled, Please wait Admin refund your money!";
+                                } else if ($reservationIdStatus == 3 && $paymentDate != null && $refundDate != null) {
+                                    $proggres = "Your Booking has been canceled, Admin has been refund your money!";
                                 } else if ($reservationIdStatus == 4) {
-                                    $proggres = "Transaction success, Print your ticket by <a class='btn btn-outline-success btn-sm ' title='confirm' data-bs-toggle='modal' data-bs-target='#reservationModal' onclick='showInfoReservation(`$reservationId`)'> click here </a>";
+                                    $proggres = "Transaction success, enjoy your jorney";
+                                } else if ($reservationIdStatus == 5 && $rating == null) {
+                                    $proggres = "Transaction finish, please rate and comment ";
+                                } else if ($reservationIdStatus == 5 && $rating != null) {
+                                    $proggres = "Transaction finish, thank you for visiting";
                                 }
 
                                 ?>
                                 <tr>
-                                    <td class="text-start"> <?= $no; ?> </td>
-                                    <td class="text-start"> <?= $packageName; ?>/<?= $reservationId ?></td>
-                                    <td class="text-start"> <?= $requestDate; ?> </td>
-                                    <td class="text-start"> <?= $numberPeople; ?> </td>
-                                    <td class="text-start">
-                                        <span class="badge bg-<?php if ($reservationIdStatus == 1) {
-                                                                    echo "warning";
-                                                                } else if ($reservationIdStatus == 2) {
-                                                                    echo "primary";
-                                                                } else if ($reservationIdStatus == 3) {
-                                                                    echo "danger";
-                                                                } else if ($reservationIdStatus == 4) {
-                                                                    echo "success";
-                                                                }; ?>">
-                                            <?= $statusReservation ?>
-                                        </span>
+                                    <td class="text-start text-sm"> <?= $no; ?> </td>
+                                    <td class="text-start text-sm"> <?= $packageName; ?></td>
+                                    <td class="text-start text-sm"> <?= $requestDate; ?> </td>
+                                    <td class="text-start text-sm" style="min-width: 250px;">
+                                        <a class="btn  btn-sm text-sm">
+                                            <?= $reservationIdStatus == 1  ?  '<i class="fa fa-check-circle text-primary" aria-hidden="true"></i>' : '' ?>
+                                            Pending
+                                        </a>
+                                        <i class="fa fa-arrow-right fa-sm" aria-hidden="true"></i>
+                                        <?php if ($reservationIdStatus == 3) : ?>
+                                            <a class="btn btn-sm text-sm">
+                                                <?= $reservationIdStatus == 3  ?  '<i class="fa fa-x text-danger" aria-hidden="true"></i> ' : '' ?>
+                                                Cancel
+                                            </a>
+                                            <i class="fa fa-arrow-right fa-sm" aria-hidden="true"></i>
+                                        <?php else : ?>
+                                            <a class="btn btn-sm text-sm">
+                                                <?= $reservationIdStatus == 2  ?  '<i class="fa fa-check-circle text-primary" aria-hidden="true"></i> ' : '' ?>
+                                                Commit
+                                            </a>
+                                            <i class="fa fa-arrow-right fa-sm" aria-hidden="true"></i>
+                                        <?php endif; ?>
+                                        <a class="btn btn-sm text-sm">
+                                            <?= $reservationIdStatus == 4  ?  '<i class="fa fa-check-circle text-primary" aria-hidden="true"></i>' : '' ?>
+                                            Paid
+                                        </a>
+                                        <i class="fa fa-arrow-right fa-sm" aria-hidden="true"></i>
+                                        <a class="btn btn-sm">
+                                            <?= $reservationIdStatus == 5  ?  '<i class="fa fa-check-circle text-primary" aria-hidden="true"></i>' : '' ?>
+                                            Finish
+                                        </a>
+
                                     </td>
                                     <td class="text-start">
                                         <?= $proggres ?>
@@ -141,21 +165,19 @@
                                             <i class="fa fa-info"></i>
                                         </a>
 
+                                        <a class='btn btn-outline-primary btn-sm ' title="transaction history" data-bs-toggle='modal' data-bs-target='#reservationModal' onclick="showHistory('<?= $reservationId ?>')">
+                                            <i title="transaction history" class="fa fa-history"></i>
+                                        </a>
+
+                                        <a title="rate and comment" class="btn btn-outline-primary  btn-sm <?= $reservationIdStatus == 5 && $rating == null ? '' : 'd-none' ?>" data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="openModalRatingReservation('<?= $reservationId ?>')"> <i class="fa fa-star-o"></i></a>
+
+                                        <a title="rate and comment info" class="btn btn-outline-primary btn-sm <?= $reservationIdStatus == 5 && $rating != null ? '' : 'd-none' ?> " data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="openInfoRating('<?= $rating ?>','<?= $review ?>','<?= $item['updated_at']; ?>')"> <i class="fa fa-star"></i></a>
+
                                     </td>
                                     <td class="d-none text-center checkAll">
                                         <input type="checkbox" <?= $reservationIdStatus == 2 && $requestDate > $dateNow ? '' : 'disabled' ?> name="idPackage[]" value="<?= $reservationId ?>">
                                     </td>
-                                    <td class="text-center" id="action<?= $reservationId ?>">
-                                        <?php if ($reservationIdStatus == 4 && $rating == null && $requestDate < $dateNow) : ?>
-                                            <a title="rate package" class="btn " data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="openModalRatingReservation('<?= $reservationId ?>')"> <i class="fa fa-star text-warning"></i></a>
-                                        <?php elseif ($reservationIdStatus == 4 && $rating != null && $requestDate < $dateNow) : ?>
-                                            <a title="rate package" class="btn " data-bs-toggle="modal" data-bs-target="#reservationModal" onclick="openInfoRating('<?= $rating ?>','<?= $review ?>','<?= $item['updated_at']; ?>')"> <i class="fa fa-check text-primary"></i></a>
-                                        <?php else : ?>
 
-                                        <?php endif; ?>
-
-
-                                    </td>
                                 </tr>
                                 <?php $no++; ?>
                             <?php endforeach; ?>
@@ -181,6 +203,86 @@
 <script>
     let photo, pond, galleryValue
 
+    function showHistory(id) {
+        let result, historyData = ""
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                result = JSON.parse(response)
+
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        });
+
+
+        let idReservationStatus = result.id_reservation_status
+
+        // booking request history
+        let requestAt = result.created_at
+        let requestBy = result.username
+        if (requestAt != null && requestBy != null) {
+            historyData += `<tr><td>Booking at</td><td>${requestAt}</td><td>by</td><td>${requestBy}</td></tr>`
+        }
+        if (idReservationStatus == 3) {
+            // cancel history
+            let canceledAt = result.canceled_at
+            let canceledBy = result.canceled_by
+            let cancelData = getUser(canceledBy)
+            let canceledByName = cancelData.data.username
+            if (canceledAt != null) {
+                historyData += `<tr><td>Canceled at</td><td>${canceledAt}</td><td>by</td><td>${canceledByName}</td></tr>`
+            }
+
+        } else {
+            // confirm history
+            let confirmedAt = result.confirmed_at
+            let confirmedBy = result.confirmed_by
+
+            if (confirmedAt != null && confirmedBy != null) {
+                let confirmatorData = getUser(confirmedBy)
+                let confirmatorName = confirmatorData.data.username
+
+                historyData += `<tr><td>Confirmed at</td><td>${confirmedAt}</td><td>by</td><td>${confirmatorName} (Admin)</td></tr>`
+            }
+
+            // deposit history
+            let depositAt = result.deposit_date
+            if (depositAt != null) {
+                historyData += `<tr><td>Deposit at</td><td>${depositAt}</td><td>by</td><td>${requestBy}</td></tr>`
+            }
+
+            // payment history
+            let accPaymentAt = result.payment_accepted_date
+            let accPaymentBy = result.payment_accepted_by
+
+            if (accPaymentAt != null && accPaymentBy != null) {
+                let acceptorPaymentData = getUser(confirmedBy)
+                let acceptorPaymentName = acceptorPaymentData.data.username
+                historyData += `<tr><td>Accepted at</td><td>${accPaymentAt}</td><td>by</td><td>${acceptorPaymentName} (Admin)</td></tr>`
+            }
+
+            // finish
+            if (idReservationStatus == 5) {
+                historyData += `<tr><td>Finish</td></tr>`
+            }
+        }
+
+
+        $('#modalTitle').html("Transaction History")
+        $('#modalBody').html(
+            `<table class="table table-border text-sm fst-italic">
+                <tbody>
+                    ${historyData}
+                </tbody>
+            </table>`
+        )
+    }
+
     function showInfoReservation(id) {
         let result
         $.ajax({
@@ -196,6 +298,7 @@
                 console.log(err.responseText)
             }
         });
+        let reservationStatus = result['id_reservation_status']
         let buttonDelete =
             result['id_reservation_status'] == '1' ? `<a class="btn btn-outline-danger" onclick="deleteReservation('${id}')"> Abort reservation</a>` : '';
 
@@ -206,6 +309,9 @@
                 <div id="userRating">
                 </div>
 
+                <div id="adminRefund">
+
+                </div>
                 <div id="userTicket">
                 </div>
                 
@@ -243,7 +349,7 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">Costum package</td>
-                                <td class="${result['item_costum'] == '1' ? 'badge bg-success' : ''}">${result['item_costum'] == '2' ? 'no' : 'yes'}</td>
+                                <td class="${result['item_costum'] == '1' ? 'badge bg-success' : ''}">${result['item_costum'] == '1' ? 'yes' : 'no'}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Additional Information</td>
@@ -319,13 +425,22 @@
 
 
         // user payment
-        if (result['id_reservation_status'] == '2') {
+        if (reservationStatus == '2') {
+
+            let dat = new Date(result.request_date);
+            let dd = String(dat.getDate() - 3).padStart(2, '0');
+            let mm = String(dat.getMonth() + 1).padStart(2, '0'); //January is 0!
+            let yyyy = dat.getFullYear();
+
+            dat = yyyy + '-' + mm + '-' + dd;
+
             let proofDeposit = result['proof_of_deposit']
             let deposit = result['deposit']
             $("#userDeposit").addClass("mb-2 shadow-sm p-4 rounded")
             $("#userDeposit").html(`
                 <p class="text-center fw-bold text-dark"> Upload Your Payment </p>
-                <p>Note <span class="text-danger">*</span> Before uploading proof of deposit, make sure the payment amount is the same as the invoice, please print the invoice to see the deposit amount</p>
+                <p ></p>
+                <p>Note <br><span class="text-danger">*</span> You must pay before <span class="text-primary"> ${dat} </span> ( H-3 )</span>  or booking will be cancel by the system<br><span class="text-danger">*</span> Before uploading proof of deposit, make sure the payment amount is the same as the invoice, please print the invoice to see the deposit amount</p>
                 <div class="text-start mb-4">
                     <a class="btn btn-primary" onclick="openInvoice('${id}')" > <i class="fa fa-print"> </i> print invoice</a>
                 </div>
@@ -399,8 +514,30 @@
 
         }
 
+        // user refund information
+        if (reservationStatus == '4' && result['payment_accepted_date'] != null) {
+            $("#buttonRefund").html(`<a class="btn btn-outline-danger" onclick="openModalCancelAndRefund('${id}')">Cancel and Refund</a>`)
+        }
+
+        // admin refund info
+        if (reservationStatus == '3' && result['proof_of_refund'] != null) {
+            let deposit = result['deposit']
+            let refundTotal = deposit / 2
+            let proofRefund = result['proof_of_refund']
+            $("#adminRefund").addClass("mb-2 shadow-sm p-4 rounded")
+            $("#adminRefund").html(`
+                <p class="text-center fw-bold text-dark"> Proof of Refund </p>
+                <p ></p>
+                <p>Note <br><span class="text-danger">*</span> Refund only 50% of your payment ( 50%*${rupiah(deposit)} )</p>
+                <p> Refund total : <span class="text-primary"> ${rupiah(refundTotal)} </span></p>
+                <div class="mb-2">
+                    <img class="img-fluid img-thumbnail rounded" src="${'<?= base_url() ?>' + '/media/photos/refund/' + proofRefund }" width="100%">
+                </div>
+            `)
+        }
+
         // user tiket
-        if (result['id_reservation_status'] == '4' && result['payment_date'] != null) {
+        if (reservationStatus == '4' && result['payment_accepted_date'] != null) {
             $("#userTicket").addClass("background-effect mb-2 shadow-sm p-4 rounded border border-warning")
             $("#userTicket").css('height', '250px');
             $("#userTicket").html(`
@@ -434,9 +571,80 @@
         $('#modalFooter').html(``)
     }
 
+
+
+    const rupiah = (number) => {
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR"
+        }).format(number);
+    }
+
+    function openModalCancelAndRefund(id_user, id_package, request_date) {
+        Swal.fire({
+            title: "Are you sure to canceled and refund it?",
+            text: "Your refund only 50% of your payment",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, cancel and refund 50%"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                cancelAndRefundReservation(id_user, id_package, request_date)
+
+            }
+        });
+    }
+
+    function cancelAndRefundReservation(id_user, id_package, request_date) {
+        let requestData = {
+            id_reservation_status: 3,
+            canceled_at: "true",
+            canceled_by: '<?= user()->id ?>'
+        }
+
+        $.ajax({
+            url: `<?= base_url('reservation/update'); ?>/${id_user}/${id_package}/${request_date}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire({
+                    title: "Canceled! ",
+                    text: "Your booking has been canceled, wait admin to refund your money!",
+                    icon: "success"
+                });
+                window.location.reload()
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+
+    }
+
+
+    function printTicket(id) {
+        $.ajax({
+            url: '<?= base_url("web/pdf/ticket-data") ?>',
+            type: "POST",
+            dataType: "json",
+            data: {
+                id_reservation: [id]
+            },
+            success: function(response) {
+                window.open('<?= base_url('web/pdf/ticket'); ?>' + '/' + JSON.stringify(response));
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+    }
+
     function saveDeposit(id) {
         let deposit = $("#deposit").val()
-        console.log(deposit)
         let proofDeposit = galleryValue
         let requestData = {
             deposit: deposit,
@@ -462,25 +670,6 @@
             }
         });
 
-    }
-
-
-    function printTicket(id) {
-        console.log(id)
-        $.ajax({
-            url: '<?= base_url("web/pdf/ticket-data") ?>',
-            type: "POST",
-            dataType: "json",
-            data: {
-                id_reservation: [id]
-            },
-            success: function(response) {
-                window.open('<?= base_url('web/pdf/ticket'); ?>' + '/' + JSON.stringify(response));
-            },
-            error: function(err) {
-                console.log(err.responseText)
-            }
-        })
     }
 
     function openInfoRating(rating, review, updated_at) {
@@ -570,7 +759,6 @@
 
 
     function showModalDelete(id) {
-        console.log(id)
         $('#modalTitle').html("Abort reservation")
         $('#modalBody').html(`Are you sure delete this reservation?`)
         $('#modalFooter').html(`<a class="btn btn-danger" onclick="deleteReservation('${id}')"> Delete </a>`)
@@ -649,6 +837,24 @@
             )
         }
 
+    }
+
+    function getUser(id) {
+        let result
+        $.ajax({
+            url: `<?= base_url('api/user'); ?>/${id}`,
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                result = response
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        });
+        console.log(result)
+        return result
     }
 </script>
 

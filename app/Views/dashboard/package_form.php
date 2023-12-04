@@ -91,6 +91,7 @@ $edit = in_array('edit', $uri);
                                 <input type="text" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['cp'] : old('cp'); ?>">
                             </div>
 
+                            <!-- service package include -->
                             <div class="form-group mb-4">
                                 <label for="service_package" class="mb-2">Service Package</label>
                                 <select class="choices form-select multiple-remove" multiple="multiple" id="service_package" name="service_package[]">
@@ -103,6 +104,21 @@ $edit = in_array('edit', $uri);
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+
+                            <!-- service package exclude -->
+                            <div class="form-group mb-4">
+                                <label for="service_package_exclude" class="mb-2">Service Package (exclude) </label>
+                                <select class="choices form-select multiple-remove" multiple="multiple" id="service_package_exclude" name="service_package_exclude[]">
+                                    <?php foreach ($serviceData as $service) : ?>
+                                        <?php if (in_array(esc($service['name']), $data['service_package_exclude'])) : ?>
+                                            <option value="<?= esc($service['id']); ?>" selected><?= esc($service['name']); ?></option>
+                                        <?php else : ?>
+                                            <option value="<?= esc($service['id']); ?>"><?= esc($service['name']); ?></option>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
 
                             <div class="form-group mb-4">
                                 <label for="description" class="form-label">Description</label>
@@ -270,15 +286,15 @@ $edit = in_array('edit', $uri);
         <input type="text" id="detail-package-day" class="form-control" name="detail-package-day" value="${noDay}" readonly placeholder="object" required>
        
         <div class="form-group mb-4">
-                    <label for="detail-package-id-object" class="mb-2">Object</label>
-                    <select class="form-select" id="detail-package-id-object" name="detail-package-id-object">
+                    <label for="select-object" class="mb-2">Object</label>
+                    <select class="form-select" onchange="addObjectValue(this.value)" required>
                                     <?php if ($objectData) : ?>
                                         <?php $no = 0; ?>       
                                         <?php foreach ($objectData as $object) : ?>
                                             <?php if ($edit && $object['id']) : ?>
-                                                <option value="<?= $object['id'] ?>" <?= ($no == 0) ? 'selected' : ''; ?>> <?= $object['id'] ?> - <?= $object['name']; ?></option>
+                                                <option value="<?= esc(json_encode($object)) ?>" <?= ($no == 0) ? 'selected' : ''; ?>> <?= $object['id'] ?> - <?= esc($object['name']); ?></option>
                                             <?php else : ?>
-                                                <option value="<?= esc($object['id']); ?>"> <?= $object['id'] ?> - <?= esc($object['name']); ?></option>
+                                                <option value="<?= esc(json_encode($object)) ?>"> <?= $object['id'] ?> - <?= esc($object['name']); ?></option>
                                             <?php endif; ?>
                                             <?php $no++; ?>       
                                         <?php endforeach; ?>
@@ -287,10 +303,8 @@ $edit = in_array('edit', $uri);
                                     <?php endif; ?>
                      </select>
         </div>
-        <div class="form-group mb-4">
-                    <label for="detail-package-activity-type" class="mb-2">Activity type</label>
-                    <input type="text" id="detail-package-activity-type" class="form-control" name="detail-package-activity-type" placeholder="activity type" required>
-        </div> 
+        <input id="detail-package-id-object" type="hidden" required>
+        <input id="detail-package-price-object" type="hidden" type="number" value="0" required>
         <div class="form-group mb-4">
                     <label for="detail-package-description" class="mb-2">Description</label>
                     <input type="text" id="detail-package-description" class="form-control" name="detail-package-description" placeholder="Detail package description" required>
@@ -308,13 +322,36 @@ $edit = in_array('edit', $uri);
         )
     }
 
+    function addObjectValue(object) {
+        console.log(object)
+        let objectData = JSON.parse(object)
+        let objectId = objectData.id
+        let objectName = objectData.name
+        $("#detail-package-id-object").val(objectId)
+        $("#detail-package-description").val("Visit " + objectName)
+        let objectPrice = objectData.price == null ? 0 : parseInt(objectData.price)
+        $("#detail-package-price-object").val(objectPrice)
+    }
+
     function saveDetailPackageDay(noDay) {
         //get data from modal input
         let noDetail = parseInt($(`#lastNoDetail${noDay}`).val())
-        console.log(noDetail)
+
         let object_id = $("#detail-package-id-object").val()
-        let activity_type = $("#detail-package-activity-type").val()
+        let activity_type = ""
         let description = $("#detail-package-description").val()
+
+        if (object_id.substring(0, 1) == 'A') {
+            activity_type = 'Atraksi'
+        } else if (object_id.substring(0, 1) == 'C') {
+            activity_type = 'Culinary Place'
+        } else if (object_id.substring(0, 1) == 'S') {
+            activity_type = 'Souvenir Place'
+        } else if (object_id.substring(0, 1) == 'W') {
+            activity_type = 'Worship Place'
+        } else if (object_id.substring(0, 1) == 'H') {
+            activity_type = 'Homestay'
+        }
 
         $(`#body-detail-package-${noDay}`).append(`
         <tr id="${noDay}-${noDetail}"> 
@@ -342,7 +379,6 @@ $edit = in_array('edit', $uri);
 
     // Get a reference to the file input element
     const photo = document.querySelector('input[id="gallery"]');
-    const video = document.querySelector('input[id="video"]');
 
 
     // Create a FilePond instance
@@ -353,16 +389,12 @@ $edit = in_array('edit', $uri);
         imageResizeUpscale: false,
         credits: false,
     });
-    const vidPond = FilePond.create(video, {
-        maxFileSize: '1920MB',
-        maxTotalFileSize: '1920MB',
-        credits: false,
-    })
 
+    <?php if ($edit &&  $data['gallery'][0] != null) : ?>
 
-    <?php if ($edit &&  strlen($data['gallery'][0])) : ?>
+        console.log("masuk sinikaaa")
         pond.addFiles(
-            "<?= base_url('media/photos/'); ?>/<?= $data['gallery'][0]; ?>"
+            "<?= base_url('media/photos/reservation'); ?>/<?= $data['gallery'][0]; ?>"
         );
     <?php endif; ?>
     pond.setOptions({
@@ -381,37 +413,6 @@ $edit = in_array('edit', $uri);
             },
             revert: {
                 url: '/upload/photo',
-                onload: (response) => {
-                    console.log("reverted:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-        }
-    });
-
-    <?php if ($edit && $data['video_url'] != null) : ?>
-        vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
-    <?php endif; ?>
-    vidPond.setOptions({
-        server: {
-            timeout: 86400000,
-            process: {
-                url: '/upload/video',
-                onload: (response) => {
-                    console.log("processed:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-            revert: {
-                url: '/upload/video',
                 onload: (response) => {
                     console.log("reverted:", response);
                     return response

@@ -85,6 +85,9 @@
                                 $reservationStatus = $reservation['status'];
                                 $dateNow = date("Y-m-d");
                                 $depositDate = $reservation['deposit_date'];
+                                $paymentDate = $reservation['payment_accepted_date'];
+                                $refundDate = $reservation['refund_date'];
+
 
                                 $proggres = "";
                                 if ($reservationIdStatus == 1) {
@@ -93,8 +96,12 @@
                                     $proggres = "Waiting payment document";
                                 } else if ($reservationIdStatus == 2 && $depositDate != null) {
                                     $proggres = "Check Payment!";
-                                } else if ($reservationIdStatus == 3) {
+                                } else if ($reservationIdStatus == 3 && $paymentDate == null &&  $refundDate == null) {
                                     $proggres = "Canceled";
+                                } else if ($reservationIdStatus == 3 && $paymentDate != null &&  $refundDate == null) {
+                                    $proggres = "Canceled, refund user money!";
+                                } else if ($reservationIdStatus == 3 && $paymentDate != null &&  $refundDate != null) {
+                                    $proggres = "Canceled, money returned";
                                 } else if ($reservationIdStatus == 4) {
                                     $proggres = "Transaction Success";
                                 }
@@ -138,8 +145,17 @@
 </section>
 <?= $this->endSection() ?>
 <?= $this->section('javascript') ?>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.js"></script>
+<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+<script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
 <script>
     new DataTable("#dataTable")
+    let photo, pond, galleryValue
 
     function showInfoReservation(id) {
         let statusData = JSON.parse('<?= json_encode($statusData) ?>')
@@ -161,12 +177,22 @@
 
         console.log(result)
         reservationStatus = result['id_reservation_status']
-        if (reservationStatus == '1') {
+        if (reservationStatus == '1' && result['item_costum'] == '1') {
+            console.log("masuk sinikahhh")
             reservationInfo =
-                `<a class ="btn btn-success" onclick="changeReservationStatus('${id}',2)"> Confirm reservation </a>`
+                `<a class ="btn btn-outline-danger m-1" onclick="cancelReservation('${id}')"> Cancel  </a>
+               <a class ="btn btn-outline-success m-1" onclick="confirmCostumReservation('${id}')"> Confirm</a>
+               <a class ="btn btn-outline-primary m-1" onclick="previewPackage('${result['id_package']}')"> preview</a>`
+            reservationPrice = '<input class="form-input" title="input the costume package price" id="inputPriceReservation" type="number"></input>'
+        } else if (reservationStatus == '1') {
+            reservationInfo =
+                `<a class ="btn btn-outline-danger m-1" onclick="cancelReservation('${id}')"> Cancel  </a>
+               <a class ="btn btn-outline-success m-1" onclick="confirmReservation('${id}')"> Confirm</a>`
+            reservationPrice = rupiah(result['total_price'])
 
         } else {
             reservationInfo = ''
+            reservationPrice = rupiah(result['total_price'])
         }
 
 
@@ -176,6 +202,12 @@
         <div class="p-2">
                
                 <div id="userRating">
+    
+                </div>
+                <div id="userTicket">
+                
+                </div>
+                <div id="userRefund">
     
                 </div>
                 <div  id="userPayment">
@@ -205,7 +237,7 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">Costum package</td>
-                                <td class="${result['package_costum'] == '1' ? 'badge bg-success' : ''}">${result['package_costum'] == '2' ? 'no' : 'yes'}</td>
+                                <td class="${result['item_costum'] == '1' ? 'badge bg-success' : ''}">${result['item_costum'] == '1' ? 'yes' : 'no'}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Additional Information</td>
@@ -213,7 +245,7 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">Price </td>
-                                <td >${rupiah(result['total_price'])}</td>
+                                <td >${reservationPrice}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold"> </td>
@@ -221,7 +253,10 @@
                             </tr>           
                         </tbody>
                     </table>
-                </div>    
+                </div> 
+                <div id="previewMap">
+                   
+                </div>   
                 <div class="shadow-sm p-4 rounded">
                      <p class="text-center fw-bold text-dark"> Reservation Status </p>
                      <fieldset class="form-group mb-4">
@@ -295,7 +330,7 @@
         }
 
 
-        // user status
+        // button status
         $("#statusReservation").html(`<option value="${result['id_reservation_status']}"> ${result['status']} ( current status )</option>`)
         for (i in statusData) {
             if (statusData[i].id != result['id_reservation_status']) {
@@ -311,7 +346,7 @@
         })
 
         // user payment
-        if (result['proof_of_deposit'] != null) {
+        if (reservationStatus == 2 && result['proof_of_deposit'] != null) {
             let depositDate = result['deposit_date']
             let deposit = result['deposit']
             let proofDeposit = result['proof_of_deposit']
@@ -330,21 +365,28 @@
             if (result['id_reservation_status'] == '4') {
                 $("#userPayment").append(`
                 <div class="text-end">
-                <span class="badge bg-success"> payed </span>
+                <span class="badge bg-success"> paid </span>
                 </div>
                 `)
             } else {
                 $("#userPayment").append(`
                 <div class="text-end">
-                <a class="btn btn-success" onclick="changeReservationStatus('${id}',4,'payment')"> Accept payment</a>
+                <a class="btn btn-success" onclick="acceptReservation('${id}')"> Accept payment</a>
                 </div>
                 `)
             }
         }
+        // refund
+        if (reservationStatus == 3 && result['proof_of_deposit'] != null) {
+            let deposit = result['deposit']
+            let proofRefund = result['proof_of_refund']
+            $("#userRefund").addClass("mb-2 shadow-sm p-4 rounded")
+            $("#userRefund").html(`<a class="btn btn-outline-primary" onclick="addRefundBody('${id}','${deposit}','${proofRefund}')">Refund</a>`)
 
+        }
 
         // user rating
-        if (result['rating'] != null) {
+        if (reservationStatus == 5 && result['rating'] != null) {
             let rating = result['rating']
             let updatedRating = result['updated_at']
             let review = result['review'] != null ? result['review'] : ''
@@ -364,8 +406,6 @@
             `)
             setStar(rating)
         }
-
-
         $('#modalFooter').html(``)
     }
     const rupiah = (number) => {
@@ -400,13 +440,418 @@
         }
     }
 
+    function addRefundBody(id, deposit, proofRefund) {
+        let userDeposit = parseInt(deposit)
+        let refund = userDeposit / 2
+        $(`#userRefund`).html(`<a class="btn btn-outline-primary" onclick="cancelRefundBody('${id}','${userDeposit}','${proofRefund}')">Cancel refund</a>`)
+        $(`#userRefund`).append(`
+                <p class="text-center fw-bold text-dark"> Upload Your Refund </p>
+                <p ></p>
+                <p>Note <br><span class="text-danger">*</span> Make sure you refund total : (50% *${userDeposit}) <br><span class="text-danger">*</span> Total refund:<span class="text-primary">${rupiah(refund)} </span></p>
+                <div class="form-group mb-4">
+                    <label for="gallery" class="form-label"> Upload Proof of Refund <span class="text-danger">*</span></label>
+                    <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
+                </div>
+                <div class="text-end">
+                    <a class="btn btn-success" onclick="saveRefund('${id}')" > Refund</a>
+                </div>
+           
+        `)
+        FilePond.registerPlugin(
+            FilePondPluginFileValidateType,
+            FilePondPluginImageExifOrientation,
+            FilePondPluginImagePreview,
+            FilePondPluginImageResize,
+            FilePondPluginMediaPreview,
+        );
+        // Get a reference to the file input element
+        photo = document.querySelector('input[id="gallery"]');
+
+        // Create a FilePond instance
+        pond = FilePond.create(photo, {
+            maxFileSize: '1920MB',
+            maxTotalFileSize: '1920MB',
+            imageResizeTargetHeight: 720,
+            imageResizeUpscale: false,
+            credits: false,
+        });
+        console.log(typeof proofRefund)
+        if (proofRefund != "null") {
+            console.log("masuk")
+            pond.addFiles(
+                `<?= base_url('media/photos/refund') ?>/${proofRefund}`
+            );
+        }
+        pond.setOptions({
+            server: {
+                timeout: 3600000,
+                process: {
+                    url: '<?= base_url("upload/photo") ?>',
+                    onload: (response) => {
+                        galleryValue = response
+                        console.log("processed:", response);
+                        return response
+                    },
+                    onerror: (response) => {
+                        console.log("error:", response);
+                        return response
+                    },
+                },
+                revert: {
+                    url: '<?= base_url("upload/photo") ?>',
+                    onload: (response) => {
+                        console.log("reverted:", response);
+                        return response
+                    },
+                    onerror: (response) => {
+                        console.log("error:", response);
+                        return response
+                    },
+                },
+            }
+        })
+    }
+
+    function cancelRefundBody(id, deposit, proofRefund) {
+        let userDeposit = parseInt(deposit)
+        $(`#userRefund`).html(`<a class="btn btn-outline-primary" onclick="addRefundBody('${id}','${deposit}','${proofRefund}')">Add refund</a>`)
+    }
+
+    function saveRefund(id_user, id_package, request_date) {
+        let proofRefund = galleryValue
+        if (proofRefund == null) {
+            Swal.fire(
+                'Please input the proof of refund',
+                '',
+                'warning'
+            )
+        } else {
+            let requestData = {
+                refund_by: '<?= user()->id ?>',
+                proof_of_refund: proofRefund
+            }
+            $.ajax({
+                url: `<?= base_url('api'); ?>/reservation/${id}`,
+                type: "PUT",
+                data: requestData,
+                async: false,
+                contentType: "application/json",
+                success: function(response) {
+                    Swal.fire(
+                        'Booking updated',
+                        '',
+                        'success'
+                    ).then(() => {
+                        window.location.reload()
+                    });
+                },
+                error: function(err) {
+                    console.log(err.responseText)
+                }
+            });
+        }
+
+    }
+
+
+
+    function previewPackage(id_package) {
+        console.log(id_package)
+        $("#previewMap").html(`
+        <div class="card-body">
+            <div id="buttonDay" class="mb-1">
+            </div>
+            <div class="googlemaps" id="googlemaps" style="min-height: 60vh;">
+            </div>
+        </div>`)
+        initMap()
+        let result
+        $.ajax({
+            url: `<?= base_url('api/package'); ?>/${id_package}`,
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                console.log("runing")
+                result = JSON.parse(response)
+            },
+            error: function(err) {
+                console.log("failed")
+                console.log(err.responseText)
+            }
+        });
+        console.log(result.package_day)
+        let buttonDay = ''
+
+        let no = 1
+        result.package_day.forEach(element => {
+            buttonDay += `<a class="btn btn-outline-primary btn-sm" onclick="getObjectsByPackageDayId('${element.day}')">Day ${no}</a>`
+            no++
+        });
+        $("#buttonDay").html(buttonDay)
+
+        // getObjectsByPackageDayId('')
+
+    }
+    // Star map
+    let latBefore = ''
+    let lngBefore = ''
+
+
+    function getObjectsByPackageDayId(id_day) {
+        $.ajax({
+            url: `<?= base_url('api'); ?>/objects/package_day/${id_day}`,
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                let objects = response['data']
+                getObjectById(objects)
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        });
+    }
+
+    function getObjectById(objects = null) {
+        let objectNumber = 1
+        let flightPlanCoordinates = []
+        clearMarker()
+        clearRadius()
+        clearRoute()
+        objects.forEach(object => {
+            let id_object = object['id_object']
+
+            let URI = "<?= base_url('api') ?>";
+
+            if (id_object.charAt(0) == 'R') {
+                URI = URI + '/rumahGadang/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'E') {
+                URI = URI + '/event/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'C') {
+                URI = URI + '/culinaryPlace/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'W') {
+                URI = URI + '/worshipPlace/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'S') {
+                URI = URI + '/souvenirPlace/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'A') {
+                URI = URI + '/atraction/' + `${id_object}`
+            }
+
+
+            currentUrl = '';
+            $.ajax({
+                url: URI,
+                type: "GET",
+                async: false,
+                dataType: 'json',
+                success: function(response) {
+                    let data = response.data
+                    currentUrl = currentUrl + data.id
+                    // flightPlanCoordinates.push(new google.maps.LatLng(data.lat, data.lng))
+                    showObjectOnMap(objectNumber, data.id, data.lat, data.lng)
+                    boundToObject()
+
+                }
+            })
+            objectNumber++
+        })
+        // flightPath(flightPlanCoordinates)
+    }
+
+
+    // Display marker for loaded object
+    function showObjectOnMap(objectNumber, id, lat, lng, anim = true) {
+
+        google.maps.event.clearListeners(map, 'click');
+        let pos = new google.maps.LatLng(lat, lng);
+        let marker = new google.maps.Marker();
+        let icon = `https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red${objectNumber}.png`;
+
+        markerOption = {
+            position: pos,
+            icon: icon,
+            animation: google.maps.Animation.DROP,
+            map: map,
+        }
+        marker.setOptions(markerOption);
+        if (!anim) {
+            marker.setAnimation(null);
+        }
+        marker.addListener('click', () => {
+            infoWindow.close();
+            objectInfoWindow(id);
+            infoWindow.open(map, marker);
+        });
+        markerArray[id] = marker;
+        if (objectNumber == 1) {
+            latBefore = lat
+            lngBefore = lng
+        } else {
+            routeAll(lat, lng)
+        }
+    }
+
+    function routeAll(lat, lng) {
+        google.maps.event.clearListeners(map, 'click')
+
+        let start, end;
+        start = new google.maps.LatLng(latBefore, lngBefore);
+        end = new google.maps.LatLng(lat, lng)
+        let request = {
+            origin: start,
+            destination: end,
+            travelMode: 'DRIVING'
+        };
+        directionsService.route(request, function(result, status) {
+            if (status == 'OK') {
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    suppressMarkers: true
+                })
+                directionsRenderer.setDirections(result);
+                // showSteps(result);
+                directionsRenderer.setMap(map);
+                routeArray.push(directionsRenderer);
+            }
+        });
+        boundToRoute(start, end);
+    }
+
+    // End map
+
+    function cancelReservation(id) {
+        let requestData = {
+            id_reservation_status: 3,
+            canceled_at: "true",
+            canceled_by: '<?= user()->id ?>'
+        }
+
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Booking canceled',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.reload()
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+
+    }
+
+    function confirmReservation(id) {
+
+        let requestData = {
+            id_reservation_status: 2,
+            confirmed_at: "true",
+            confirmed_by: '<?= user()->id ?>'
+        }
+
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Booking confirmed',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.reload()
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+
+    }
+
+
+    function confirmCostumReservation(id) {
+        // check if it costum package or not
+        let inputPriceCostum = $("#inputPriceReservation").val()
+        if (!inputPriceCostum) {
+            return swal.fire("please input the price")
+        }
+
+        let requestData = {
+            id_reservation_status: 2,
+            confirmed_at: "true",
+            confirmed_by: '<?= user()->id ?>',
+            total_price: inputPriceCostum
+        }
+
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Booking confirmed',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.reload()
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+
+    }
+
+    function acceptReservation(id) {
+        let requestData = {
+            id_reservation_status: 4,
+            payment_accepted_date: "true",
+            payment_accepted_by: '<?= user()->id ?>'
+        }
+
+        $.ajax({
+            url: `<?= base_url('api'); ?>/reservation/${id}`,
+            type: "PUT",
+            data: requestData,
+            async: false,
+            contentType: "application/json",
+            success: function(response) {
+                Swal.fire(
+                    'Reservation accepted',
+                    '',
+                    'success'
+                ).then(() => {
+                    window.location.reload()
+                });
+            },
+            error: function(err) {
+                console.log(err.responseText)
+            }
+        })
+
+    }
+
     function changeReservationStatus(id, status, paymentDate = null) {
 
         let requestData = {
             id_reservation_status: status, //status
             payment_date: paymentDate
         }
-        console.log(requestData)
+
         $.ajax({
             url: `<?= base_url('api'); ?>/reservation/${id}`,
             type: "PUT",

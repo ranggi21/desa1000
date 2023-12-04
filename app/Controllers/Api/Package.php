@@ -2,6 +2,8 @@
 
 namespace App\Controllers\Api;
 
+use App\Models\DetailPackageModel;
+use App\Models\PackageDayModel;
 use App\Models\PackageModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\RESTful\ResourceController;
@@ -10,11 +12,13 @@ class Package extends ResourceController
 {
     use ResponseTrait;
 
-    protected $PackageModel;
+    protected $PackageModel, $packageDayModel, $detailPackageModel;
 
     public function __construct()
     {
         $this->PackageModel = new PackageModel();
+        $this->packageDayModel =  new PackageDayModel();
+        $this->detailPackageModel =  new DetailPackageModel();
     }
 
     /**
@@ -42,7 +46,15 @@ class Package extends ResourceController
      */
     public function show($id = null)
     {
-        //
+
+        $package = $this->PackageModel->get_tp_by_id_api($id)->getRowArray();
+        // package day
+        $package_day = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
+        for ($i = 0; $i < count($package_day); $i++) {
+            $package_day[$i]['package_day_detail'] = $this->detailPackageModel->get_detail_package_by_dp_api($package_day[$i]['day'])->getResultArray();
+        }
+        $package['package_day'] = $package_day;
+        return json_encode($package);
     }
 
     /**

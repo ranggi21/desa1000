@@ -79,6 +79,22 @@ class Package extends ResourcePresenter
         if (empty($package)) {
             return redirect()->to(substr(current_url(), 0, -strlen($id)));
         }
+        // # TASK 1
+        //untuk ajax
+        // if ($this->request->isAJAX()) {
+        //     $user_id = $this->request->getGet('user_id');
+        //     if ($id) {
+        //         $countRating = $this->reservationModel->getRating($id)->getRow();
+        //         $userTotal = $this->reservationModel->getUserTotal($id)->getRow();
+        //         $userRating = $this->reservationModel->getUserRating($user_id, $id)->getRow();
+        //     }
+        //     $data = [
+        //         'countRating' =>  $countRating,
+        //         'userTotal' =>  $userTotal,
+        //         'userRating' => $userRating
+        //     ];
+        //     return json_encode($data);
+        // }
 
         // avg rating
         $avg_rating = $this->ReviewModel->getAvgRating($id)->getRowArray()['avg_rating'];
@@ -90,6 +106,13 @@ class Package extends ResourcePresenter
         $services = array();
         foreach ($list_service as $service) {
             $services[] = $service['name'];
+        }
+
+        // service exclude
+        $list_service = $this->DetailServicePackageModel->get_service_by_package_api_exclude($id)->getResultArray();
+        $servicesExclude = array();
+        foreach ($list_service as $service) {
+            $servicesExclude[] = $service['name'];
         }
 
         // package type
@@ -108,6 +131,7 @@ class Package extends ResourcePresenter
 
         $package['avg_rating'] = $avg_rating;
         $package['services'] = $services;
+        $package['servicesExclude'] = $servicesExclude;
         $package['reviews'] = $list_review;
         $package['package_day'] = $package_day;
         $package['gallery'] = [$package['url']];
@@ -134,7 +158,6 @@ class Package extends ResourcePresenter
      */
     public function new()
     {
-
         $packageTypeData = $this->packageTypeModel->get_list_t_api()->getResultArray();
         $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
         $objectData = [];
@@ -142,30 +165,38 @@ class Package extends ResourcePresenter
 
         $atractionData = $this->atractionModel->get_list_a_api()->getResultArray();
         foreach ($atractionData as $atraction) {
+            $atraction['geoJSON'] = null;
             $objectData[] = $atraction;
         }
         $culinaryData = $this->culinaryModel->get_list_cp_api()->getResultArray();
         foreach ($culinaryData as $culinary) {
+
+            $culinary['geoJSON'] = null;
             $objectData[] = $culinary;
         }
         $souvenirData = $this->souvenirModel->get_list_sp_api()->getResultArray();
         foreach ($souvenirData as $souvenir) {
+            $souvenir['geoJSON'] = null;
             $objectData[] = $souvenir;
         }
         $worshipData = $this->worshipModel->get_list_wp_api()->getResultArray();
         foreach ($worshipData as $worship) {
+            $worship['geoJSON'] = null;
             $objectData[] = $worship;
         }
         $homestayData = $this->HomestayModel->get_list_hm_api()->getResultArray();
         foreach ($homestayData as $homestay) {
+            $homestay['geoJSON'] = null;
             $objectData[] = $homestay;
         }
-
+        $data['service_package'] =  [null];
+        $data['service_package_exclude'] = [null];
 
         $data = [
             'title' => 'New Package',
             'packageTypeData' => $packageTypeData,
             'packageDayData' => null,
+            'data' => $data,
             'objectData' => $objectData,
             'serviceData' => $serviceData
         ];
@@ -188,7 +219,7 @@ class Package extends ResourcePresenter
             $filepath = WRITEPATH . 'uploads/' . $folder;
             $filename = get_filenames($filepath)[0];
             $fileImg = new File($filepath . '/' . $filename);
-            $fileImg->move(FCPATH . 'media/photos');
+            $fileImg->move(FCPATH . 'media/photos/package');
             delete_files($filepath);
             rmdir($filepath);
             $url = $fileImg->getFilename();
@@ -233,15 +264,22 @@ class Package extends ResourcePresenter
                 }
             }
         }
-
+        // Service include
         $addService = true;
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
-            $addService = $this->DetailServicePackageModel->add_service_api($id_package, $services);
+            $addService = $this->DetailServicePackageModel->add_service_api($id_package, $services, 'include');
+        }
+
+        // service exclude
+        $addServiceExclude = true;
+        if (isset($request['service_package_exclude'])) {
+            $servicesExclude = $request['service_package_exclude'];
+            $addServiceExclude = $this->DetailServicePackageModel->add_service_api($id_package, $servicesExclude, 'exclude');
         }
 
 
-        if ($addtp && $addService) {
+        if ($addtp && $addService &&  $addServiceExclude) {
             return redirect()->to(base_url('dashboard/package'));
         } else {
             return redirect()->back()->withInput();
@@ -261,11 +299,19 @@ class Package extends ResourcePresenter
         $packageTypeData = $this->packageTypeModel->get_list_t_api()->getResultArray();
         $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
 
+        // get include service package
         $packageService = $this->DetailServicePackageModel->get_service_by_package_api($id)->getResultArray();
 
         $selectedService = array();
         foreach ($packageService as $service) {
             $selectedService[] = $service['name'];
+        }
+
+        // get exclude service package
+        $packageServiceExclude = $this->DetailServicePackageModel->get_service_by_package_api_exclude($id)->getResultArray();
+        $selectedServiceExclude = array();
+        foreach ($packageServiceExclude as $service) {
+            $selectedServiceExclude[] = $service['name'];
         }
 
         $packageDay = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
@@ -301,8 +347,8 @@ class Package extends ResourcePresenter
 
 
         $package['service_package'] =  $selectedService;
+        $package['service_package_exclude'] = $selectedServiceExclude;
         $package['gallery'] = [$package['url']];
-        $package['video_url'] = null;
 
         $data = [
             'title' => 'Edit Package',
@@ -332,7 +378,7 @@ class Package extends ResourcePresenter
             $filepath = WRITEPATH . 'uploads/' . $folder;
             $filename = get_filenames($filepath)[0];
             $fileImg = new File($filepath . '/' . $filename);
-            $fileImg->move(FCPATH . 'media/photos');
+            $fileImg->move(FCPATH . 'media/photos/package');
             delete_files($filepath);
             rmdir($filepath);
             $url = $fileImg->getFilename();
@@ -381,15 +427,22 @@ class Package extends ResourcePresenter
                 }
             }
         }
-
+        // service include
         $addService = true;
 
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
-            $addService = $this->DetailServicePackageModel->update_service_api($id_package, $services);
+            $addService = $this->DetailServicePackageModel->update_service_api($id_package, $services, 'include');
         }
 
-        if ($updateTp && $addService) {
+        // service include
+        $addServiceExclude = true;
+        if (isset($request['service_package_exclude'])) {
+            $servicesExclude = $request['service_package_exclude'];
+            $addServiceExclude = $this->DetailServicePackageModel->update_service_api($id_package, $servicesExclude, 'exclude');
+        }
+
+        if ($updateTp && $addService && $addServiceExclude) {
             return redirect()->to(base_url('dashboard/package'));
         } else {
             return redirect()->back()->withInput();
@@ -429,22 +482,27 @@ class Package extends ResourcePresenter
 
         $atractionData = $this->atractionModel->get_list_a_api()->getResultArray();
         foreach ($atractionData as $atraction) {
+            $atraction['geoJSON'] = null;
             $objectData[] = $atraction;
         }
         $culinaryData = $this->culinaryModel->get_list_cp_api()->getResultArray();
         foreach ($culinaryData as $culinary) {
+            $culinary['geoJSON'] = null;
             $objectData[] = $culinary;
         }
         $souvenirData = $this->souvenirModel->get_list_sp_api()->getResultArray();
         foreach ($souvenirData as $souvenir) {
+            $souvenir['geoJSON'] = null;
             $objectData[] = $souvenir;
         }
         $worshipData = $this->worshipModel->get_list_wp_api()->getResultArray();
         foreach ($worshipData as $worship) {
+            $worship['geoJSON'] = null;
             $objectData[] = $worship;
         }
         $homestayData = $this->HomestayModel->get_list_hm_api()->getResultArray();
         foreach ($homestayData as $homestay) {
+            $homestay['geoJSON'] = null;
             $objectData[] = $homestay;
         }
 
@@ -512,7 +570,7 @@ class Package extends ResourcePresenter
         $addService = true;
         if (isset($request['service_package'])) {
             $services = $request['service_package'];
-            $addService = $this->DetailServicePackageModel->add_service_api($id_package, $services);
+            $addService = $this->DetailServicePackageModel->add_service_api($id_package, $services, 'include');
         }
 
         // create reservation
@@ -538,5 +596,79 @@ class Package extends ResourcePresenter
         } else {
             return redirect()->back()->withInput();
         }
+    }
+
+    public function costumExisting($id)
+    {
+        // 
+        $package = $this->PackageModel->get_list_tp_api($id)->getRowArray();
+
+        $serviceData = $this->ServiceModel->get_list_s_api()->getResultArray();
+
+        // get include service package
+        $packageService = $this->DetailServicePackageModel->get_service_by_package_api($id)->getResultArray();
+        $selectedService = array();
+        foreach ($packageService as $service) {
+            $selectedService[] = $service['name'];
+        }
+
+        // get exclude service package
+        $packageServiceExclude = $this->DetailServicePackageModel->get_service_by_package_api_exclude($id)->getResultArray();
+        $selectedServiceExclude = array();
+        foreach ($packageServiceExclude as $service) {
+            $selectedServiceExclude[] = $service['name'];
+        }
+
+        $packageDay = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
+        $no = 0;
+        foreach ($packageDay as $day) {
+            $packageDay[$no]['detailPackage'] = $this->detailPackageModel->get_objects_by_package_day_id($day['day'])->getResultArray();
+            $no++;
+        }
+
+        $objectData = [];
+
+
+        $atractionData = $this->atractionModel->get_list_a_api();
+        foreach ($atractionData as $atraction) {
+            $atraction->geoJSON = null;
+            $objectData[] = $atraction;
+        }
+        $culinaryData = $this->culinaryModel->get_list_cp_api();
+        foreach ($culinaryData as $culinary) {
+            $culinary->geoJSON = null;
+            $objectData[] = $culinary;
+        }
+        $souvenirData = $this->souvenirModel->get_list_sp_api();
+        foreach ($souvenirData as $souvenir) {
+            $souvenir->geoJSON = null;
+            $objectData[] = $souvenir;
+        }
+        $worshipData = $this->worshipModel->get_list_wp_api();
+        foreach ($worshipData as $worship) {
+            $worship->geoJSON = null;
+            $objectData[] = $worship;
+        }
+        $homestayData = $this->HomestayModel->get_list_hm_api();
+        foreach ($homestayData as $homestay) {
+            $homestay->geoJSON = null;
+            $objectData[] = $homestay;
+        }
+
+
+        $package['service_package'] =  $selectedService;
+        $package['service_package_exclude'] = $selectedServiceExclude;
+        $package['gallery'] = [$package['url']];
+        $package['video_url'] = null;
+
+        $data = [
+            'title' => 'Edit Package',
+            'data' => $package,
+            // 'homestayData' => $homestayData,
+            'packageDayData' => $packageDay,
+            'objectData' => $objectData,
+            'serviceData' => $serviceData
+        ];
+        return view('user-menu/costum_existing_package', $data);
     }
 }

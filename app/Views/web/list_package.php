@@ -15,7 +15,7 @@
                                 <div class="row g-0">
                                     <div class="col-md-4 p-2">
                                         <a class="hover-efek" role="button" data-bs-toggle="modal" data-bs-target="#exampleModal<?= $item['id'] ?>">
-                                            <img src="<?= base_url('media/photos/') . '/' . $item['url'] ?>" class="img-fluid rounded-start" alt="...">
+                                            <img src="<?= base_url('media/photos/package') . '/' . $item['url'] ?>" class="img-fluid rounded-start" alt="...">
                                         </a>
                                     </div>
                                     <div class="col-md-8">

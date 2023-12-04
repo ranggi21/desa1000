@@ -62,8 +62,7 @@ class Reservation extends Migration
                 'null' => true,
             ],
             'deposit_date' => [
-                'type' => 'VARCHAR',
-                'constraint' => 255,
+                'type' => 'TIMESTAMP',
                 'null' => true,
             ],
             'proof_of_payment' => [

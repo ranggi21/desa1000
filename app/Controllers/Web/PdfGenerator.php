@@ -74,6 +74,13 @@ class PdfGenerator extends BaseController
                         $services[] = $service['name'];
                     }
 
+                    // service exclude
+                    $list_service_exclude = $this->detailServicePackageModel->get_service_by_package_api_exclude($id)->getResultArray();
+                    $servicesExclude = array();
+                    foreach ($list_service_exclude as $serviceEx) {
+                        $servicesExclude[] = $serviceEx['name'];
+                    }
+
                     $package_day = $this->packageDayModel->get_pd_by_package_id_api($id)->getResultArray();
 
                     for ($i = 0; $i < count($package_day); $i++) {
@@ -81,6 +88,7 @@ class PdfGenerator extends BaseController
                     }
                     $item['reservation'] = $reservation;
                     $item['services'] = $services;
+                    $item['services_exclude'] = $services;
                     $item['package_day'] = $package_day;
                 } else if ($reservation['id_homestay'] != null) {
                     $id = $reservation['id_homestay'];

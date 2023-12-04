@@ -143,12 +143,32 @@ class Reservation extends ResourceController
     public function update($id = null)
     {
         $request = $this->request->getRawInput();
-
-        // execute when payment accepted
-        if (isset($request['payment_date']) && $request['payment_date'] != null) {
-            $request['payment_date'] = Time::now();
+        // execute when booking canceled
+        if (isset($request['canceled_at'])) {
+            $request['canceled_at'] = Time::now("Asia/Jakarta");
         }
 
+        // execute when booking confirmed
+        if (isset($request['confirmed_at'])) {
+            $request['confirmed_at'] = Time::now("Asia/Jakarta");
+        }
+        // execute when payment accepted
+        if (isset($request['payment_accepted_date'])) {
+            $request['payment_accepted_date'] = Time::now("Asia/Jakarta");
+        }
+
+        // execute when upload proof of refund
+        if (isset($request['proof_of_refund'])) {
+            $folder = $request['proof_of_refund'];
+            $filepath = WRITEPATH . 'uploads/' . $folder;
+            $filename = get_filenames($filepath)[0];
+            $fileImg = new File($filepath . '/' . $filename);
+            $fileImg->move(FCPATH . 'media/photos/refund/');
+            delete_files($filepath);
+            rmdir($filepath);
+            $request['proof_of_refund'] = $fileImg->getFilename();
+            $request['refund_date'] = Time::now("Asia/Jakarta");
+        }
         // execute when upload proof of payment
         if (isset($request['proof_of_deposit'])) {
             $folder = $request['proof_of_deposit'];

@@ -14,6 +14,11 @@ $edit = in_array('edit', $uri);
     .filepond--root {
         width: 100%;
     }
+
+    .input-no-border {
+        border: 0;
+        outline: 0;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -56,7 +61,7 @@ $edit = in_array('edit', $uri);
                         <div class="card-body">
 
                             <div class="form-group mb-4">
-                                <label for="reservation_date" class="mb-2"> Select reservation date <span class="text-danger">*</span></label>
+                                <label for="reservation_date" class="mb-2"> Select reservation date <span class="text-danger">*</span> <span class="text-primary">(Min H-7)</span></label>
                                 <input type="date" id="reservation_date" name="reservationData[reservation_date]" class="form-control" required>
                             </div>
                             <div class="form-group mb-4">
@@ -111,7 +116,6 @@ $edit = in_array('edit', $uri);
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title text-center">Detail package</h4>
-                            <h5 class="card-title text-start">Total package price : <input id="totalPrice" readonly class="input-no-border" name="price" value="0"></h5>
                             <input type="hidden" value="<?= ($edit) ? 'oke' : '' ?>" required id="checkDetailPackage">
                         </div>
                         <div class="card-body">
@@ -182,13 +186,18 @@ $edit = in_array('edit', $uri);
 <script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
 
 <script>
+    let dateNow = new Date();
+    $('#reservation_date').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        startDate: new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate() + 7),
+        todayHighlight: true
+    });
+
     function checkRequired(event) {
         let reservationDate = $('#reservation_date').val()
         let numberPeople = $('#number_people').val()
-        let sameDateCheckResult = "true"
-        if (reservationDate) {
-            sameDateCheckResult = checkIsDateDuplicate('<?= user()->id ?>', reservationDate)
-        }
+
 
         let checkDetailPackage = $('#checkDetailPackage').val()
         let today = new Date();
@@ -200,9 +209,6 @@ $edit = in_array('edit', $uri);
         if (reservationDate <= today) {
             event.preventDefault();
             Swal.fire('Cannot create costume package, out of date, Maximum H-1 reservation', '', 'warning');
-        } else if (sameDateCheckResult == "true") {
-            event.preventDefault();
-            Swal.fire('Already chose the same date! please select another date', '', 'warning');
         } else if (numberPeople <= 0) {
             event.preventDefault();
             Swal.fire('Need 1 people at least', '', 'warning');
@@ -211,23 +217,6 @@ $edit = in_array('edit', $uri);
             Swal.fire('You dont have any activities, please add 1 at least', '', 'warning');
         }
     }
-
-    function checkIsDateDuplicate(user_id, reservation_date) {
-        let result
-        $.ajax({
-            url: `<?= base_url('web/reservation') ?>/check/${user_id}/${reservation_date}`,
-            type: "GET",
-            async: false,
-            success: function(response) {
-                result = response
-            },
-            error: function(err) {
-                console.log(err.responseText)
-            }
-        })
-        return result
-    }
-
 
     function removeObject(noDay, noDetail, objectPrice) {
         $(`#${noDay}-${noDetail}`).remove()
@@ -317,10 +306,7 @@ $edit = in_array('edit', $uri);
         </div>
         <input id="detail-package-id-object" type="hidden" required>
         <input id="detail-package-price-object" type="hidden" type="number" value="0"  required>
-        <div class="form-group mb-4">
-                    <label for="detail-package-activity-type" class="mb-2">Activity type</label>
-                    <input type="text" id="detail-package-activity-type" class="form-control" name="detail-package-activity-type" placeholder="activity type" required>
-        </div> 
+    
         <div class="form-group mb-4">
                     <label for="detail-package-description" class="mb-2">Description</label>
                     <input type="text" id="detail-package-description" class="form-control" name="detail-package-description" placeholder="Detail package description" required>
@@ -339,11 +325,13 @@ $edit = in_array('edit', $uri);
     }
 
     function addObjectValue(object) {
+        console.log(object)
         let objectData = JSON.parse(object)
-        console.log(objectData)
         let objectId = objectData.id
-        let objectPrice = objectData.ticket_price == null ? 0 : parseInt(objectData.ticket_price)
+        let objectName = objectData.name
         $("#detail-package-id-object").val(objectId)
+        $("#detail-package-description").val("Visit " + objectName)
+        let objectPrice = objectData.price == null ? 0 : parseInt(objectData.price)
         $("#detail-package-price-object").val(objectPrice)
     }
 
@@ -353,11 +341,21 @@ $edit = in_array('edit', $uri);
         //get data from modal input
         let noDetail = parseInt($(`#lastNoDetail${noDay}`).val())
         let object_price = $("#detail-package-price-object").val() == null ? 0 : parseInt($("#detail-package-price-object").val())
-        totalPrice += parseInt(object_price)
-        $("#totalPrice").val(totalPrice)
+
         let object_id = $("#detail-package-id-object").val()
-        let activity_type = $("#detail-package-activity-type").val()
+        let activity_type = ''
         let description = $("#detail-package-description").val()
+        if (object_id.substring(0, 1) == 'A') {
+            activity_type = 'Atraksi'
+        } else if (object_id.substring(0, 1) == 'C') {
+            activity_type = 'Culinary Place'
+        } else if (object_id.substring(0, 1) == 'S') {
+            activity_type = 'Souvenir Place'
+        } else if (object_id.substring(0, 1) == 'W') {
+            activity_type = 'Worship Place'
+        } else if (object_id.substring(0, 1) == 'H') {
+            activity_type = 'Homestay'
+        }
 
         $(`#body-detail-package-${noDay}`).append(`
         <tr id="${noDay}-${noDetail}"> 
@@ -385,8 +383,6 @@ $edit = in_array('edit', $uri);
 
     // Get a reference to the file input element
     const photo = document.querySelector('input[id="gallery"]');
-    const video = document.querySelector('input[id="video"]');
-
 
     // Create a FilePond instance
     const pond = FilePond.create(photo, {
@@ -396,18 +392,7 @@ $edit = in_array('edit', $uri);
         imageResizeUpscale: false,
         credits: false,
     });
-    const vidPond = FilePond.create(video, {
-        maxFileSize: '1920MB',
-        maxTotalFileSize: '1920MB',
-        credits: false,
-    })
 
-
-    <?php if ($edit &&  strlen($data['gallery'][0])) : ?>
-        pond.addFiles(
-            "<?= base_url('media/photos/'); ?>/<?= $data['gallery'][0]; ?>"
-        );
-    <?php endif; ?>
     pond.setOptions({
         server: {
             timeout: 3600000,
@@ -424,37 +409,6 @@ $edit = in_array('edit', $uri);
             },
             revert: {
                 url: '/upload/photo',
-                onload: (response) => {
-                    console.log("reverted:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-        }
-    });
-
-    <?php if ($edit && $data['video_url'] != null) : ?>
-        vidPond.addFile(`<?= base_url('media/videos/' . $data['video_url']); ?>`)
-    <?php endif; ?>
-    vidPond.setOptions({
-        server: {
-            timeout: 86400000,
-            process: {
-                url: '/upload/video',
-                onload: (response) => {
-                    console.log("processed:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-            revert: {
-                url: '/upload/video',
                 onload: (response) => {
                     console.log("reverted:", response);
                     return response

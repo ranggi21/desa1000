@@ -1,5 +1,15 @@
 <?= $this->extend('web/layouts/main'); ?>
+<?= $this->section('head') ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<style>
+    input[type=date]::-webkit-inner-spin-button,
+    input[type=date]::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+</style>
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <!-- Modal reservation -->
 <div class="modal fade text-left" id="reservationModal" tabindex="-1" aria-labelledby="myModalLabel1" style="display: none;" aria-hidden="true">
@@ -73,7 +83,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-4">
                         <div class="col">
                             <p class="fw-bold">Description</p>
                             <p><?= esc($data['description']); ?></p>
@@ -82,20 +92,28 @@
 
                     <div class="row">
                         <div class="col">
-                            <p class="fw-bold">Service</p>
+                            <p class="fw-bold">Service (Include)</p>
                             <?php $i = 1; ?>
                             <?php foreach ($data['services'] as $service) : ?>
                                 <p class="px-1"><?= esc($i) . '. ' . esc($service); ?></p>
                                 <?php $i++; ?>
                             <?php endforeach; ?>
                         </div>
+                        <div class="col">
+                            <p class="fw-bold">Service (Exclude)</p>
+                            <?php $i = 1; ?>
+                            <?php foreach ($data['servicesExclude'] as $service) : ?>
+                                <p class="px-1"><?= esc($i) . '. ' . esc($service); ?></p>
+                                <?php $i++; ?>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-
 
                     <div class="row">
                         <div class="col border p-2">
                             <p class="fw-bold">Detail Packages </p>
                             <?php if ($data['package_day'] != null) : ?>
+                                <!-- <a href="<?= base_url('package/costumExisting') . '/' . $data['id'] ?>" class="btn btn-outline-primary mb-2">Costume this package</a> -->
                                 <div class="list-group list-group-horizontal-sm mb-4 text-center" role="tablist">
                                     <?php $dayNumber = 1; ?>
                                     <?php foreach ($data['package_day'] as $day) : ?>
@@ -150,19 +168,6 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('javascript') ?>
-
-<script>
-    const myModal = document.getElementById('videoModal');
-    const videoSrc = document.getElementById('video-play').getAttribute('data-src');
-
-    myModal.addEventListener('shown.bs.modal', () => {
-        console.log(videoSrc);
-        document.getElementById('video').setAttribute('src', videoSrc);
-    });
-    myModal.addEventListener('hide.bs.modal', () => {
-        document.getElementById('video').setAttribute('src', '');
-    });
-</script>
 <script>
     let latBefore = ''
     let lngBefore = ''
@@ -266,16 +271,6 @@
         }
     }
 
-    // function flightPath(flightPlanCoordinates) {
-    //     let result = new google.maps.Polyline({
-    //         path: flightPlanCoordinates,
-    //         strokeColor: "#FF0000",
-    //         strokeOpacity: 1.0,
-    //         strokeWeight: 2
-    //     });
-    //     result.setMap(map)
-    // }
-
     function routeAll(lat, lng) {
         google.maps.event.clearListeners(map, 'click')
 
@@ -313,7 +308,7 @@
                                         <tbody>
                                         <?php if ($data['url'] != null) : ?>
                                             <tr>
-                                                <td colspan="2"><img class="img-fluid img-thumbnail rounded" src="<?= base_url('media/photos') . '/' . $data['url'] ?>" width="100%"></td>
+                                                <td colspan="2"><img class="img-fluid img-thumbnail rounded" src="<?= base_url('media/photos/package') . '/' . $data['url'] ?>" width="100%"></td>
                                             </tr>
                                             <?php endif; ?>
                                             <tr>
@@ -348,8 +343,10 @@
                     </table>
                 </div>
                 <div class="shadow p-4 rounded">
+                    <input type="hidden" value="<?= $data['price'] ?>" id="package_price">
                     <div class="form-group mb-2">
                         <label for="reservation_date" class="mb-2"> Select reservation date </label>
+                        <span class="text-primary"> ( Min H-7 ) </span></label>
                         <input type="date" id="reservation_date" class="form-control" required >
                     </div>
                     <div class="form-group mb-2">
@@ -363,6 +360,14 @@
                 </div>
             </div>
             `)
+            let dateNow = new Date();
+            $('#reservation_date').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                startDate: new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate() + 7),
+                todayHighlight: true
+            });
+
             $('#modalFooter').html(`<a class="btn btn-success" onclick="makeReservation(${<?= user()->id ?>})"> Make reservation </a>`)
         <?php else : ?>
             $('#modalTitle').html('Login required')
@@ -374,7 +379,10 @@
     function makeReservation(user_id) {
         let reservationDate = $("#reservation_date").val()
         let numberPeople = $("#number_people").val()
+        let packagePrice = $("#package_price").val()
+        console.log(packagePrice)
         let comment = $("#comment").val()
+        let package_id = '<?= $data['id'] ?>';
         let numberCheckResult = checkNumberPeople(numberPeople)
         let dateCheckResult = checkIsDateExpired(reservationDate)
         let sameDateCheckResult = "true"
@@ -393,7 +401,6 @@
         } else if (sameDateCheckResult == "true") {
             Swal.fire('Already chose the same date! please select another date', '', 'warning');
         } else {
-
             <?php if (in_groups('user')) : ?>
                 let requestData = {
                     reservation_date: reservationDate,
@@ -498,57 +505,21 @@
         }
     }
 
-    function openMultipleCheckOut() {
-        $("#multipleButton").html(`
-        <a title="closeAll" class="btn btn-danger" onclick="closeMultipleCheckOut()"><i class="fa fa-x"></i> Cancel Group </a>
-        <a title="Print All" class="btn btn-primary" onclick="openInvoice()"><i class="fa fa-print"></i> Print selected</a>
-        `)
-        $(".checkAll").removeClass("d-none")
-        $(".checkSingle").addClass("d-none")
-    }
+    // function openMultipleCheckOut() {
+    //     $("#multipleButton").html(`
+    //     <a title="closeAll" class="btn btn-danger" onclick="closeMultipleCheckOut()"><i class="fa fa-x"></i> Cancel Group </a>
+    //     <a title="Print All" class="btn btn-primary" onclick="openInvoice()"><i class="fa fa-print"></i> Print selected</a>
+    //     `)
+    //     $(".checkAll").removeClass("d-none")
+    //     $(".checkSingle").addClass("d-none")
+    // }
 
-    function closeMultipleCheckOut() {
-        $("#multipleButton").html(`
-        <a title="Print multiple reservation" class="btn btn-primary" onclick="openMultipleCheckOut()"><i class="fa-solid fa-print"></i> Print in Group </a>
-        `)
-        $(".checkAll").addClass("d-none")
-        $(".checkSingle").removeClass("d-none")
-    }
-
-    function openInvoice(single = null) {
-        let invoiceRequest
-
-        single != null ?
-            invoiceRequest = [single] :
-            invoiceRequest = $('input[name="idPackage[]"]:checked').map(function() {
-                return this.value; // $(this).val()
-            }).get();
-
-
-        if (invoiceRequest.length > 0) {
-            $.ajax({
-                url: '<?= base_url("pdf/invoice-data") ?>',
-                type: "POST",
-                dataType: "json",
-                data: {
-                    id_reservation: invoiceRequest
-                },
-                success: function(response) {
-
-                    window.open('<?= base_url('pdf/index'); ?>' + '/' + JSON.stringify(response));
-                },
-                error: function(err) {
-                    console.log(err.responseText)
-                }
-            })
-        } else {
-            Swal.fire(
-                'Please select 1 reservation at least!',
-                '',
-                'error'
-            )
-        }
-
-    }
+    // function closeMultipleCheckOut() {
+    //     $("#multipleButton").html(`
+    //     <a title="Print multiple reservation" class="btn btn-primary" onclick="openMultipleCheckOut()"><i class="fa-solid fa-print"></i> Print in Group </a>
+    //     `)
+    //     $(".checkAll").addClass("d-none")
+    //     $(".checkSingle").removeClass("d-none")
+    // }
 </script>
 <?= $this->endSection() ?>

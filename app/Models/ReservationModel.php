@@ -11,7 +11,7 @@ class ReservationModel extends Model
     protected $table            = 'reservation';
     protected $primaryKey       = 'id';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id', 'id_user', 'id_package', 'id_homestay', 'id_reservation_status', 'request_date', 'deposit', 'number_people', 'comment', 'review', 'rating', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['id', 'id_user', 'id_package', 'id_homestay', 'id_reservation_status', 'request_date', 'request_date_end', 'deposit', 'proof_of_deposit', 'deposit_date', 'confirmed_at', 'confirmed_by', 'canceled_at', 'canceled_by', 'proof_of_payment', 'payment_accepted_date', 'payment_accepted_by', 'proof_of_refund', 'refund_date', 'refund_by', 'number_people', 'comment', 'review', 'rating', 'created_at', 'updated_at'];
 
     // Dates
     protected $useTimestamps = true;
