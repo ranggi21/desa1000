@@ -28,7 +28,7 @@ class CulinaryPlace extends Seeder
             ];
 
             $this->db->table('culinary_place')->insert($data);
-            $this->db->table('culinary_place')->set('geom', $row[6], false)->where('id_culinary_place', $row[0])->update();
+            $this->db->table('culinary_place')->set('geom', "ST_GeomFromGeoJSON('{$row[6]}')", false)->where('id_culinary_place', $row[0])->update();
         }
     }
 }

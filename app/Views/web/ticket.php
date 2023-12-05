@@ -348,6 +348,9 @@
                 <?php if (isset($itemData[0]['capacity'])) : ?>
                     <th> Capacity</th>
                 <?php endif ?>
+                <?php if (isset($itemData[0]['reservation']['number_people'])) : ?>
+                    <th> Total people</th>
+                <?php endif; ?>
                 <th colspan="3"> Price</th>
                 <?php if (isset($itemData[0]['reservation']['request_date_end'])) : ?>
                     <th> From</th>
@@ -391,6 +394,9 @@
                     </td>
                     <?php if (isset($item['capacity'])) : ?>
                         <td><?= $item['capacity']; ?></td>
+                    <?php endif; ?>
+                    <?php if (isset($itemData[0]['reservation']['number_people'])) : ?>
+                        <th> <?= $itemData[0]['reservation']['number_people']; ?></th>
                     <?php endif; ?>
                     <?php if (isset($item['price'])) : ?>
                         <td colspan="3"><?= "Rp " . number_format($item['reservation']['total_price'], 0, ",", ".") ?> <?php $totalPrice += $item['price']  ?></td>

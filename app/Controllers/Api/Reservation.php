@@ -70,7 +70,7 @@ class Reservation extends ResourceController
         } else if ($reservationData['id_homestay'] != null) {
             $data = $this->homestayModel->get_hm_by_id_api($reservationData['id_homestay'])->getRowArray();
             $reservationData['item_name']  = $data['name'];
-            $reservationData['item_costum'] = $data['status'];
+            $reservationData['item_costum'] = '2';
             $reservationData['item_price'] = $data['ticket_price'];
         }
 

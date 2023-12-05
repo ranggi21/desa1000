@@ -301,6 +301,12 @@
     function makeReservation(user_id) {
         let reservationDate = $("#reservation_date").val()
         let reservationDateEnd = $("#reservation_date_end").val()
+
+        console.log(reservationDate)
+        let startDate = new Date(reservationDate).getDate()
+        let endDate = new Date(reservationDateEnd).getDate()
+        let countDate = endDate - startDate + 1
+
         let numberPeople = $("#number_people").val()
         let comment = $("#comment").val()
         let dateCheckResult = checkIsDateExpired(reservationDate)
@@ -330,7 +336,7 @@
                     id_homestay: '<?= $data['homestayData']['id'] ?>',
                     id_reservation_status: 1, // pending status
                     number_people: numberPeople,
-                    total_price: totalPrice,
+                    total_price: parseInt(totalPrice) * countDate,
                     comment: comment
                 }
                 $.ajax({

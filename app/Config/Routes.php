@@ -64,6 +64,8 @@ $routes->group('web', ['namespace' => 'App\Controllers\Web'], function ($routes)
     $routes->get('package/detail/(:segment)', 'Package::detail/$1');
     $routes->get('package/costum/new', 'Package::newCostum/$1');
     $routes->post('package/costum/saveCostum', 'Package::saveCostum');
+    $routes->get('package/costumExisting/(:segment)', 'Package::costumExisting/$1');
+    $routes->post('package/saveCostumExisting', 'Package::saveCostumExisting');
     $routes->presenter('package');
     $routes->presenter('uniquePlace');
     $routes->get('visitHistory', 'VisitHistory::visitHistory', ['filter' => 'role:user']);

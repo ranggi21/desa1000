@@ -8,6 +8,7 @@ use App\Models\ReservationStatusModel;
 use App\Models\PackageModel;
 use CodeIgniter\RESTful\ResourcePresenter;
 
+date_default_timezone_set('Asia/Jakarta');
 class Reservation extends ResourcePresenter
 {
     protected $reservationModel;
@@ -54,6 +55,35 @@ class Reservation extends ResourcePresenter
 
         // reservation status dan paket
         foreach ($users_reservation as $item) {
+            $reservationId = $item['id'];
+            $request_date = $item['request_date'];
+            $reservation_status = $item['id_reservation_status'];
+            $deposit_date = $item['deposit_date'];
+            //check if date is passed
+            $dateNow = date('Y-m-d');
+
+            $dateConvert = getDate(strtotime($request_date));
+            $yearConvert = $dateConvert['year'];
+            $monthConvert = $dateConvert['mon'];
+
+            $dayConvert = $dateConvert['mday'] - 3;
+            $requestDateMin3 = $yearConvert . "-" . $monthConvert . "-" . $dayConvert;
+
+
+            // cancel if deposit is not added beyond 3 days
+            if ($dateNow == $requestDateMin3 && ($reservation_status == 2 || $reservation_status == 1) && $deposit_date == null) {
+                // update status
+                $users_reservation[$no]['id_reservation_status'] = 3;
+                $this->reservationModel->update_r_api($reservationId, ['id_reservation_status' => 3]);
+            }
+
+            // finsih when request date pass the current date
+            if ($request_date  < $dateNow && $reservation_status != 3) {
+                // update status
+                $users_reservation[$no]['id_reservation_status'] = 5;
+                $this->reservationModel->update_r_api($reservationId, ['id_reservation_status' => 5]);
+            }
+
             $reservation_status_id = $item['id_reservation_status'];
             $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
             $users_reservation[$no]['status'] = $reservationStatus['status'];

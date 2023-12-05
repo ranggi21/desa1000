@@ -18,13 +18,13 @@ class RumahGadang extends Seeder
                 'id_rumah_gadang' => $row[0],
                 'id_user' => $row[1],
                 'id_recommendation' => $row[2],
-                'name' => $row[3],
-                'address' => $row[4],
-                'open' => $row[5],
-                'close' => $row[6],
-                'cp' => $row[7],
-                'price_ticket' => $row[9],
-                'status' => $row[10],
+                // 'id_homestay' => $row[3],
+                'name' => $row[4],
+                'address' => $row[5],
+                'open' => $row[6],
+                'close' => $row[7],
+                'cp' => $row[8],
+                'price_ticket' => $row[10],
                 'description' => $row[11],
                 'video_url' => $row[12],
                 'lat' => $row[13],
@@ -34,7 +34,7 @@ class RumahGadang extends Seeder
             ];
 
             $this->db->table('rumah_gadang')->insert($data);
-            $this->db->table('rumah_gadang')->set('geom', "ST_GeomFromGeoJSON('{$row[8]}')", false)->where('id_rumah_gadang', $row[0])->update();
+            $this->db->table('rumah_gadang')->set('geom', "ST_GeomFromGeoJSON('{$row[9]}')", false)->where('id_rumah_gadang', $row[0])->update();
         }
     }
 }

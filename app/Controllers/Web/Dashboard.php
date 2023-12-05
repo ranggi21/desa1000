@@ -22,6 +22,7 @@ use App\Models\ServiceModel;
 use App\Models\UniquePlaceModel;
 use Myth\Auth\Models\userModel;
 
+date_default_timezone_set('Asia/Jakarta');
 class Dashboard extends BaseController
 {
     protected $userModel;
@@ -190,6 +191,31 @@ class Dashboard extends BaseController
         $no = 0;
         // reservation status dan paket
         foreach ($contents as $item) {
+            $reservationId = $item['id'];
+            $user_id = $item['id_user'];
+            $request_date = $item['request_date'];
+            $reservation_status = $item['id_reservation_status'];
+            $deposit_date = $item['deposit_date'];
+            //check if date is passed
+            $dateNow = date('Y-m-d');
+            $dateConvert = getDate(strtotime($request_date));
+            $yearConvert = $dateConvert['year'];
+            $monthConvert = $dateConvert['mon'];
+
+            $dayConvert = $dateConvert['mday'] - 3;
+            $requestDateMin3 = $yearConvert . "-" . $monthConvert . "-" . $dayConvert;
+
+            if ($dateNow == $requestDateMin3 && ($reservation_status == 2 || $reservation_status == 1) && $deposit_date == null) {
+                // update status
+                $contents[$no]['id_reservation_status'] = 3;
+                $this->reservationModel->update_r_api($reservationId, ['id_reservation_status' => 3]);
+            }
+            if ($request_date < $dateNow && $reservation_status != 3) {
+                // update status
+                $contents[$no]['id_reservation_status'] = 4;
+                $this->reservationModel->update_r_api($reservationId, ['id_reservation_status' => 4]);
+            }
+
             $reservation_status_id = $item['id_reservation_status'];
             $reservationStatus = $this->reservationStatusModel->get_s_by_id_api($reservation_status_id)->getRowArray();
             $contents[$no]['status'] = $reservationStatus['status'];
@@ -208,7 +234,6 @@ class Dashboard extends BaseController
             }
             $no++;
         }
-
 
         $data = [
             'title' => 'Manage Reservation',

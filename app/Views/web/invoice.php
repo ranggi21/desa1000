@@ -341,7 +341,9 @@
                     <th colspan="4"> Activities</th>
                 <?php endif; ?>
                 <th> Services </th>
-                <th> Services (exclude)</th>
+                <?php if (isset($item['services_exclude'])) : ?>
+                    <th> Services (exclude)</th>
+                <?php endif; ?>
                 <?php if (isset($itemData[0]['capacity'])) : ?>
                     <th> Capacity</th>
                 <?php endif; ?>
@@ -386,13 +388,15 @@
                             <?php $noService++ ?>
                         <?php endforeach; ?>
                     </td>
-                    <td>
-                        <?php $noServiceExclude = 1; ?>
-                        <?php foreach ($item['services_exclude'] as $serviceExclude) : ?>
-                            <?= $noServiceExclude ?>. <?= $serviceExclude; ?> <br>
-                            <?php $noServiceExclude++ ?>
-                        <?php endforeach; ?>
-                    </td>
+                    <?php if (isset($item['services_exclude'])) : ?>
+                        <td>
+                            <?php $noServiceExclude = 1; ?>
+                            <?php foreach ($item['services_exclude'] as $serviceExclude) : ?>
+                                <?= $noServiceExclude ?>. <?= $serviceExclude; ?> <br>
+                                <?php $noServiceExclude++ ?>
+                            <?php endforeach; ?>
+                        </td>
+                    <?php endif; ?>
                     <?php if (isset($item['capacity'])) : ?>
                         <td><?= $item['capacity']; ?></td>
                     <?php endif; ?>

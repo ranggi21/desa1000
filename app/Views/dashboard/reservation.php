@@ -165,7 +165,6 @@
         console.log(result)
         reservationStatus = result['id_reservation_status']
         if (reservationStatus == '1' && result['item_costum'] == '1') {
-            console.log("masuk sinikahhh")
             reservationInfo =
                 `<a class ="btn btn-outline-danger m-1" onclick="cancelReservation('${id}')"> Cancel  </a>
                <a class ="btn btn-outline-success m-1" onclick="confirmCostumReservation('${id}')"> Confirm</a>
@@ -255,10 +254,17 @@
             </div>
         `)
         } else if (result['id_homestay'] != null) {
+            let startDate = new Date(result['request_date']).getDate();
+            let endDate = new Date(result['request_date_end']).getDate();
+            let countDay = endDate - startDate + 1
+            console.log(countDay)
             $('#modalBody').html(`
             <div class="p-2">
                     <div id="userRating">
         
+                    </div>
+                    <div id="userRefund">
+    
                     </div>
                     <div  id="userPayment">
         
@@ -280,6 +286,14 @@
                                 <tr>
                                     <td class="fw-bold">Request Date</td>
                                     <td>${result['request_date']}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Request Date end</td>
+                                    <td>${result['request_date_end']}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Total days</td>
+                                    <td>${countDay} Days</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Total people</td>
@@ -315,7 +329,6 @@
                 </div>
             `)
         }
-
 
         // button status
         $("#statusReservation").html(`<option value="${result['id_reservation_status']}"> ${result['status']} ( current status )</option>`)

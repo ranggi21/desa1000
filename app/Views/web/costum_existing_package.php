@@ -1,18 +1,17 @@
-<?php
-$uri = service('uri')->getSegments();
-$edit = in_array('edit', $uri);
-?>
+<?= $this->extend('web/layouts/main'); ?>
 
-<?= $this->extend('dashboard/layouts/main'); ?>
-
+<?= $this->section('head') ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<?= $this->endSection() ?>
 <?= $this->section('styles') ?>
-<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond-plugin-media-preview@1.0.11/dist/filepond-plugin-media-preview.min.css">
 <link rel="stylesheet" href="<?= base_url('assets/css/pages/form-element-select.css'); ?>">
 <style>
-    .filepond--root {
-        width: 100%;
+    input[type=date]::-webkit-inner-spin-button,
+    input[type=date]::-webkit-calendar-picker-indicator {
+        display: none;
     }
 </style>
 <?= $this->endSection() ?>
@@ -41,7 +40,7 @@ $edit = in_array('edit', $uri);
     </div>
 </div>
 <section class="section">
-    <form class="form form-horizontal" action="<?= ($edit) ? base_url('dashboard/package/update') . '/' . $data['id'] : base_url('dashboard/package'); ?>" method="post" onsubmit="checkRequired(event)" enctype="multipart/form-data">
+    <form class="form form-horizontal" action="<?= base_url('web/package/saveCostumExisting'); ?>" method="post" onsubmit="checkRequired(event)" enctype="multipart/form-data">
         <div class="form-body">
             <div class="row">
                 <script>
@@ -54,41 +53,13 @@ $edit = in_array('edit', $uri);
                             <h4 class="card-title text-center"><?= $title; ?></h4>
                         </div>
                         <div class="card-body">
-
                             <div class="form-group mb-4">
-                                <label for="name" class="mb-2">Tourism Package Name <span class="text-danger">*</span></label>
-                                <input type="text" id="name" class="form-control" name="name" placeholder="Tourism Package Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
-                            </div>
-                            <fieldset class="form-group mb-4">
-                                <label for="id_package_type" class="mb-2">Package Type</label>
-                                <select class="form-select" id="id_package_type" name="id_package_type">
-                                    <option value="" selected> </option>
-                                    <?php if ($packageTypeData) : ?>
-                                        <?php foreach ($packageTypeData as $type) : ?>
-                                            <?php if ($edit && $type['id'] && $data['id_package_type']) : ?>
-                                                <option value="<?= $type['id'] ?>" <?= (esc($type['id']) == $data['id_package_type']) ? 'selected' : ''; ?>><?= $type['name']; ?></option>
-                                            <?php else : ?>
-                                                <option value="<?= esc($type['id']); ?>"><?= esc($type['name']); ?></option>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-
-                                    <?php endif; ?>
-                                </select>
-                            </fieldset>
-                            <div class="form-group mb-4">
-                                <label for="price" class="mb-2">Price <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp </span>
-                                    <input type="number" id="price" class="form-control" name="price" placeholder="price" aria-label="price" aria-describedby="price" value="<?= ($edit) ? $data['price'] : old('price'); ?>" required>
-                                </div>
+                                <label for="reservation_date" class="mb-2"> Select reservation date<span class="text-danger">*</span> <span class="text-primary">( H-7 )</span></label>
+                                <input type="date" id="reservation_date" name="reservationData[reservation_date]" class="form-control" required>
                             </div>
                             <div class="form-group mb-4">
-                                <label for="capacity" class="mb-2">Capacity</label>
-                                <input type="number" id="capacity" class="form-control" name="capacity" placeholder="capacity" value="<?= ($edit) ? $data['capacity'] : old('capacity'); ?>">
-                            </div>
-                            <div class="form-group mb-4">
-                                <label for="contact_person" class="mb-2">Contact Person</label>
-                                <input type="text" id="contact_person" class="form-control" name="cp" placeholder="Contact Person" value="<?= ($edit) ? $data['cp'] : old('cp'); ?>">
+                                <label for="number_people" class="mb-2"> Number of people<span class="text-danger">*</span> <span class="text-primary"> ( Max <?= $data['capacity'] ?> people ) </span> </label>
+                                <input type="number" id="number_people" placeholder="Maksimum <?= $data['capacity'] ?> people only" name="reservationData[number_people]" class="form-control" required>
                             </div>
 
                             <!-- service package include -->
@@ -96,39 +67,20 @@ $edit = in_array('edit', $uri);
                                 <label for="service_package" class="mb-2">Service Package</label>
                                 <select class="choices form-select multiple-remove" multiple="multiple" id="service_package" name="service_package[]">
                                     <?php foreach ($serviceData as $service) : ?>
-                                        <?php if ($edit && in_array(esc($service['name']), $data['service_package'])) : ?>
-                                            <option value="<?= esc($service['id']); ?>" selected><?= esc($service['name']); ?></option>
-                                        <?php else : ?>
-                                            <option value="<?= esc($service['id']); ?>"><?= esc($service['name']); ?></option>
-                                        <?php endif; ?>
+                                        <option value="<?= esc($service['id']); ?>"><?= esc($service['name']); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
 
-                            <!-- service package exclude -->
                             <div class="form-group mb-4">
-                                <label for="service_package_exclude" class="mb-2">Service Package (exclude) </label>
-                                <select class="choices form-select multiple-remove" multiple="multiple" id="service_package_exclude" name="service_package_exclude[]">
-                                    <?php foreach ($serviceData as $service) : ?>
-                                        <?php if (in_array(esc($service['name']), $data['service_package_exclude'])) : ?>
-                                            <option value="<?= esc($service['id']); ?>" selected><?= esc($service['name']); ?></option>
-                                        <?php else : ?>
-                                            <option value="<?= esc($service['id']); ?>"><?= esc($service['name']); ?></option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </select>
+                                <label for="comment" class="mb-2"> Additional information </label>
+                                <input type="text" id="comment" name="reservationData[comment]" class="form-control">
                             </div>
+                            <input type="hidden" name="reservationData[package_name]" value="<?= $data['name'] ?>">
+                            <input type="hidden" name="reservationData[costum]" value="1">
+                            <input type="hidden" name="username" value="<?= user()->username ?>">
+                            <input type="hidden" name="id_user" value="<?= user()->id ?>">
 
-
-                            <div class="form-group mb-4">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="4"><?= ($edit) ? $data['description'] : old('description'); ?></textarea>
-                            </div>
-                            <div class="form-group mb-4">
-                                <label for="gallery" class="form-label">Brosur url</label>
-                                <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
-                            </div>
-                            <input type="hidden" value="2" name="costum">
                             <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
                             <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
                         </div>
@@ -138,7 +90,7 @@ $edit = in_array('edit', $uri);
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title text-center">Detail package</h4>
-                            <input type="hidden" value="<?= ($edit) ? 'oke' : '' ?>" required id="checkDetailPackage">
+                            <input type="hidden" value="oke" required id="checkDetailPackage">
                         </div>
                         <div class="card-body">
                             <button type="button" onclick="openPackageDayModal(`${noDay}`)" class="btn btn-outline-primary block" data-bs-toggle="modal" data-bs-target="#modalPackage"> New package day
@@ -174,7 +126,7 @@ $edit = in_array('edit', $uri);
                                                             <td><input value="<?= $detailPackage['id_object']; ?>" class="form-control" name="packageDetailData[<?= $noDay ?>][detailPackage][<?= $noDetail ?>][id_object]" required readonly></td>
                                                             <td><input value="<?= $detailPackage['activity_type']; ?>" class="form-control" name="packageDetailData[<?= $noDay ?>][detailPackage][<?= $noDetail ?>][activity_type]"></td>
                                                             <td><input value="<?= $detailPackage['description']; ?>" class="form-control" name="packageDetailData[<?= $noDay ?>][detailPackage][<?= $noDetail ?>][description]" required></td>
-                                                            <td><a class="btn btn-danger" onclick="removeObject('<?= $noDay ?>','<?= $noDetail ?>')"> <i class="fa fa-x"></i> </a></td>
+
                                                         </tr>
                                                         <?php $noDetail++ ?>
                                                     <?php endforeach; ?>
@@ -208,12 +160,35 @@ $edit = in_array('edit', $uri);
 <script src="<?= base_url('assets/js/extensions/form-element-select.js'); ?>"></script>
 
 <script>
-    function checkRequired(event) {
-        let checkDetailPackage = $('#checkDetailPackage').val()
+    let dateNow = new Date();
+    $('#reservation_date').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        startDate: new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate() + 7),
+        todayHighlight: true
+    });
 
-        if (checkDetailPackage != "oke") {
+    function checkRequired(event) {
+        let reservationDate = $('#reservation_date').val()
+        let numberPeople = $('#number_people').val()
+        let peopleMax = parseInt('<?= $data['capacity']; ?>')
+        console.log(numberPeople)
+        console.log(peopleMax)
+        let today = new Date();
+        let dd = String(today.getDate() - 7).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        let yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+
+        if (reservationDate <= today) {
             event.preventDefault();
-            Swal.fire('You dont have any activities, please add 1 at least', '', 'warning');
+            Swal.fire('Cannot create costume package, out of date, Maximum H-1 reservation', '', 'warning');
+        } else if (numberPeople <= 0) {
+            event.preventDefault();
+            Swal.fire('Need 1 people at least', '', 'warning');
+        } else if (numberPeople > peopleMax) {
+            event.preventDefault();
+            Swal.fire(`Out of capacity, max ${peopleMax} only', '', 'warning`);
         }
     }
 
@@ -291,7 +266,7 @@ $edit = in_array('edit', $uri);
                                     <?php if ($objectData) : ?>
                                         <?php $no = 0; ?>       
                                         <?php foreach ($objectData as $object) : ?>
-                                            <?php if ($edit && $object['id']) : ?>
+                                            <?php if ($object['id']) : ?>
                                                 <option value="<?= esc(json_encode($object)) ?>" <?= ($no == 0) ? 'selected' : ''; ?>> <?= $object['id'] ?> - <?= esc($object['name']); ?></option>
                                             <?php else : ?>
                                                 <option value="<?= esc(json_encode($object)) ?>"> <?= $object['id'] ?> - <?= esc($object['name']); ?></option>
@@ -364,66 +339,6 @@ $edit = in_array('edit', $uri);
         $(`#lastNoDetail${noDay}`).val(noDetail + 1)
         $('#checkDetailPackage').val('oke')
     }
-</script>
-
-
-<script>
-    FilePond.registerPlugin(
-        FilePondPluginFileValidateSize,
-        FilePondPluginFileValidateType,
-        FilePondPluginImageExifOrientation,
-        FilePondPluginImagePreview,
-        FilePondPluginImageResize,
-        FilePondPluginMediaPreview,
-    );
-
-    // Get a reference to the file input element
-    const photo = document.querySelector('input[id="gallery"]');
-
-
-    // Create a FilePond instance
-    const pond = FilePond.create(photo, {
-        maxFileSize: '1920MB',
-        maxTotalFileSize: '1920MB',
-        imageResizeTargetHeight: 720,
-        imageResizeUpscale: false,
-        credits: false,
-    });
-
-    <?php if ($edit &&  $data['gallery'][0] != null) : ?>
-
-        console.log("masuk sinikaaa")
-        pond.addFiles(
-            "<?= base_url('media/photos/package'); ?>/<?= $data['gallery'][0]; ?>"
-        );
-    <?php endif; ?>
-    pond.setOptions({
-        server: {
-            timeout: 3600000,
-            process: {
-                url: '/upload/photo',
-                onload: (response) => {
-                    console.log("processed:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-            revert: {
-                url: '/upload/photo',
-                onload: (response) => {
-                    console.log("reverted:", response);
-                    return response
-                },
-                onerror: (response) => {
-                    console.log("error:", response);
-                    return response
-                },
-            },
-        }
-    });
 </script>
 
 <?= $this->endSection() ?>

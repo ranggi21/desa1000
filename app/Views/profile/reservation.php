@@ -88,7 +88,12 @@
                                 <?php
                                 $reservationId = $item['id'];
                                 $requestDate = $item['request_date'];
-                                $packageName = $item['package_name'];
+                                if (isset($item['package_name'])) {
+                                    $packageName = $item['package_name'];
+                                } else if (isset($item['name'])) {
+                                    $packageName = $item['name'];
+                                }
+
                                 $numberPeople = $item['number_people'];
                                 $reservationIdStatus = $item['id_reservation_status'];
                                 $statusReservation = $item['status'];
@@ -382,6 +387,10 @@
             </div>
             `)
         } else if (result['id_homestay'] != null) {
+            let startDate = new Date(result['request_date']).getDate();
+            let endDate = new Date(result['request_date_end']).getDate();
+            let countDay = endDate - startDate + 1
+            console.log(countDay)
             $('#modalBody').html(`
             <div class="p-2">
                 <div id="userRating">
@@ -431,12 +440,12 @@
                                 <td>${result['request_date_end'] != null ? result['request_date_end'] : ''}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">Total people</td>
-                                <td>${result['number_people']}</td>
+                                <td class="fw-bold">Total Day</td>
+                                <td>${countDay} Days</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">Homestay status</td>
-                                <td class="${result['item_costum'] == '1' ? 'badge bg-success' : ''}">${result['item_costum'] == '2' ? 'Not Available' : 'Available'}</td>
+                                <td class="fw-bold">Total people</td>
+                                <td>${result['number_people']} People</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Additional Information</td>
@@ -455,17 +464,19 @@
         // user payment
         if (reservationStatus == '2') {
 
-            let dat = new Date(result.request_date);
-            let dd = String(dat.getDate() - 3).padStart(2, '0');
-            let mm = String(dat.getMonth() + 1).padStart(2, '0'); //January is 0!
-            let yyyy = dat.getFullYear();
 
-            dat = yyyy + '-' + mm + '-' + dd;
 
             let proofDeposit = result['proof_of_deposit']
             let deposit = result['deposit']
-            $("#userDeposit").addClass("mb-2 shadow-sm p-4 rounded")
-            $("#userDeposit").html(`
+            if (result['id_package'] != null) {
+                let dat = new Date(result.request_date);
+                let dd = String(dat.getDate() - 3).padStart(2, '0');
+                let mm = String(dat.getMonth() + 1).padStart(2, '0'); //January is 0!
+                let yyyy = dat.getFullYear();
+
+                dat = yyyy + '-' + mm + '-' + dd;
+                $("#userDeposit").addClass("mb-2 shadow-sm p-4 rounded")
+                $("#userDeposit").html(`
                 <p class="text-center fw-bold text-dark"> Upload Your Payment </p>
                 <p ></p>
                 <p>Note <br><span class="text-danger">*</span> You must pay before <span class="text-primary"> ${dat} </span> ( H-3 )</span>  or booking will be cancel by the system<br><span class="text-danger">*</span> Before uploading proof of deposit, make sure the payment amount is the same as the invoice, please print the invoice to see the deposit amount</p>
@@ -488,6 +499,39 @@
                 </div>
            
             `)
+            } else if (result['id_homestay'] != null) {
+                let dat = new Date(result.request_date);
+                let dd = String(dat.getDate()).padStart(2, '0');
+                let mm = String(dat.getMonth() + 1).padStart(2, '0'); //January is 0!
+                let yyyy = dat.getFullYear();
+
+                dat = yyyy + '-' + mm + '-' + dd;
+                $("#userDeposit").addClass("mb-2 shadow-sm p-4 rounded")
+                $("#userDeposit").html(`
+                <p class="text-center fw-bold text-dark"> Upload Your Payment </p>
+                <p ></p>
+                <p>Note <br><span class="text-danger">*</span> You must pay before <span class="text-primary"> ${dat} </span> </span>  or booking will be cancel by the system<br><span class="text-danger">*</span> Before uploading proof of deposit, make sure the payment amount is the same as the invoice, please print the invoice to see the deposit amount</p>
+                <div class="text-start mb-4">
+                    <a class="btn btn-primary" onclick="openInvoice('${id}')" > <i class="fa fa-print"> </i> print invoice</a>
+                </div>
+                <div class="form-group mb-4">
+                   <label for="deposit" class="mb-2"> Deposit <span class="text-danger">*</span></label>
+                   <div class="input-group">
+                   <span class="input-group-text">Rp </span>
+                      <input type="number" id="deposit" class="form-control" name="deposit" placeholder="deposit" aria-label="deposit" value="${deposit}" aria-describedby="deposit" required>
+                   </div>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="gallery" class="form-label"> Upload Proof of Deposit <span class="text-danger">*</span></label>
+                    <input class="form-control" accept="image/*" type="file" name="gallery[]" id="gallery">
+                </div>
+                <div class="text-end">
+                    <a class="btn btn-success" onclick="saveDeposit('${id}')" > save</a>
+                </div>
+           
+            `)
+            }
+
             FilePond.registerPlugin(
                 FilePondPluginFileValidateType,
                 FilePondPluginImageExifOrientation,
