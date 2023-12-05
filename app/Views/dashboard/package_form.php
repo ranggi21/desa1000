@@ -59,7 +59,7 @@ $edit = in_array('edit', $uri);
                                 <label for="name" class="mb-2">Tourism Package Name <span class="text-danger">*</span></label>
                                 <input type="text" id="name" class="form-control" name="name" placeholder="Tourism Package Name" value="<?= ($edit) ? $data['name'] : old('name'); ?>" required>
                             </div>
-                            <fieldset class="form-group mb-4">
+                            <!-- <fieldset class="form-group mb-4">
                                 <label for="id_package_type" class="mb-2">Package Type</label>
                                 <select class="form-select" id="id_package_type" name="id_package_type">
                                     <option value="" selected> </option>
@@ -74,7 +74,7 @@ $edit = in_array('edit', $uri);
 
                                     <?php endif; ?>
                                 </select>
-                            </fieldset>
+                            </fieldset> -->
                             <div class="form-group mb-4">
                                 <label for="price" class="mb-2">Price <span class="text-danger">*</span></label>
                                 <div class="input-group">

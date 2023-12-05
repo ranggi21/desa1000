@@ -638,6 +638,8 @@
                 URI = URI + '/souvenirPlace/' + `${id_object}`
             } else if (id_object.charAt(0) == 'A') {
                 URI = URI + '/atraction/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'H') {
+                URI = URI + '/homestay/' + `${id_object}`
             }
 
 

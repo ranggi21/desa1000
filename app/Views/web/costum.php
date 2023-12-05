@@ -15,9 +15,9 @@ $edit = in_array('edit', $uri);
         width: 100%;
     }
 
-    .input-no-border {
-        border: 0;
-        outline: 0;
+    input[type=date]::-webkit-inner-spin-button,
+    input[type=date]::-webkit-calendar-picker-indicator {
+        display: none;
     }
 </style>
 <?= $this->endSection() ?>
@@ -68,7 +68,7 @@ $edit = in_array('edit', $uri);
                                 <label for="number_people" class="mb-2"> Number of people <span class="text-danger">*</span> </label>
                                 <input type="number" id="number_people" name="reservationData[number_people]" class="form-control" required>
                             </div>
-                            <fieldset class="form-group mb-4">
+                            <!-- <fieldset class="form-group mb-4">
                                 <label for="id_package_type" class="mb-2">Package Type</label>
                                 <select class="form-select" id="id_package_type" name="id_package_type">
                                     <option value="" selected> </option>
@@ -83,7 +83,7 @@ $edit = in_array('edit', $uri);
 
                                     <?php endif; ?>
                                 </select>
-                            </fieldset>
+                            </fieldset> -->
 
                             <div class="form-group mb-4">
                                 <label for="service_package" class="mb-2">Service Package</label>

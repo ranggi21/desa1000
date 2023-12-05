@@ -230,7 +230,7 @@ class Package extends ResourcePresenter
         $requestData = [
             'id' => $id_package,
             'name' => $request['name'],
-            'id_package_type' => $request['id_package_type'],
+            // 'id_package_type' => $request['id_package_type'],
             'price' => empty($request['price']) ? "0" : $request['price'],
             'capacity' => $request['capacity'],
             'cp' => $request['cp'],
@@ -387,7 +387,7 @@ class Package extends ResourcePresenter
         }
         $requestData = [
             'name' => $request['name'],
-            'id_package_type' => $request['id_package_type'],
+            // 'id_package_type' => $request['id_package_type'],
             'price' => empty($request['price']) ? "0" : $request['price'],
             'capacity' => $request['capacity'],
             'cp' => $request['cp'],

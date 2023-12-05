@@ -9,9 +9,9 @@ class Event extends Seeder
 {
     public function run()
     {
-        $rows = array_map('str_getcsv', file(WRITEPATH.'seeds/'. 'event.csv'));
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'event.csv'));
         $header = array_shift($rows);
-    
+
         foreach ($rows as $row) {
             $data = [
                 'id_event' => $row[0],
@@ -30,9 +30,9 @@ class Event extends Seeder
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
-        
+
             $this->db->table('event')->insert($data);
-            $this->db->table('event')->set('geom', $row[9], false)->where('id_event', $row[0])->update();
+            $this->db->table('event')->set('geom', "ST_GeomFromGeoJSON('{$row[9]}')", false)->where('id_event', $row[0])->update();
         }
     }
 }

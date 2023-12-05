@@ -215,6 +215,8 @@
                 URI = URI + '/souvenirPlace/' + `${id_object}`
             } else if (id_object.charAt(0) == 'A') {
                 URI = URI + '/atraction/' + `${id_object}`
+            } else if (id_object.charAt(0) == 'H') {
+                URI = URI + '/homestay/' + `${id_object}`
             }
 
 
@@ -227,6 +229,7 @@
                 success: function(response) {
                     let data = response.data
                     currentUrl = currentUrl + data.id
+                    console.log(data)
                     // flightPlanCoordinates.push(new google.maps.LatLng(data.lat, data.lng))
                     showObjectOnMap(objectNumber, data.id, data.lat, data.lng)
                     boundToObject()

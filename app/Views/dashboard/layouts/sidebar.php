@@ -151,11 +151,11 @@ $uri3 = $uri[3] ?? '';
                                     </a>
                                 </li>
                                 <!-- List Package Day -->
-                                <li class="submenu-item <?= ($uri1 == 'packageType') ? 'active' : '' ?>" id="s-list">
+                                <!-- <li class="submenu-item <?= ($uri1 == 'packageType') ? 'active' : '' ?>" id="s-list">
                                     <a href="<?= base_url('dashboard/packageType'); ?>" class="sidebar-link">
                                         <i class="fa-sharp fa-solid fa-map"></i><span> TP Type</span>
                                     </a>
-                                </li>
+                                </li> -->
                                 <!-- List Package Day -->
                                 <li class="submenu-item <?= ($uri1 == 'service') ? 'active' : '' ?>" id="s-list">
                                     <a href="<?= base_url('dashboard/service'); ?>" class="sidebar-link">

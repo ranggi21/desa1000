@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Models\HomestayModel;
+use App\Models\RumahGadangModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -11,10 +12,12 @@ class Homestay extends ResourceController
     use ResponseTrait;
 
     protected $homestayModel;
+    protected $rumahGadangModel;
 
     public function __construct()
     {
         $this->homestayModel = new HomestayModel();
+        $this->rumahGadangModel = new  RumahGadangModel();
     }
 
     /**
@@ -42,7 +45,16 @@ class Homestay extends ResourceController
      */
     public function show($id = null)
     {
-        //
+        $rumahgadang = $this->rumahGadangModel->get_rg_by_id_homestay_api($id)->getRowArray();
+
+        $response = [
+            'data' => $rumahgadang,
+            'status' => 200,
+            'message' => [
+                "Success display detail information of Souvenir Place"
+            ]
+        ];
+        return $this->respond($response);
     }
 
     /**
