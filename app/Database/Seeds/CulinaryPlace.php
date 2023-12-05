@@ -9,7 +9,7 @@ class CulinaryPlace extends Seeder
 {
     public function run()
     {
-        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'culinary.csv'));
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'culinary_place.csv'));
         $header = array_shift($rows);
 
         foreach ($rows as $row) {

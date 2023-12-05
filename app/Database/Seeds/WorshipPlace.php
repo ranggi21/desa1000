@@ -9,9 +9,9 @@ class WorshipPlace extends Seeder
 {
     public function run()
     {
-        $rows = array_map('str_getcsv', file(WRITEPATH.'seeds/'. 'worship_place.csv'));
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'worship_place.csv'));
         $header = array_shift($rows);
-    
+
         foreach ($rows as $row) {
             $data = [
                 'id_worship_place' => $row[0],
@@ -29,9 +29,9 @@ class WorshipPlace extends Seeder
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
-        
+
             $this->db->table('worship_place')->insert($data);
-            $this->db->table('worship_place')->set('geom', $row[3], false)->where('id_worship_place', $row[0])->update();
+            $this->db->table('worship_place')->set('geom', "ST_GeomFromGeoJSON('{$row[3]}')", false)->where('id_worship_place', $row[0])->update();
         }
     }
 }

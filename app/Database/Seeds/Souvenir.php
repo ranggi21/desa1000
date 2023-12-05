@@ -9,9 +9,9 @@ class Souvenir extends Seeder
 {
     public function run()
     {
-        $rows = array_map('str_getcsv', file(WRITEPATH.'seeds/'. 'souvenir.csv'));
+        $rows = array_map('str_getcsv', file(WRITEPATH . 'seeds/' . 'souvenir.csv'));
         $header = array_shift($rows);
-    
+
         foreach ($rows as $row) {
             $data = [
                 'id_souvenir' => $row[0],
@@ -26,9 +26,9 @@ class Souvenir extends Seeder
                 'created_at' => Time::now(),
                 'updated_at' => Time::now(),
             ];
-        
+
             $this->db->table('souvenir')->insert($data);
-            $this->db->table('souvenir')->set('geom', $row[5], false)->where('id_souvenir', $row[0])->update();
+            $this->db->table('souvenir')->set('geom', "ST_GeomFromGeoJSON('{$row[5]}')", false)->where('id_souvenir', $row[0])->update();
         }
     }
 }

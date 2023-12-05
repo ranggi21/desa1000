@@ -105,7 +105,7 @@ class CulinaryPlaceModel extends Model
     {
         $lastId = $this->db->table($this->table)->select('id_culinary_place')->orderBy('id_culinary_place', 'ASC')->get()->getLastRow('array');
         $count = (int)substr($lastId['id_culinary_place'], 1);
-        $id = sprintf('C%01d', $count + 1);
+        $id = sprintf('C%02d', $count + 1);
         return $id;
     }
 
