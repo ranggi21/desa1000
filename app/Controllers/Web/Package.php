@@ -509,7 +509,7 @@ class Package extends ResourcePresenter
         }
 
         $data = [
-            'title' => 'New Package Costum',
+            'title' => 'Costum Destination',
             'packageTypeData' => $packageTypeData,
             'packageDayData' => null,
             'objectData' => $objectData,

@@ -26,20 +26,22 @@ class GallerySouvenirPlaceModel extends Model
     protected $cleanValidationRules = true;
 
     // API
-    public function get_new_id_api() {
+    public function get_new_id_api()
+    {
         $lastId = $this->db->table($this->table)->select('id_souvenir_gallery')->orderBy('id_souvenir_gallery', 'ASC')->get()->getLastRow('array');
-        if($lastId !=null){
+        if ($lastId != null) {
             $count = (int)substr($lastId['id_souvenir_gallery'], 0);
-            $id = sprintf('%03d', $count + 1);
-        }else{
+            $id = sprintf('%02d', $count + 1);
+        } else {
             $count = 0;
-            $id = sprintf('%03d', $count + 1);
+            $id = sprintf('%02d', $count + 1);
         }
-       
+
         return $id;
     }
 
-    public function get_gallery_api($souvenir_place_id = null) {
+    public function get_gallery_api($souvenir_place_id = null)
+    {
         $query = $this->db->table($this->table)
             ->select('url')
             ->where('id_souvenir', $souvenir_place_id)
@@ -47,7 +49,8 @@ class GallerySouvenirPlaceModel extends Model
         return $query;
     }
 
-    public function add_gallery_api($id = null, $data = null) {
+    public function add_gallery_api($id = null, $data = null)
+    {
         $query = false;
         foreach ($data as $gallery) {
             $new_id = $this->get_new_id_api();
@@ -63,7 +66,8 @@ class GallerySouvenirPlaceModel extends Model
         return $query;
     }
 
-    public function update_gallery_api($id = null, $data = null) {
+    public function update_gallery_api($id = null, $data = null)
+    {
         $queryDel = $this->db->table($this->table)->delete(['id_souvenir' => $id]);
         $queryIns = $this->add_gallery_api($id, $data);
         return $queryDel && $queryIns;

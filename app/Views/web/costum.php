@@ -115,11 +115,11 @@ $edit = in_array('edit', $uri);
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title text-center">Detail package</h4>
+                            <h4 class="card-title text-center">Detail Destination</h4>
                             <input type="hidden" value="<?= ($edit) ? 'oke' : '' ?>" required id="checkDetailPackage">
                         </div>
                         <div class="card-body">
-                            <button type="button" onclick="openPackageDayModal(`${noDay}`)" class="btn btn-outline-primary block" data-bs-toggle="modal" data-bs-target="#modalPackage"> New package day
+                            <button type="button" onclick="openPackageDayModal(`${noDay}`)" class="btn btn-outline-primary block" data-bs-toggle="modal" data-bs-target="#modalPackage"> Add Day
                             </button>
 
                             <div class="p-4" id="package-day-container">
@@ -237,7 +237,7 @@ $edit = in_array('edit', $uri);
             </div>
             <div class="form-group mb-4">
                 <label for="package-day-description" class="mb-2">Description</label>
-                <input type="text" id="package-day-description" class="form-control" name="description" placeholder="package day description" required>
+                <input type="text" value="Day ${noDay}" id="package-day-description" class="form-control" name="description" placeholder="package day description" required>
             </div>`
         )
         $("#modalFooter").html(
@@ -290,7 +290,7 @@ $edit = in_array('edit', $uri);
         <div class="form-group mb-4">
                     <label for="detail-package-id-object" class="mb-2">Object</label>
                     <select class="form-select" onchange="addObjectValue(this.value)" required>
-                                     <option >Pilih objek</option>
+                                     <option >Choose object</option>
                                     <?php if ($objectData) : ?>
                                         <?php $no = 0; ?>       
                                         <?php foreach ($objectData as $object) : ?>

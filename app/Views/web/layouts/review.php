@@ -3,7 +3,7 @@
 <!-- Object Rating and Review -->
 <div class="card">
     <div class="card-header text-center">
-        <h4 class="card-title">Rating and Review</h4>
+        <h4 class="card-title">Rating and Review Rumah Gadang</h4>
         <?php if (in_groups('user')) : ?>
             <form class="form form-vertical" action="<?= base_url('web/review'); ?>" method="post" onsubmit="checkStar(event);">
                 <div class="form-body">
