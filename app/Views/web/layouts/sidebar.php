@@ -128,6 +128,33 @@ $uri3 = $uri[3] ?? '';
                             </li>
                         </ul>
                     </li>
+                    <!-- Homestay -->
+                    <li class="sidebar-item <?= ($uri1 == 'homeStay') ? 'active' : '' ?> has-sub">
+                        <a href="" class="sidebar-link">
+                            <i class="fa-solid fa-campground"></i><span>Homestay</span>
+                        </a>
+
+                        <ul class="submenu <?= ($uri1 == 'homeStay') ? 'active' : '' ?>">
+                            <li class="submenu-item" id="hs-list">
+                                <a href="<?= base_url('/web/homeStay'); ?>"><i class="fa-solid fa-list me-3"></i>List</a>
+                            </li>
+                            <li class="submenu-item" id="hs-list">
+                                <a onclick="checkLogin()"><i class="fa-solid fa-list me-3"></i>Create Costum</a>
+                                <?= $this->section('javascript') ?>
+                                <script>
+                                    function checkLogin() {
+                                        <?php if (in_groups('user')) : ?>
+                                            window.location.href = '<?= base_url('web/package/costum/new') ?>'
+
+                                        <?php else : ?>
+                                            Swal.fire('Please login as user to create costume package', '', 'warning');
+                                        <?php endif; ?>
+                                    }
+                                </script>
+                                <?= $this->endSection() ?>
+                            </li>
+                        </ul>
+                    </li>
 
                     <!-- Event -->
                     <li class="sidebar-item <?= ($uri1 == 'event') ? 'active' : '' ?> has-sub">
@@ -223,19 +250,19 @@ $uri3 = $uri[3] ?? '';
                         </ul>
                     </li>
                     <!-- Package -->
-                    <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?> has-sub">
+                    <!-- <li class="sidebar-item <?= ($uri1 == 'package') ? 'active' : '' ?> has-sub">
                         <a href="" class="sidebar-link">
                             <i class="fa-solid fa-bullhorn"></i><span>Tourism Package</span>
                         </a>
 
-                        <ul class="submenu <?= ($uri1 == 'event') ? 'active' : '' ?>">
-                            <!-- List Event -->
-                            <li class="submenu-item" id="ev-list">
+                        <ul class="submenu <?= ($uri1 == 'event') ? 'active' : '' ?>"> -->
+                    <!-- List Event -->
+                    <!-- <li class="submenu-item" id="ev-list">
                                 <a href="<?= base_url('/web/package'); ?>"><i class="fa-solid fa-list me-3"></i>List</a>
                             </li>
 
                         </ul>
-                    </li>
+                    </li> -->
 
 
                     <!--Logged in Sidebar-->

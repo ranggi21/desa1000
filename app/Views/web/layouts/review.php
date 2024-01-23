@@ -3,7 +3,7 @@
 <!-- Object Rating and Review -->
 <div class="card">
     <div class="card-header text-center">
-        <h4 class="card-title">Rating and Review</h4>
+        <h4 class="card-title">Rating and Review Rumah Gadang</h4>
         <?php if (in_groups('user')) : ?>
             <form class="form form-vertical" action="<?= base_url('web/review'); ?>" method="post" onsubmit="checkStar(event);">
                 <div class="form-body">
@@ -14,7 +14,7 @@
                         <i class="fa-solid fa-star fs-4" id="star-4" onclick="setStar('star-4');"></i>
                         <i class="fa-solid fa-star fs-4" id="star-5" onclick="setStar('star-5');"></i>
                         <input type="hidden" id="star-rating" value="0" name="rating">
-                        <input type="hidden" value="<?= $uri[2]; ?>" name="object_id">
+                        <input type="hidden" value="<?= $uri[2] ?>" name="object_id">
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating">

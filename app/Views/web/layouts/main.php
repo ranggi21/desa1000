@@ -73,7 +73,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <!-- Custom JS -->
     <?= $this->renderSection('javascript') ?>
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -87,7 +87,7 @@
         $('#datepickerVH').datepicker({
             format: 'yyyy-mm-dd',
         });
-    </script>
+    </script> -->
 </body>
 
 </html>

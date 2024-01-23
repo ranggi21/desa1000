@@ -2,6 +2,8 @@
 
 namespace App\Controllers\Web;
 
+use App\Database\Migrations\DetailFacilityHomeStay;
+use App\Models\DetailFacilityHomestayModel;
 use App\Models\DetailFacilityRumahGadangModel;
 use App\Models\FacilityRumahGadangModel;
 use App\Models\GalleryHomestayModel;
@@ -21,6 +23,7 @@ class RumahGadang extends ResourcePresenter
     protected $galleryHomestayModel;
     protected $galleryRumahGadangModel;
     protected $detailFacilityRumahGadangModel;
+    protected $detailFacilityHomestayModel;
     protected $reviewModel;
     protected $facilityRumahGadangModel;
 
@@ -34,6 +37,7 @@ class RumahGadang extends ResourcePresenter
         $this->galleryHomestayModel = new GalleryHomestayModel();
         $this->galleryRumahGadangModel = new GalleryRumahGadangModel();
         $this->detailFacilityRumahGadangModel = new DetailFacilityRumahGadangModel();
+        $this->detailFacilityHomestayModel = new DetailFacilityHomestayModel();
         $this->reviewModel = new ReviewModel();
         $this->facilityRumahGadangModel = new FacilityRumahGadangModel();
     }
@@ -52,6 +56,16 @@ class RumahGadang extends ResourcePresenter
         ];
 
         return view('web/list_rumah_gadang', $data);
+    }
+    public function index2()
+    {
+        $contents = $this->rumahGadangModel->get_list_hm_api()->getResultArray();
+        $data = [
+            'title' => 'Homestay',
+            'data' => $contents,
+        ];
+
+        return view('web/list_homestay', $data);
     }
 
     /**
@@ -74,11 +88,12 @@ class RumahGadang extends ResourcePresenter
         if ($homestayId != null) {
             $homestayData =  $this->homestayModel->get_hm_by_id_api($homestayId)->getRowArray();
             $homestayRating = $this->reservationModel->getAvgHRating($homestayId)->getRowArray();
+            $homestayFacility = $this->detailFacilityHomestayModel->get_facility_by_a_api($homestayId)->getResultArray();
             $rumahGadang['homestayData'] = $homestayData;
             $rumahGadang['homestayData']['avg_homestay_rating'] = $homestayRating;
+            $rumahGadang['homestayData']['homestay_facility'] = $homestayFacility;
             $rumahGadang['homestayGalleries'] = $galleryHomestay;
         }
-
 
         $avg_rating = $this->reviewModel->get_rating('id_rumah_gadang', $id)->getRowArray()['avg_rating'];
 

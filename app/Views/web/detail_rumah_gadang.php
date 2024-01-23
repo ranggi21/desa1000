@@ -47,7 +47,7 @@
         <div class="col-md-6 col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title text-center">Rumah Gadang Information</h4>
+                    <h4 class="card-title text-center"><?= $data['id_homestay'] == null ?  'Rumah Gadang Information' : 'Rumah Gadang & Homestay Information'  ?> </h4>
                     <?php if ($data['id_homestay'] != null && isset($data['homestayData']['status'])) : ?>
                         <a class="btn btn-primary" onclick="showReservationModal()" data-bs-toggle="modal" data-bs-target="#reservationModal"> Reservation <i class="fa fa-ticket"></i> </a>
 
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row shadow-sm mb-4">
                         <div class="col table-responsive">
                             <table class="table table-borderless">
                                 <tbody>
@@ -102,21 +102,45 @@
                             </table>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row shadow-sm mb-4 p-2">
                         <div class="col">
-                            <p class="fw-bold">Description</p>
+                            <p class="fw-bold">Rumah Gadang Description</p>
                             <p><?= esc($data['description']); ?></p>
                         </div>
+                        <?php if ($data['id_homestay'] != null && isset($data['homestayData']['description'])) : ?>
+                            <div class="col">
+                                <p class="fw-bold">Homestay Description</p>
+                                <p><?= esc($data['homestayData']['description']); ?></p>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <div class="row">
+                    <div class="row shadow-sm p-2">
                         <div class="col">
-                            <p class="fw-bold">Facilities</p>
+                            <a role="button" class="fw-bold text-secondary " data-bs-toggle="collapse" href="#collapseExample" aria-controls="collapseExample">Rumah Gadang Facilities <i class="fa fa-caret-down ms-2" aria-hidden="true"></i></a>
                             <?php $i = 1; ?>
-                            <?php foreach ($data['facilities'] as $facility) : ?>
-                                <p><?= esc($i) . '. ' . esc($facility); ?></p>
-                                <?php $i++; ?>
-                            <?php endforeach; ?>
+                            <div class="collapse show my-2" id="collapseExample" style="">
+                                <?php if (isset($data['facilities']) && $data['facilities'] != null) : ?>
+                                    <?php foreach ($data['facilities'] as $facility) : ?>
+                                        <p><?= esc($i) . '. ' . esc($facility); ?></p>
+                                        <?php $i++; ?>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <p> No Facilities Found</p>
+                                <?php endif; ?>
+                            </div>
                         </div>
+                        <?php if ($data['id_homestay'] != null && isset($data['homestayData']['homestay_facility'])) : ?>
+                            <div class="col">
+                                <a role="button" class="fw-bold text-secondary " data-bs-toggle="collapse" href="#collapseExample2" aria-controls="collapseExample2">Homestay Facilities <i class="fa fa-caret-down ms-2" aria-hidden="true"></i></a>
+                                <?php $i = 1; ?>
+                                <div class="collapse show my-2" id="collapseExample2" style="">
+                                    <?php foreach ($data['homestayData']['homestay_facility']  as $facility) : ?>
+                                        <p><?= esc($i) . '. ' . esc($facility['name']); ?></p>
+                                        <?php $i++; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
